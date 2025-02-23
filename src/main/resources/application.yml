@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: yaetApp
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/yaetDb
+    username: pgUser
+    password: pgPassword
+    schema: public
+
+  jpa:
+    hibernate: validate
+    properties:
+      hibernate:
+        format_sql: true

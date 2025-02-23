@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  postgres-db:
+    image: postgres:17.2
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: pgUser
+      POSTGRES_PASSWORD: pgPassword
+      POSTGRES_DB: yaetDb

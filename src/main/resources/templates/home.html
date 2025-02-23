@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      lang="en">
+
+<head>
+    <title>YAET</title>
+    <script type="text/javascript" th:src="@{/webjars/htmx.org/2.0.3/dist/htmx.js}"></script>
+    <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        main.htmx-request {
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<header class="grid grid-cols-1">
+    <div id="title"
+         class="justify-center text-center">
+        <h1 class="text-6xl">YAET</h1>
+        <h2 class="text-4xl">Yet Another Expense Tracker</h2>
+    </div>
+
+    <!--/* Navigation menu */-->
+    <div id="nav-bar"
+         hx-target="main"
+         class="pb-3">
+
+        <span hx-get="/expenses"
+              class="hover:bg-gray-300">Current Month</span>
+        <span hx-get="/expenses/new"
+              class="hover:bg-gray-300">Add New Expenses</span>
+    </div>
+</header>
+
+<body>
+    <!--/* For now, all pages should be inner-swapped on main */-->
+    <main>
+        Welcome to YAET!
+    </main>
+</body>

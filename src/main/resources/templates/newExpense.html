@@ -1,0 +1,45 @@
+<!--/* Inserted on main tag */-->
+
+<div class="flex justify-center">
+
+    <div class="max-w-sm">
+
+        <!--/* Validation or information messages */-->
+        <div id="messages"
+             th:if="${message}">
+            <span th:text="${message}"></span>
+        </div>
+
+        <!--/* New expense form */-->
+        <form id="newExpenseForm"
+              hx-ext="json-enc"
+              class="grid grid-cols-2 max-w-sm">
+
+            <label for="categoryInput">Category:</label>
+            <input id="categoryInput"
+                   name="category"
+                   type="text">
+
+            <label for="payeeInput">Payee:</label>
+            <input id="payeeInput"
+                   name="payee"
+                   type="text">
+
+            <label for="amountInput">Amount:</label>
+            <input id="amountInput"
+                   name="amount"
+                   type="text">
+
+            <label for="dateInput">Date:</label>
+            <input id="dateInput"
+                   name="date"
+                   type="date"
+                   required>
+
+            <button hx-post="/expenses/new"
+                    hx-target="main"
+                    class="col-span-2">Add</button>
+
+        </form>
+    </div>
+</div>

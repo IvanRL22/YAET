@@ -1,0 +1,41 @@
+<!--/* Inserted on main tag */-->
+
+<div class="flex justify-center">
+
+    <div class="grid grid-cols-3 max-w-sm">
+
+        <!--/* Expenses header with month navigation buttons */-->
+        <div class="flex col-span-3">
+            <button th:hx-get="|/expenses/${previous.getYear()}/${previous.getMonthValue()}|"
+                    class="flex-auto"
+                    hx-target="main">Previous</button>
+            <span th:text="${currentMonth}"
+                  class="flex-auto"></span>
+            <button th:hx-get="|/expenses/${next.getYear()}/${next.getMonthValue()}|"
+                    class="flex-auto"
+                    hx-target="main">Next</button>
+        </div>
+
+        <!--/* Month total expense */-->
+        <span class="col-span-2 border-b-3 text-xl border-gray-800">Total spent:</span>
+        <span th:text="|${totalExpense}€|"
+              class="border-b-3 border-gray-800 text-right text-xl"></span>
+
+        <!--/* List of all months expenses by categories */-->
+        <th:block th:each="category: ${categories}">
+
+            <span th:text="${category.category}"
+                  class="col-span-2 border-b-2 border-gray-500 text-lg"></span>
+            <span th:text="|${category.totalAmount}€|"
+                  class="text-right border-b-2 border-gray-500 text-lg"></span>
+
+            <th:block th:each="expense: ${category.expenses}">
+                <span th:text="${expense.payee}"></span>
+                <span th:text="${expense.date}"
+                      class="text-center"></span>
+                <span th:text="|${expense.amount}€|"
+                      class="text-right"></span>
+            </th:block>
+        </th:block>
+    </div>
+</div>
