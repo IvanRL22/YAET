@@ -17,13 +17,24 @@
         </div>
 
         <!--/* Month total expense */-->
-        <span class="col-span-2 border-b-3 text-xl border-gray-800">Total spent:</span>
+        <span class="col-span-2 border-b-3 text-xl border-gray-800">Total spent</span>
         <span th:text="|${totalExpense}€|"
               class="border-b-3 border-gray-800 text-right text-xl"></span>
 
-        <!--/* List of all months expenses by categories */-->
-        <th:block th:each="category: ${categories}">
+        <!--/* Month total income */-->
+        <span class="col-span-2 border-b-3 text-xl border-gray-800">Total earned</span>
+        <span th:text="|${totalIncome}€|" class="border-b-3 border-gray-800 text-right text-xl"></span>
 
+        <!--/* Month balance */-->
+        <span class="col-span-2 border-b-3 text-xl border-gray-800">Balance</span>
+        <span th:text="|${balance}€|"
+              class="border-b-3 border-gray-800 text-right text-xl"></span>
+
+        <!--/* List of all months expenses by categories */-->
+        <span th:if="${#lists.isEmpty(categories)}">No data</span>
+
+        <th:block th:unless="${#lists.isEmpty(categories)}"
+                  th:each="category: ${categories}">
             <span th:text="${category.category}"
                   class="col-span-2 border-b-2 border-gray-500 text-lg"></span>
             <span th:text="|${category.totalAmount}€|"

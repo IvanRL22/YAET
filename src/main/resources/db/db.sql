@@ -7,3 +7,10 @@ create table expenses (
 	amount 		numeric(6, 2) 	not null,
 	date		date			not null
 );
+
+create table incomes (
+	id			serial primary key,
+	payer		varchar2(50),
+	amount 		numeric(6, 2) 	not null,
+	date		date			not null
+);

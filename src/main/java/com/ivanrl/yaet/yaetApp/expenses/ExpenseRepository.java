@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface ExpenseRepository extends JpaRepository<ExpensePO, Long> {
+public interface ExpenseRepository extends JpaRepository<ExpensePO, Integer> {
 
     Sort defaultSorting = Sort.by(Sort.Direction.ASC, "date");
 
