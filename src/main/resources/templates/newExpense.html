@@ -2,44 +2,130 @@
 
 <div class="flex justify-center">
 
-    <div class="max-w-sm">
+    <div class="max-w-sm flex flex-col">
 
-        <!--/* Validation or information messages */-->
-        <div id="messages"
-             th:if="${message}">
-            <span th:text="${message}"></span>
+        <div id="tabContainer" >
+            <button class="tablinks bg-gray-200" onclick="showTab(event, 'addExpense')">Expense</button>
+            <button class="tablinks" onclick="showTab(event, 'addIncome')">Income</button>
         </div>
 
-        <!--/* New expense form */-->
-        <form id="newExpenseForm"
-              hx-ext="json-enc"
-              class="grid grid-cols-2 max-w-sm">
+        <div id="addExpense"
+             class="tabContent max-w-sm"
+             th:fragment="expenseForm">
 
-            <label for="categoryInput">Category:</label>
-            <input id="categoryInput"
-                   name="category"
-                   type="text">
+            <!--/* Validation or information messages */-->
+            <div id="messages"
+                 th:if="${message}">
+                <span th:text="${message}"></span>
+            </div>
 
-            <label for="payeeInput">Payee:</label>
-            <input id="payeeInput"
-                   name="payee"
-                   type="text">
+            <!--/* New expense form */-->
+            <form id="newExpenseForm"
+                  class="grid grid-cols-2 max-w-sm">
 
-            <label for="amountInput">Amount:</label>
-            <input id="amountInput"
-                   name="amount"
-                   type="text">
+                <label for="categoryInput">Category:</label>
+                <input id="categoryInput"
+                       name="category"
+                       type="text"
+                       th:value="${expense.category}"
+                       required>
 
-            <label for="dateInput">Date:</label>
-            <input id="dateInput"
-                   name="date"
-                   type="date"
-                   required>
+                <label for="payeeInput">Payee:</label>
+                <input id="payeeInput"
+                       name="payee"
+                       type="text"
+                       required>
 
-            <button hx-post="/expenses/new"
-                    hx-target="main"
-                    class="col-span-2">Add</button>
+                <label for="amountInput">Amount:</label>
+                <input id="amountInput"
+                       name="amount"
+                       type="text"
+                       th:value="${expense.amount}"
+                       required>
 
-        </form>
+                <label for="dateInput">Date:</label>
+                <input id="dateInput"
+                       name="date"
+                       type="date"
+                       th:value="${expense.date}"
+                       required>
+
+                <button hx-post="/expenses/new"
+                        hx-target="#addExpense"
+                        hx-swap="outerHTML"
+                        hx-ext="json-enc"
+                        class="col-span-2">Add</button>
+
+            </form>
+        </div>
+
+        <div id="addIncome"
+             class="tabContent max-w-sm hidden"
+             th:fragment="incomeForm">
+
+            <!-- /* Validation or information messages */ -->
+            <div id="incomeMessages"
+                 th:if="${incomeMessage}">
+                <span th:text="${incomeMessage}"></span>
+            </div>
+
+            <!--/* New expense form */-->
+            <form id="newIncomeForm"
+                  class="grid grid-cols-2 max-w-sm">
+
+                <label for="payerInput">Payer:</label>
+                <input id="payerInput"
+                       name="payer"
+                       type="text"
+                       th:value="${income.payer}"
+                       required>
+
+                <label for="incomeAmountInput">Amount:</label>
+                <input id="incomeAmountInput"
+                       name="amount"
+                       type="text"
+                       th:value="${income.amount}"
+                       required>
+
+                <label for="incomeDateInput">Date:</label>
+                <input id="incomeDateInput"
+                       name="date"
+                       type="date"
+                       th:value="${income.date}"
+                       required>
+
+                <button hx-post="/expenses/income/new"
+                        hx-target="#addIncome"
+                        hx-swap="outerHTML"
+                        hx-ext="json-enc"
+                        class="col-span-2">Add</button>
+
+            </form>
+        </div>
+
     </div>
+
 </div>
+
+<script>
+    function showTab(evt, cityName) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tabContent");
+        for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.add("hidden");
+        }
+
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("bg-gray-200");
+        }
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(cityName).classList.remove("hidden");
+        evt.currentTarget.classList.add("bg-gray-200");
+    }
+</script>
