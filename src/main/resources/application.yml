@@ -1,4 +1,10 @@
 spring:
+  thymeleaf: # Configuration to see template updates without needing to restart application
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: file:src/main/resources/templates/
+
   application:
     name: yaetApp
 
