@@ -26,6 +26,7 @@
     <!--/* Navigation menu */-->
     <div id="nav-bar"
          hx-target="main"
+         hx-swap="outerHTML"
          class="pb-3">
 
         <span hx-get="/expenses"
@@ -36,7 +37,8 @@
 </header>
 
 <body>
-    <!--/* For now, all pages should be inner-swapped on main */-->
+    <!--/* A the main views must start with a main element, since they will be outer-swapped */-->
+    <!--/* This is done so each view can define it's own layout (flex, grid, etc.) independently */-->
     <main>
         <h3>Welcome to YAET!</h3>
         <p>This site is born from the mix of a personal necessity and curiosity.</p>
