@@ -24,30 +24,35 @@ public class ExpensesController {
 
     @GetMapping
     public String getCurrentMonthExpenses(Model model) {
+        var now = LocalDate.now();
         var from = LocalDate.now().withDayOfMonth(1);
         var to = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
-        var expenses = getExpenses();
-        var now = LocalDate.now();
+
+        // Navigation
         var previous = YearMonth.of(now.getYear(), now.getMonth()).minusMonths(1);
         var next = YearMonth.of(now.getYear(), now.getMonth()).plusMonths(1);
-        var currentMonth = "%s of %d".formatted(now.getMonth(), now.getYear());
+
+        model.addAttribute("previous", previous);
+        model.addAttribute("next", next);
+
+        // Month information
+        var categories = getExpenses();
         var totalIncome = incomeRepository.getTotalIncome(from, to);
-        var totalExpense = expenses
+        var totalExpense = categories
                 .stream()
                 .map(CategoryExpense::totalAmount)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        // Month header
-        model.addAttribute("previous", previous);
-        model.addAttribute("currentMonth", currentMonth);
-        model.addAttribute("next", next);
+        var monthOverview = new MonthOverview(
+                YearMonth.of(now.getYear(), now.getMonth()),
+                categories,
+                totalExpense,
+                totalIncome,
+                totalExpense.subtract(totalIncome)
+                );
 
-        model.addAttribute("totalIncome", totalIncome);
-        model.addAttribute("totalExpense", totalExpense);
-        model.addAttribute("balance", totalIncome.subtract(totalExpense));
-
-        model.addAttribute("categories", expenses);
+        model.addAttribute("allMonths", List.of(monthOverview));
 
         return "expenses";
     }
@@ -58,28 +63,32 @@ public class ExpensesController {
                                  @PathVariable("month") int month) {
         var from = LocalDate.of(year, month, 1);
         var to = from.with(TemporalAdjusters.lastDayOfMonth());
+
+        // Navigation
         var previous = YearMonth.of(from.getYear(), from.getMonth()).minusMonths(1);
         var next = YearMonth.of(from.getYear(), from.getMonth()).plusMonths(1);
-        var expenses = getExpenses(from, to);
+
+        model.addAttribute("previous", previous);
+        model.addAttribute("next", next);
+
+        // Month information
+        var categories = getExpenses(from, to);
         var totalIncome = incomeRepository.getTotalIncome(from, to);
-        var totalExpense = expenses
+        var totalExpense = categories
                 .stream()
                 .map(CategoryExpense::totalAmount)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
 
-        var currentMonth = "%s of %d".formatted(from.getMonth(), from.getYear());
+        var monthOverview = new MonthOverview(
+                YearMonth.of(from.getYear(), from.getMonth()),
+                categories,
+                totalExpense,
+                totalIncome,
+                totalExpense.subtract(totalIncome)
+        );
 
-        // Month header
-        model.addAttribute("previous", previous);
-        model.addAttribute("currentMonth", currentMonth);
-        model.addAttribute("next", next);
-
-        model.addAttribute("totalIncome", totalIncome);
-        model.addAttribute("totalExpense", totalExpense);
-        model.addAttribute("balance", totalIncome.subtract(totalExpense));
-
-        model.addAttribute("categories", expenses);
+        model.addAttribute("allMonths", List.of(monthOverview));
 
         return "expenses";
     }
@@ -149,3 +158,14 @@ record NewExpense(String category, String payee, BigDecimal amount, LocalDate da
 record NewIncome(String payer, BigDecimal amount, LocalDate date) {}
 record SimpleExpense(String payee, BigDecimal amount, LocalDate date) {}
 record CategoryExpense(String category, BigDecimal totalAmount, List<SimpleExpense> expenses) {}
+record MonthOverview(YearMonth month,
+                     List<CategoryExpense> categories,
+                     BigDecimal totalExpense,
+                     BigDecimal totalIncome,
+                     BigDecimal balance) {
+
+    @SuppressWarnings("unused")
+    public String getMonthText() {
+        return "%s of %d".formatted(month.getMonth(), month.getYear());
+    }
+}
