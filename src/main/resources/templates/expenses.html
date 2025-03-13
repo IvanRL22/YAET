@@ -1,59 +1,62 @@
 <main class="flex items-center flex-col">
 
     <div id="month-navigator"
-         class="flex max-w-sm">
-        <button th:hx-get="|/expenses/${previous.getYear()}/${previous.getMonthValue()}|"
-                class="grow-1"
-                hx-target="main">Previous</button>
-        <span th:text="${currentMonth}"
-              class="grow-3"></span>
-        <button th:hx-get="|/expenses/${next.getYear()}/${next.getMonthValue()}|"
-                class="grow-1"
-                hx-target="main">Next</button>
+         class="max-w-sm"
+         hx-swap="outerHTML"
+         hx-target="main">
+        <button th:hx-get="|/expenses/${previous.getYear()}/${previous.getMonthValue()}|">Previous</button>
+        <button th:hx-get="|/expenses/${next.getYear()}/${next.getMonthValue()}|">Next</button>
     </div>
 
     <!--/* In the future this may contain several month details */-->
-    <div id="all-months">
+    <div id="months">
 
-        <!--/* Month overview with overall information */-->
-        <div class="grid grid-cols-3 max-w-sm">
+        <div th:each="month: ${allMonths}"
+            th:id="${month.month()}">
 
-            <!--/* Month total expense */-->
-            <span class="col-span-2 border-b-3 text-xl border-gray-800">Total spent</span>
-            <span th:text="|${totalExpense}€|"
-                  class="border-b-3 border-gray-800 text-right text-xl"></span>
+            <!--/* Month overview with overall information */-->
+            <div class="grid grid-cols-3 max-w-sm">
 
-            <!--/* Month total income */-->
-            <span class="col-span-2 border-b-3 text-xl border-gray-800">Total earned</span>
-            <span th:text="|${totalIncome}€|" class="border-b-3 border-gray-800 text-right text-xl"></span>
+                <span th:text="${month.getMonthText()}"
+                      class="col-span-3 text-center"></span>
 
-            <!--/* Month balance */-->
-            <span class="col-span-2 border-b-3 text-xl border-gray-800">Balance</span>
-            <span th:text="|${balance}€|"
-                  class="border-b-3 border-gray-800 text-right text-xl"></span>
-        </div>
+                <!--/* Month total expense */-->
+                <span class="col-span-2 border-b-3 text-xl border-gray-800">Total spent</span>
+                <span th:text="|${month.totalExpense()}€|"
+                      class="border-b-3 border-gray-800 text-right text-xl"></span>
 
-        <!--/* Month details with expenses by category */-->
-        <div class="grid grid-cols-4 max-w-sm">
+                <!--/* Month total income */-->
+                <span class="col-span-2 border-b-3 text-xl border-gray-800">Total earned</span>
+                <span th:text="|${month.totalIncome()}€|" class="border-b-3 border-gray-800 text-right text-xl"></span>
 
-            <span th:if="${#lists.isEmpty(categories)}">No data</span>
+                <!--/* Month balance */-->
+                <span class="col-span-2 border-b-3 text-xl border-gray-800">Balance</span>
+                <span th:text="|${month.balance()}€|"
+                      class="border-b-3 border-gray-800 text-right text-xl"></span>
+            </div>
 
-            <th:block th:unless="${#lists.isEmpty(categories)}"
-                      th:each="category: ${categories}">
-                <span th:text="${category.category}"
-                      class="col-span-3 border-b-2 border-gray-500 text-lg"></span>
-                <span th:text="|${category.totalAmount}€|"
-                      class="text-right border-b-2 border-gray-500 text-lg"></span>
+            <!--/* Month details with expenses by category */-->
+            <div class="grid grid-cols-4 max-w-sm">
 
-                <th:block th:each="expense: ${category.expenses}">
-                    <span th:text="${expense.payee}"
-                          class="col-span-2"></span>
-                    <span th:text="${expense.date}"
-                          class="text-center"></span>
-                    <span th:text="|${expense.amount}€|"
-                          class="text-right"></span>
+                <span th:if="${#lists.isEmpty(month.categories())}">No data</span>
+
+                <th:block th:unless="${#lists.isEmpty(month.categories())}"
+                          th:each="category: ${month.categories()}">
+                    <span th:text="${category.category}"
+                          class="col-span-3 border-b-2 border-gray-500 text-lg"></span>
+                    <span th:text="|${category.totalAmount}€|"
+                          class="text-right border-b-2 border-gray-500 text-lg"></span>
+
+                    <th:block th:each="expense: ${category.expenses}">
+                        <span th:text="${expense.payee}"
+                              class="col-span-2"></span>
+                        <span th:text="${expense.date}"
+                              class="text-center"></span>
+                        <span th:text="|${expense.amount}€|"
+                              class="text-right"></span>
+                    </th:block>
                 </th:block>
-            </th:block>
+            </div>
         </div>
     </div>
 </main>
