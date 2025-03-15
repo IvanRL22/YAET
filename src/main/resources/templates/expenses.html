@@ -3,13 +3,27 @@
     <div id="month-navigator"
          class="max-w-sm"
          hx-swap="outerHTML"
-         hx-target="main">
+         hx-target="main"
+         hx-include="#months-selector">
         <button th:hx-get="|/expenses/${previous.getYear()}/${previous.getMonthValue()}|">Previous</button>
+        <label for="months-selector">Months to show:</label>
+        <select id="months-selector"
+                name="numOfMonths"
+                th:value="${numOfMonths}"
+                th:selected="${i==75}"
+                th:hx-get="|/expenses/${current.getYear()}/${current.getMonthValue()}|"
+                hx-trigger="change">
+            <option th:each="i : ${#numbers.sequence(1, 4)}"
+                    th:value="${i}"
+                    th:text="${i}"
+                    th:selected="${i==numOfMonths}"></option>
+        </select>
         <button th:hx-get="|/expenses/${next.getYear()}/${next.getMonthValue()}|">Next</button>
     </div>
 
     <!--/* In the future this may contain several month details */-->
-    <div id="months">
+    <div id="months-overview"
+         class="flex flex-row gap-x-5">
 
         <div th:each="month: ${allMonths}"
             th:id="${month.month()}">
