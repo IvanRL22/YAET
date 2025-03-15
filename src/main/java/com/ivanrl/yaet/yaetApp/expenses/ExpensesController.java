@@ -12,7 +12,10 @@ import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/expenses")
@@ -23,9 +26,12 @@ public class ExpensesController {
     private final IncomeRepository incomeRepository;
 
     @GetMapping
-    public String getCurrentMonthExpenses(Model model) {
+    public String getCurrentMonthExpenses(Model model,
+                                          @RequestParam(name = "numOfMonths", required = false, defaultValue = "1") int numOfMonths) {
         var now = LocalDate.now();
-        var from = LocalDate.now().withDayOfMonth(1);
+        var from = LocalDate.now()
+                .minusMonths(numOfMonths - 1)
+                .withDayOfMonth(1);
         var to = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
 
         // Navigation
@@ -35,24 +41,28 @@ public class ExpensesController {
         model.addAttribute("previous", previous);
         model.addAttribute("next", next);
 
-        // Month information
-        var categories = getExpenses();
-        var totalIncome = incomeRepository.getTotalIncome(from, to);
-        var totalExpense = categories
-                .stream()
-                .map(CategoryExpense::totalAmount)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
+        var allExpenses = this.repository.findAllByDateBetween(from, to, ExpenseRepository.defaultSorting);
 
-        var monthOverview = new MonthOverview(
-                YearMonth.of(now.getYear(), now.getMonth()),
-                categories,
-                totalExpense,
-                totalIncome,
-                totalExpense.subtract(totalIncome)
-                );
+        var allMonths = Stream.iterate(YearMonth.from(from), yearMonth -> yearMonth.plusMonths(1))
+                .limit(numOfMonths)
+                .map(yearMonth -> {
 
-        model.addAttribute("allMonths", List.of(monthOverview));
+                    var monthExpenses = allExpenses.stream()
+                            .filter(expensePO -> yearMonth.equals(YearMonth.from(expensePO.getDate())))
+                            .collect(Collectors.groupingBy(ExpensePO::getCategory))
+                            .entrySet().stream()
+                            .map(buildCategoryExpense())
+                            .sorted((a, b) -> b.totalAmount().compareTo(a.totalAmount()))
+                            .toList();
+                    var monthFrom = LocalDate.of(yearMonth.getYear(), yearMonth.getMonthValue(), 1);
+
+                    var monthTotalIncome = this.incomeRepository.getTotalIncome(monthFrom, monthFrom.with(TemporalAdjusters.lastDayOfMonth()));
+
+                    return MonthOverview.from(yearMonth, monthExpenses, monthTotalIncome);
+                })
+                .toList();
+
+        model.addAttribute("allMonths", allMonths);
 
         return "expenses";
     }
@@ -136,21 +146,25 @@ public class ExpensesController {
                 .stream()
                 .collect(Collectors.groupingBy(ExpensePO::getCategory))
                 .entrySet().stream()
-                .map(entry -> new CategoryExpense(
-                        entry.getKey(),
-                        // Sums all amounts
-                        entry.getValue()
-                                .stream()
-                                .map(ExpensePO::getAmount)
-                                .reduce(BigDecimal.ZERO, BigDecimal::add),
-                        // Maps POs to TO
-                        entry.getValue()
-                                .stream()
-                                .map(e -> new SimpleExpense(e.getPayee(), e.getAmount(), e.getDate()))
-                                .sorted(Comparator.comparing(SimpleExpense::date))
-                                .toList()))
+                .map(buildCategoryExpense())
                 .sorted((a, b) -> b.totalAmount().compareTo(a.totalAmount()))
                 .toList();
+    }
+
+    private static Function<Map.Entry<String, List<ExpensePO>>, CategoryExpense> buildCategoryExpense() {
+        return entry -> new CategoryExpense(
+                entry.getKey(),
+                // Sums all amounts
+                entry.getValue()
+                        .stream()
+                        .map(ExpensePO::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add),
+                // Maps POs to TO
+                entry.getValue()
+                        .stream()
+                        .map(e -> new SimpleExpense(e.getPayee(), e.getAmount(), e.getDate()))
+                        .sorted(Comparator.comparing(SimpleExpense::date))
+                        .toList());
     }
 }
 
@@ -163,6 +177,15 @@ record MonthOverview(YearMonth month,
                      BigDecimal totalExpense,
                      BigDecimal totalIncome,
                      BigDecimal balance) {
+
+    public static MonthOverview from(YearMonth month, List<CategoryExpense> categories, BigDecimal totalIncome) {
+        var totalExpense = categories.stream()
+                .map(CategoryExpense::totalAmount)
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+
+        return new MonthOverview(month, categories, totalExpense, totalIncome, totalIncome.subtract(totalExpense));
+    }
 
     @SuppressWarnings("unused")
     public String getMonthText() {
