@@ -27,16 +27,19 @@ public class ExpensesController {
 
     @GetMapping
     public String getCurrentMonthExpenses(Model model,
-                                          @RequestParam(name = "numOfMonths", required = false, defaultValue = "2") int numOfMonths) {
+                                          @RequestParam(name = "numOfMonths", required = false, defaultValue = "1") int numOfMonths) {
         var now = LocalDate.now();
         var to = now.with(TemporalAdjusters.lastDayOfMonth());
         var from = to.minusMonths(numOfMonths - 1).withDayOfMonth(1);
 
         // Navigation
-        var previous = YearMonth.from(to).minusMonths(1);
-        var next = YearMonth.from(to).plusMonths(1);
+        var current = YearMonth.from(now);
+        var previous = current.minusMonths(1);
+        var next = current.plusMonths(1);
 
         model.addAttribute("previous", previous);
+        model.addAttribute("current", current);
+        model.addAttribute("numOfMonths", numOfMonths);
         model.addAttribute("next", next);
 
         var allExpenses = this.repository.findAllByDateBetween(from, to, ExpenseRepository.defaultSorting);
@@ -73,15 +76,18 @@ public class ExpensesController {
     public String getAllExpenses(Model model,
                                  @PathVariable("year") int year,
                                  @PathVariable("month") int month,
-                                 @RequestParam(name = "numOfMonths", required = false, defaultValue = "2") int numOfMonths) {
+                                 @RequestParam(name = "numOfMonths", required = false, defaultValue = "1") int numOfMonths) {
         var to = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
         var from = to.minusMonths(numOfMonths - 1).withDayOfMonth(1);
 
         // Navigation - Reference month is the latest month shown
-        var previous = YearMonth.from(to).minusMonths(1);
-        var next = YearMonth.from(to).plusMonths(1);
+        var current = YearMonth.from(to);
+        var previous = current.minusMonths(1);
+        var next = current.plusMonths(1);
 
         model.addAttribute("previous", previous);
+        model.addAttribute("current", current);
+        model.addAttribute("numOfMonths", numOfMonths);
         model.addAttribute("next", next);
 
         var allExpenses = this.repository.findAllByDateBetween(from, to, ExpenseRepository.defaultSorting);
