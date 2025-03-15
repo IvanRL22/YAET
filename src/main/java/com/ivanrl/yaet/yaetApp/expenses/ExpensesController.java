@@ -27,23 +27,29 @@ public class ExpensesController {
 
     @GetMapping
     public String getCurrentMonthExpenses(Model model,
-                                          @RequestParam(name = "numOfMonths", required = false, defaultValue = "1") int numOfMonths) {
+                                          @RequestParam(name = "numOfMonths", required = false, defaultValue = "2") int numOfMonths) {
         var now = LocalDate.now();
-        var from = LocalDate.now()
-                .minusMonths(numOfMonths - 1)
-                .withDayOfMonth(1);
-        var to = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
+        var to = now.with(TemporalAdjusters.lastDayOfMonth());
+        var from = to.minusMonths(numOfMonths - 1).withDayOfMonth(1);
 
         // Navigation
-        var previous = YearMonth.of(now.getYear(), now.getMonth()).minusMonths(1);
-        var next = YearMonth.of(now.getYear(), now.getMonth()).plusMonths(1);
+        var previous = YearMonth.from(to).minusMonths(1);
+        var next = YearMonth.from(to).plusMonths(1);
 
         model.addAttribute("previous", previous);
         model.addAttribute("next", next);
 
         var allExpenses = this.repository.findAllByDateBetween(from, to, ExpenseRepository.defaultSorting);
 
-        var allMonths = Stream.iterate(YearMonth.from(from), yearMonth -> yearMonth.plusMonths(1))
+        var allMonths = buildMonths(numOfMonths, from, allExpenses);
+
+        model.addAttribute("allMonths", allMonths);
+
+        return "expenses";
+    }
+
+    private List<MonthOverview> buildMonths(int numOfMonths, LocalDate from, List<ExpensePO> allExpenses) {
+        return Stream.iterate(YearMonth.from(from), yearMonth -> yearMonth.plusMonths(1))
                 .limit(numOfMonths)
                 .map(yearMonth -> {
 
@@ -61,44 +67,28 @@ public class ExpensesController {
                     return MonthOverview.from(yearMonth, monthExpenses, monthTotalIncome);
                 })
                 .toList();
-
-        model.addAttribute("allMonths", allMonths);
-
-        return "expenses";
     }
 
     @GetMapping("/{year}/{month}")
     public String getAllExpenses(Model model,
                                  @PathVariable("year") int year,
-                                 @PathVariable("month") int month) {
-        var from = LocalDate.of(year, month, 1);
-        var to = from.with(TemporalAdjusters.lastDayOfMonth());
+                                 @PathVariable("month") int month,
+                                 @RequestParam(name = "numOfMonths", required = false, defaultValue = "2") int numOfMonths) {
+        var to = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
+        var from = to.minusMonths(numOfMonths - 1).withDayOfMonth(1);
 
-        // Navigation
-        var previous = YearMonth.of(from.getYear(), from.getMonth()).minusMonths(1);
-        var next = YearMonth.of(from.getYear(), from.getMonth()).plusMonths(1);
+        // Navigation - Reference month is the latest month shown
+        var previous = YearMonth.from(to).minusMonths(1);
+        var next = YearMonth.from(to).plusMonths(1);
 
         model.addAttribute("previous", previous);
         model.addAttribute("next", next);
 
-        // Month information
-        var categories = getExpenses(from, to);
-        var totalIncome = incomeRepository.getTotalIncome(from, to);
-        var totalExpense = categories
-                .stream()
-                .map(CategoryExpense::totalAmount)
-                .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO);
+        var allExpenses = this.repository.findAllByDateBetween(from, to, ExpenseRepository.defaultSorting);
 
-        var monthOverview = new MonthOverview(
-                YearMonth.of(from.getYear(), from.getMonth()),
-                categories,
-                totalExpense,
-                totalIncome,
-                totalExpense.subtract(totalIncome)
-        );
+        var allMonths = buildMonths(numOfMonths, from, allExpenses);
 
-        model.addAttribute("allMonths", List.of(monthOverview));
+        model.addAttribute("allMonths", allMonths);
 
         return "expenses";
     }
