@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 public interface IncomeRepository extends JpaRepository<IncomePO, Integer> {
 
@@ -16,4 +17,6 @@ public interface IncomeRepository extends JpaRepository<IncomePO, Integer> {
             and date <= :to
             """)
     BigDecimal getTotalIncome(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    List<IncomePO> findTop10ByOrderByDateDesc();
 }
