@@ -66,7 +66,10 @@ public class ExpensesController {
     @GetMapping("/new")
     public String newExpense(Model model) {
         model.addAttribute("expense", new NewExpense(Strings.EMPTY, Strings.EMPTY, null, LocalDate.now()));
+        model.addAttribute("lastExpenses", this.repository.findTop10ByOrderByDateDesc());
+
         model.addAttribute("income", new NewIncome(Strings.EMPTY, null, LocalDate.now()));
+        model.addAttribute("lastIncomes", this.incomeRepository.findTop10ByOrderByDateDesc());
 
         return "newExpense";
     }
@@ -81,7 +84,9 @@ public class ExpensesController {
         model.addAttribute("message", "A new expense for %s€ was successfully added.".formatted(newPO.getAmount()));
         model.addAttribute("expense", newExpense);
 
-        return "newExpense :: expenseForm";
+        model.addAttribute("lastExpenses", this.repository.findTop10ByOrderByDateDesc());
+
+        return "newExpense :: addExpense";
     }
 
     @PostMapping("/income/new")
@@ -91,7 +96,10 @@ public class ExpensesController {
         this.incomeRepository.save(newPO);
 
         model.addAttribute("incomeMessage", "A new income for %s€ was successfully added.".formatted(newPO.getAmount()));
-        return "newExpense :: incomeForm";
+        model.addAttribute("income", newIncome);
+        model.addAttribute("lastIncomes", this.incomeRepository.findTop10ByOrderByDateDesc());
+
+        return "newExpense :: addIncome";
     }
 
     private List<MonthOverview> buildMonths(long numOfMonths, LocalDate from, List<ExpensePO> allExpenses) {
