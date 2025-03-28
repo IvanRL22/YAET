@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.  
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
+## Unreleased
+### Changed
+- Fixed visibility of income form after adding new income
+
 ## [0.3.1] - 2024-03-18
 ### Added
 - List of latest (10) expenses and incomes when adding a new expense or income

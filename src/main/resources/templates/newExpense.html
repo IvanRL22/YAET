@@ -35,6 +35,7 @@
                         <input id="payeeInput"
                                name="payee"
                                type="text"
+                               th:value="${expense.payee}"
                                required>
 
                         <label for="amountInput">Amount:</label>
@@ -77,8 +78,10 @@
                 </div>
             </div>
 
+            <!-- /* TODO Find better way to define initial visiblity */ -->
             <div id="addIncome"
-                 class="tabContent flex flex-row gap-x-5 hidden"
+                 class="tabContent flex flex-row gap-x-5"
+                 th:classappend="${incomeMessage == null ? 'hidden' : ''}"
                  th:fragment="addIncome">
 
                 <div class="max-w-sm">
