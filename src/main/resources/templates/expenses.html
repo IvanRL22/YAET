@@ -10,7 +10,6 @@
         <select id="months-selector"
                 name="numOfMonths"
                 th:value="${numOfMonths}"
-                th:selected="${i==75}"
                 th:hx-get="|/expenses/${current.getYear()}/${current.getMonthValue()}|"
                 hx-trigger="change">
             <option th:each="i : ${#numbers.sequence(1, 4)}"
