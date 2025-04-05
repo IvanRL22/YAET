@@ -34,10 +34,14 @@ public class ExpensePO {
     @Temporal(TemporalType.DATE)
     private LocalDate date;
 
-    public ExpensePO(String category, String payee, BigDecimal amount, LocalDate date) {
+    @Column(name = "comment")
+    private String comment;
+
+    public ExpensePO(String category, String payee, BigDecimal amount, LocalDate date, String comment) {
         this.category = category;
         this.payee = payee;
         this.amount = amount;
         this.date = date;
+        this.comment = comment;
     }
 }

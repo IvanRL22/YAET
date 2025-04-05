@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## Unreleased
+
+## [0.3.2] - 2024-04-05w
+### Added
+- Added a comment field when adding a new expense
 ### Changed
 - Fixed visibility of income form after adding new income
 

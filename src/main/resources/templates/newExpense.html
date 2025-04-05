@@ -12,7 +12,7 @@
                  class="tabContent flex flex-row gap-x-5"
                  th:fragment="addExpense">
 
-                <div class="max-w-sm">
+                <div class="w-sm">
 
                     <!--/* Validation or information messages */-->
                     <div id="messages"
@@ -22,13 +22,14 @@
 
                     <!--/* New expense form */-->
                     <form id="newExpenseForm"
-                          class="grid grid-cols-2 max-w-sm">
+                          class="grid grid-cols-3 max-w-sm">
 
                         <label for="categoryInput">Category:</label>
                         <input id="categoryInput"
                                name="category"
                                type="text"
                                th:value="${expense.category}"
+                               class="col-span-2"
                                required>
 
                         <label for="payeeInput">Payee:</label>
@@ -36,6 +37,8 @@
                                name="payee"
                                type="text"
                                th:value="${expense.payee}"
+                               class="col-span-2"
+                               maxlength="50"
                                required>
 
                         <label for="amountInput">Amount:</label>
@@ -43,6 +46,7 @@
                                name="amount"
                                type="text"
                                th:value="${expense.amount}"
+                               class="col-span-2"
                                required>
 
                         <label for="dateInput">Date:</label>
@@ -50,13 +54,23 @@
                                name="date"
                                type="date"
                                th:value="${expense.date}"
+                               class="col-span-2 justify-self-end"
                                required>
+
+                        <label for="commentInput">Comment:</label>
+                        <textarea id="commentInput"
+                                  name="comment"
+                                  type="comment"
+                                  th:value="${expense.comment}"
+                                  rows="3"
+                                  maxlength="255"
+                                  class="col-span-2 resize-none"></textarea>
 
                         <button hx-post="/expenses/new"
                                 hx-target="#addExpense"
                                 hx-swap="outerHTML"
                                 hx-ext="json-enc"
-                                class="col-span-2">Add</button>
+                                class="col-span-3 justify-self-center">Add</button>
 
                     </form>
                 </div>

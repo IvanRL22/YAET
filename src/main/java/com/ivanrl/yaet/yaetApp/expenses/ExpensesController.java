@@ -27,7 +27,7 @@ public class ExpensesController {
 
     @GetMapping
     public String getCurrentMonthExpenses(Model model) {
-        long numOfMonths = 2; // In the future this should come from the user's preferences
+        long numOfMonths = 3; // In the future this should come from the user's preferences
         var now = LocalDate.now();
         var to = now.with(TemporalAdjusters.lastDayOfMonth());
         var from = to.minusMonths(numOfMonths - 1).withDayOfMonth(1);
@@ -65,7 +65,7 @@ public class ExpensesController {
 
     @GetMapping("/new")
     public String newExpense(Model model) {
-        model.addAttribute("expense", new NewExpense(Strings.EMPTY, Strings.EMPTY, null, LocalDate.now()));
+        model.addAttribute("expense", new NewExpense(Strings.EMPTY, Strings.EMPTY, null, LocalDate.now(), Strings.EMPTY));
         model.addAttribute("lastExpenses", this.repository.findTop10ByOrderByDateDesc());
 
         model.addAttribute("income", new NewIncome(Strings.EMPTY, null, LocalDate.now()));
@@ -78,7 +78,7 @@ public class ExpensesController {
     public String addNewExpense(Model model,
                                 @RequestBody NewExpense newExpense) {
 
-        ExpensePO newPO = new ExpensePO(newExpense.category(), newExpense.payee(), newExpense.amount(), newExpense.date());
+        ExpensePO newPO = new ExpensePO(newExpense.category(), newExpense.payee(), newExpense.amount(), newExpense.date(), newExpense.comment());
         this.repository.save(newPO);
 
         model.addAttribute("message", "A new expense for %s€ was successfully added.".formatted(newPO.getAmount()));
@@ -134,8 +134,8 @@ public class ExpensesController {
                 // Maps POs to TO
                 entry.getValue()
                         .stream()
-                        .map(e -> new SimpleExpense(e.getPayee(), e.getAmount(), e.getDate()))
-                        .sorted(Comparator.comparing(SimpleExpense::date))
+                        .map(e -> new Expense(e.getId(), e.getCategory(), e.getPayee(), e.getAmount(), e.getDate()))
+                        .sorted(Comparator.comparing(Expense::date))
                         .toList());
     }
 
@@ -151,10 +151,10 @@ public class ExpensesController {
     }
 }
 
-record NewExpense(String category, String payee, BigDecimal amount, LocalDate date) {}
+record NewExpense(String category, String payee, BigDecimal amount, LocalDate date, String comment) {}
+record Expense(int id, String category, String payee, BigDecimal amount, LocalDate date) {}
 record NewIncome(String payer, BigDecimal amount, LocalDate date) {}
-record SimpleExpense(String payee, BigDecimal amount, LocalDate date) {}
-record CategoryExpense(String category, BigDecimal totalAmount, List<SimpleExpense> expenses) {}
+record CategoryExpense(String category, BigDecimal totalAmount, List<Expense> expenses) {}
 record MonthOverview(YearMonth month,
                      List<CategoryExpense> categories,
                      BigDecimal totalExpense,

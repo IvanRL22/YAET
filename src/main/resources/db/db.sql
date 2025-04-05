@@ -14,3 +14,5 @@ create table incomes (
 	amount 		numeric(6, 2) 	not null,
 	date		date			not null
 );
+
+alter table expenses add column comment varchar(255);
