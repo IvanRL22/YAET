@@ -22,15 +22,25 @@
 
                     <!--/* New expense form */-->
                     <form id="newExpenseForm"
-                          class="grid grid-cols-3 max-w-sm">
+                          class="grid grid-cols-3 max-w-sm"
+                          hx-post="/expenses/new"
+                          hx-target="#addExpense"
+                          hx-swap="outerHTML"
+                          hx-ext="json-enc">
 
-                        <label for="categoryInput">Category:</label>
-                        <input id="categoryInput"
-                               name="category"
-                               type="text"
-                               th:value="${expense.category}"
-                               class="col-span-2"
-                               required>
+                        <label for="category-input">Category:</label>
+                        <select id="category-input"
+                                name="categoryId"
+                                class="col-span-2"
+                                th:value="${expense.categoryId}"
+                                required>
+                            <option value="">Select a category</option>
+                            <option th:each="c : ${categories}"
+                                    th:value="${c.id}"
+                                    th:text="${c.name}"
+                                    th:selected="${c.id == expense.categoryId}">
+                            </option>
+                        </select>
 
                         <label for="payeeInput">Payee:</label>
                         <input id="payeeInput"
@@ -44,7 +54,10 @@
                         <label for="amountInput">Amount:</label>
                         <input id="amountInput"
                                name="amount"
-                               type="text"
+                               type="number"
+                               min="0"
+                               max="999999.99"
+                               step="0.01"
                                th:value="${expense.amount}"
                                class="col-span-2"
                                required>
@@ -66,10 +79,7 @@
                                   maxlength="255"
                                   class="col-span-2 resize-none"></textarea>
 
-                        <button hx-post="/expenses/new"
-                                hx-target="#addExpense"
-                                hx-swap="outerHTML"
-                                hx-ext="json-enc"
+                        <button type="submit"
                                 class="col-span-3 justify-self-center">Add</button>
 
                     </form>
