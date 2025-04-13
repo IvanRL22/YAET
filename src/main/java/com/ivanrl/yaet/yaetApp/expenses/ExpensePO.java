@@ -21,8 +21,9 @@ public class ExpensePO {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "category", length = 25, nullable = false)
-    private String category;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private CategoryPO category;
 
     @Column(name = "payee", length = 50)
     private String payee;
@@ -37,7 +38,7 @@ public class ExpensePO {
     @Column(name = "comment")
     private String comment;
 
-    public ExpensePO(String category, String payee, BigDecimal amount, LocalDate date, String comment) {
+    public ExpensePO(CategoryPO category, String payee, BigDecimal amount, LocalDate date, String comment) {
         this.category = category;
         this.payee = payee;
         this.amount = amount;

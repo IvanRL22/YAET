@@ -16,3 +16,22 @@ create table incomes (
 );
 
 alter table expenses add column comment varchar(255);
+
+-- Extract categories to its own table
+create table categories (
+    id              serial primary key,
+    name            varchar(50)     not null,
+    description     varchar(255)
+);
+
+alter table expenses add column category_id integer;
+
+INSERT INTO categories (name)
+SELECT DISTINCT category
+FROM expenses;
+
+update expenses e
+set category_id = (select id from categories c where c.name = e.category);
+
+alter table expenses alter column category_id set not null;
+alter table expenses drop column category;

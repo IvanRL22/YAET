@@ -24,6 +24,7 @@ public class ExpensesController {
 
     private final ExpenseRepository repository;
     private final IncomeRepository incomeRepository;
+    private final CategoryRepository categoryRepository;
 
     @GetMapping
     public String getCurrentMonthExpenses(Model model) {
@@ -65,11 +66,13 @@ public class ExpensesController {
 
     @GetMapping("/new")
     public String newExpense(Model model) {
-        model.addAttribute("expense", new NewExpense(Strings.EMPTY, Strings.EMPTY, null, LocalDate.now(), Strings.EMPTY));
+        model.addAttribute("expense", new NewExpense(null, Strings.EMPTY, null, LocalDate.now(), Strings.EMPTY));
         model.addAttribute("lastExpenses", this.repository.findTop10ByOrderByDateDesc());
 
         model.addAttribute("income", new NewIncome(Strings.EMPTY, null, LocalDate.now()));
         model.addAttribute("lastIncomes", this.incomeRepository.findTop10ByOrderByDateDesc());
+
+        model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
 
         return "newExpense";
     }
@@ -78,13 +81,16 @@ public class ExpensesController {
     public String addNewExpense(Model model,
                                 @RequestBody NewExpense newExpense) {
 
-        ExpensePO newPO = new ExpensePO(newExpense.category(), newExpense.payee(), newExpense.amount(), newExpense.date(), newExpense.comment());
+        ExpensePO newPO = new ExpensePO(categoryRepository.getReferenceById(newExpense.categoryId()), newExpense.payee(), newExpense.amount(), newExpense.date(), newExpense.comment());
         this.repository.save(newPO);
 
         model.addAttribute("message", "A new expense for %s€ was successfully added.".formatted(newPO.getAmount()));
         model.addAttribute("expense", newExpense);
 
         model.addAttribute("lastExpenses", this.repository.findTop10ByOrderByDateDesc());
+
+        // Not great to have to call this everytime
+        model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
 
         return "newExpense :: addExpense";
     }
@@ -123,9 +129,9 @@ public class ExpensesController {
                 .toList();
     }
 
-    private static Function<Map.Entry<String, List<ExpensePO>>, CategoryExpense> buildCategoryExpense() {
+    private static Function<Map.Entry<CategoryPO, List<ExpensePO>>, CategoryExpense> buildCategoryExpense() {
         return entry -> new CategoryExpense(
-                entry.getKey(),
+                entry.getKey().getName(),
                 // Sums all amounts
                 entry.getValue()
                         .stream()
@@ -134,7 +140,7 @@ public class ExpensesController {
                 // Maps POs to TO
                 entry.getValue()
                         .stream()
-                        .map(e -> new Expense(e.getId(), e.getCategory(), e.getPayee(), e.getAmount(), e.getDate()))
+                        .map(e -> new Expense(e.getId(), e.getCategory().getName(), e.getPayee(), e.getAmount(), e.getDate()))
                         .sorted(Comparator.comparing(Expense::date))
                         .toList());
     }
@@ -151,7 +157,13 @@ public class ExpensesController {
     }
 }
 
-record NewExpense(String category, String payee, BigDecimal amount, LocalDate date, String comment) {}
+record Category(Integer id, String name, String description) {
+
+    public static Category from(CategoryPO po) {
+        return new Category(po.getId(), po.getName(), po.getDescription());
+    }
+}
+record NewExpense(Integer categoryId, String payee, BigDecimal amount, LocalDate date, String comment) {}
 record Expense(int id, String category, String payee, BigDecimal amount, LocalDate date) {}
 record NewIncome(String payer, BigDecimal amount, LocalDate date) {}
 record CategoryExpense(String category, BigDecimal totalAmount, List<Expense> expenses) {}
