@@ -2,6 +2,7 @@ package com.ivanrl.yaet.yaetApp.expenses;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class ExpensesController {
         // Navigation
         setUpMonthNavigation(model, numOfMonths, now);
 
-        var allExpenses = this.repository.findAllByDateBetween(from, to, ExpenseRepository.defaultSorting);
+        var allExpenses = this.repository.findAllByDateBetween(from, to);
 
         var allMonths = buildMonths(numOfMonths, from, allExpenses);
 
@@ -55,7 +56,7 @@ public class ExpensesController {
 
         setUpMonthNavigation(model, numOfMonths, to);
 
-        var allExpenses = this.repository.findAllByDateBetween(from, to, ExpenseRepository.defaultSorting);
+        var allExpenses = this.repository.findAllByDateBetween(from, to);
 
         var allMonths = buildMonths(numOfMonths, from, allExpenses);
 
@@ -67,7 +68,7 @@ public class ExpensesController {
     @GetMapping("/new")
     public String newExpense(Model model) {
         model.addAttribute("expense", new NewExpense(null, Strings.EMPTY, null, LocalDate.now(), Strings.EMPTY));
-        model.addAttribute("lastExpenses", this.repository.findTop10ByOrderByDateDesc());
+        model.addAttribute("lastExpenses", this.repository.findLastExpenses(Pageable.ofSize(10)));
 
         model.addAttribute("income", new NewIncome(Strings.EMPTY, null, LocalDate.now()));
         model.addAttribute("lastIncomes", this.incomeRepository.findTop10ByOrderByDateDesc());
@@ -87,7 +88,7 @@ public class ExpensesController {
         model.addAttribute("message", "A new expense for %s€ was successfully added.".formatted(newPO.getAmount()));
         model.addAttribute("expense", newExpense);
 
-        model.addAttribute("lastExpenses", this.repository.findTop10ByOrderByDateDesc());
+        model.addAttribute("lastExpenses", this.repository.findLastExpenses(Pageable.ofSize(10)));
 
         // Not great to have to call this everytime
         model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
