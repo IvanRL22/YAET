@@ -23,7 +23,7 @@
                     <!--/* New expense form */-->
                     <form id="newExpenseForm"
                           class="grid grid-cols-3 max-w-sm"
-                          hx-post="/expenses/new"
+                          hx-post="/new/expense"
                           hx-target="#addExpense"
                           hx-swap="outerHTML"
                           hx-ext="json-enc">
@@ -141,7 +141,7 @@
                                th:value="${income.date}"
                                required>
 
-                        <button hx-post="/expenses/income/new"
+                        <button hx-post="/new/income"
                                 hx-target="#addIncome"
                                 hx-swap="outerHTML"
                                 hx-ext="json-enc"
