@@ -5,10 +5,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,14 +20,16 @@ public class AddMovementController {
     private final CategoryRepository categoryRepository;
 
     @GetMapping
-    public String newExpense(Model model) {
+    public String baseView(Model model) {
+        model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
         model.addAttribute("expense", new NewExpense(null, Strings.EMPTY, null, LocalDate.now(), Strings.EMPTY));
+
         model.addAttribute("lastExpenses", this.repository.findLastExpenses(Pageable.ofSize(10)));
 
         model.addAttribute("income", new NewIncome(Strings.EMPTY, null, LocalDate.now()));
+
         model.addAttribute("lastIncomes", this.incomeRepository.findTop10ByOrderByDateDesc());
 
-        model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
 
         return "newExpense";
     }
@@ -51,6 +50,16 @@ public class AddMovementController {
         model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
 
         return "newExpense :: addExpense";
+    }
+
+    @GetMapping("/lastExpenses")
+    public String getExpensesPage(@RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size,
+                                  Model model) {
+
+        model.addAttribute("lastExpenses", this.repository.findLastExpenses(Pageable.ofSize(size).withPage(page)));
+
+        return "newExpense :: lastExpenses";
     }
 
     @PostMapping("/income")

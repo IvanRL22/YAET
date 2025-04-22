@@ -85,7 +85,10 @@
                 </div>
 
                 <div id="lastExpenses"
-                     class="grid px-1 bg-gray-100">
+                     class="grid px-1 bg-gray-100"
+                     hx-swap="outerHTML"
+                     hx-target="this"
+                     th:fragment="lastExpenses">
                     <span class="font-semibold text-center pb-1">Last expenses</span>
                     <hr>
                     <div class="grid grid-cols-4 max-w-sm">
@@ -97,6 +100,20 @@
                             <span th:text="|${expense.amount}€|"
                                   class="text-right"></span>
                         </th:block>
+                        <button th:if="${lastExpenses.getNumber() > 0}"
+                                th:hx-get="|/new/lastExpenses?page=${lastExpenses.getNumber()-1}"
+                                class="cursor-pointer text-xl font-bold"> < </button>
+                        <button th:unless="${lastExpenses.getNumber() > 0}"
+                                disabled> < </button>
+
+                        <span class="col-span-2 text-center"
+                              th:text="|${lastExpenses.getNumber()+1} of ${lastExpenses.getTotalPages()}|"></span>
+
+                        <button th:if="${lastExpenses.getNumber() < lastExpenses.getTotalPages()-1}"
+                                th:hx-get="|/new/lastExpenses?page=${lastExpenses.getNumber()+1}"
+                                class="cursor-pointer text-xl font-bold"> > </button>
+                        <button th:unless="${lastExpenses.getNumber() < lastExpenses.getTotalPages()-1}"
+                                disabled> > </button>
                     </div>
                 </div>
             </div>
@@ -134,7 +151,7 @@
                         <input id="incomeAmountInput"
                                name="amount"
                                type="text"
-                               pattern="[0-9]{1,6}(\.?[0-9]{2})"
+                               pattern="[0-9]{1,6}(\.[0-9]{2})?"
                                title="Must be a valid amount in numeric format"
                                th:value="${income.amount}"
                                required>
