@@ -55,7 +55,7 @@
                         <input id="amountInput"
                                name="amount"
                                type="text"
-                               pattern="[0-9]{1,6}(\.?[0-9]{2})"
+                               pattern="[0-9]{1,6}(\.[0-9]{2})?"
                                title="Must be a valid amount in numeric format"
                                th:value="${expense.amount}"
                                class="col-span-2"
