@@ -15,7 +15,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,40 +65,49 @@ public class ExpensesController {
     }
 
     private List<MonthOverview> buildMonths(long numOfMonths, LocalDate from, List<ExpensePO> allExpenses) {
-        return Stream.iterate(YearMonth.from(from), yearMonth -> yearMonth.plusMonths(1))
-                .limit(numOfMonths)
-                .map(yearMonth -> {
+        // Create list of months to show based on user request
+        var months = Stream.iterate(YearMonth.from(from),
+                                    yearMonth -> yearMonth.plusMonths(1))
+                           .limit(numOfMonths)
+                           .toList();
 
-                    var monthExpenses = allExpenses.stream()
-                            .filter(expensePO -> yearMonth.equals(YearMonth.from(expensePO.getDate())))
-                            .collect(Collectors.groupingBy(ExpensePO::getCategory))
-                            .entrySet().stream()
-                            .map(buildCategoryExpense())
-                            .sorted((a, b) -> b.totalAmount().compareTo(a.totalAmount()))
-                            .toList();
-                    var monthFrom = LocalDate.of(yearMonth.getYear(), yearMonth.getMonthValue(), 1);
-
-                    var monthTotalIncome = this.incomeRepository.getTotalIncome(monthFrom, monthFrom.with(TemporalAdjusters.lastDayOfMonth()));
-
-                    return MonthOverview.from(yearMonth, monthExpenses, monthTotalIncome);
-                })
-                .toList();
+        return months.stream()
+                     .map(yearMonth -> getMonthOverview(allExpenses, yearMonth))
+                     .toList();
     }
 
-    private static Function<Map.Entry<CategoryPO, List<ExpensePO>>, CategoryExpense> buildCategoryExpense() {
-        return entry -> new CategoryExpense(
-                entry.getKey().getName(),
-                // Sums all amounts
-                entry.getValue()
-                        .stream()
-                        .map(ExpensePO::getAmount)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add),
-                // Maps POs to TO
-                entry.getValue()
-                        .stream()
-                        .map(e -> new Expense(e.getId(), e.getCategory().getName(), e.getPayee(), e.getAmount(), e.getDate()))
-                        .sorted(Comparator.comparing(Expense::date))
-                        .toList());
+    private MonthOverview getMonthOverview(List<ExpensePO> allExpenses, YearMonth yearMonth) {
+        var expensesByCategory = allExpenses.stream()
+                                            .filter(expensePO -> yearMonth.equals(YearMonth.from(expensePO.getDate())))
+                                            .collect(Collectors.groupingBy(ExpensePO::getCategory));
+
+        var monthExpenses = expensesByCategory.entrySet()
+                                              .stream()
+                                              .map(ExpensesController::getCategoryExpense)
+                                              .sorted((a, b) -> b.totalAmount().compareTo(a.totalAmount()))
+                                              .toList();
+
+        var monthFrom = LocalDate.of(yearMonth.getYear(), yearMonth.getMonthValue(), 1);
+
+        var monthTotalIncome = this.incomeRepository.getTotalIncome(monthFrom, monthFrom.with(TemporalAdjusters.lastDayOfMonth()));
+
+        return MonthOverview.from(yearMonth, monthExpenses, monthTotalIncome);
+    }
+
+    private static CategoryExpense getCategoryExpense(Map.Entry<CategoryPO, List<ExpensePO>> entry) {
+        List<ExpensePO> expensesPOs = entry.getValue();
+
+        BigDecimal totalAmount = expensesPOs.stream()
+                                                 .map(ExpensePO::getAmount)
+                                                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<Expense> expenses = expensesPOs.stream()
+                                            .map(Expense::from)
+                                            .sorted(Comparator.comparing(Expense::date))
+                                            .toList();
+
+        return new CategoryExpense(entry.getKey().getName(),
+                                   totalAmount,
+                                   expenses);
     }
 
     private static void setUpMonthNavigation(Model model, long numOfMonths, LocalDate to) {
@@ -120,7 +128,12 @@ record Category(Integer id, String name, String description) {
         return new Category(po.getId(), po.getName(), po.getDescription());
     }
 }
-record Expense(int id, String category, String payee, BigDecimal amount, LocalDate date) {}
+record Expense(int id, String category, String payee, BigDecimal amount, LocalDate date) {
+
+    public static Expense from(ExpensePO e) {
+        return new Expense(e.getId(), e.getCategory().getName(), e.getPayee(), e.getAmount(), e.getDate());
+    }
+}
 record CategoryExpense(String category, BigDecimal totalAmount, List<Expense> expenses) {}
 record MonthOverview(YearMonth month,
                      List<CategoryExpense> categories,
