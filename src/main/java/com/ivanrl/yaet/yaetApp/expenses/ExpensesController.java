@@ -1,5 +1,6 @@
 package com.ivanrl.yaet.yaetApp.expenses;
 
+import com.ivanrl.yaet.yaetApp.UsedInTemplate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -150,7 +151,7 @@ record MonthOverview(YearMonth month,
         return new MonthOverview(month, categories, totalExpense, totalIncome, totalIncome.subtract(totalExpense));
     }
 
-    @SuppressWarnings("unused")
+    @UsedInTemplate
     public String getMonthText() {
         return "%s of %d".formatted(month.getMonth(), month.getYear());
     }
