@@ -35,3 +35,15 @@ set category_id = (select id from categories c where c.name = e.category);
 
 alter table expenses alter column category_id set not null;
 alter table expenses drop column category;
+-- End
+
+-- Create budget structure
+alter table expenses alter column comment type varchar(255);
+
+create table budget_categories (
+	id			    serial          primary key,
+	category_id		serial4     not null,
+	budget_month          numeric(6,0)    not null,
+	amount 		    numeric(6, 2) 	not null
+);
+-- End

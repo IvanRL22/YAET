@@ -1,0 +1,74 @@
+<main class="flex justify-center">
+    <!-- /* Budget is already on its own div so in the future I can show a category's expenses on a second div */ -->
+    <div id="main-budget-content"
+         class="flex items-center flex-col">
+        <h1>Your budget</h1>
+        <!-- /* To be implemented in the future /* -->
+        <!-- /* Need to figure out how to deal with the inherited balance from previous month /* -->
+        <!-- /*
+        <div id="emtpy-budget-warning"
+             th:if="${emptyFutureBudget}"
+             class="py-2 flex flex-col">
+            <span>You have not defined any budget for any category in this month, do you want to copy the assignments from last month?</span>
+            <span class="self-center">You'll be able to adjust them normally afterwards</span>
+            <button class="self-center w-40 cursor-pointer hover:bg-gray-200">Copy from last month</button>
+        </div>
+        */ -->
+        <div id="budget-navigator"
+             hx-swap="outerHTML"
+             hx-target="main">
+            <button class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
+                    th:hx-get="|/budget/${previous.getYear()}/${previous.getMonthValue()}|">
+                ← Previous
+            </button>
+
+            <span th:text="${currentMonth}"></span>
+
+            <button class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
+                    th:hx-get="|/budget/${next.getYear()}/${next.getMonthValue()}|">
+                Next →
+            </button>
+        </div>
+        <div id="budget-info"
+             th:fragment="budget-info"
+             class="grid grid-cols-3 gap-x-4 w-120"
+             hx-target="main">
+            <span th:text="Category"></span>
+            <span th:text="Assigned"></span>
+            <span th:text="Balance"></span>
+            <th:block th:each="category: ${categories}">
+                <span th:text="${category.name}"></span>
+                <!-- /* For creating a new budget */ -->
+                <input th:unless="${category.id}"
+                       th:name="amount"
+                       th:value="0"
+                       class="text-right cursor-pointer"
+                       th:hx-post="|/budget/${category.name}/assignAmount|"
+                       hx-trigger=""
+                       hx-include="this"
+                       hx-target="#budget-info">
+                <!-- /* For updating an existing budget */ -->
+                <input th:if="${category.id}"
+                       th:name="amount"
+                       th:value="${category.amountAssigned}"
+                       class="text-right cursor-pointer"
+                       th:hx-put="|/budget/${category.id}/updateAmount|"
+                       hx-trigger=""
+                       hx-include="this"
+                       hx-target="#budget-info">
+                <span th:text="${category.totalAmount}"
+                      class="text-right"></span>
+            </th:block>
+
+            <span th:text="TOTAL"></span>
+            <span th:text="|${totalAssigned}€|"
+                  class="text-right"></span>
+            <span></span>
+        </div>
+    </div>
+    <div id="category-expenses"
+         th:fragment="expenses"
+    hidden>
+        This should be empty and invisible
+    </div>
+</main>
