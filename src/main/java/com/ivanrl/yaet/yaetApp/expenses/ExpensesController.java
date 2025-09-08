@@ -129,12 +129,7 @@ record Category(Integer id, String name, String description) {
         return new Category(po.getId(), po.getName(), po.getDescription());
     }
 }
-record Expense(int id, String category, String payee, BigDecimal amount, LocalDate date) {
 
-    public static Expense from(ExpensePO e) {
-        return new Expense(e.getId(), e.getCategory().getName(), e.getPayee(), e.getAmount(), e.getDate());
-    }
-}
 record CategoryExpense(String category, BigDecimal totalAmount, List<Expense> expenses) {}
 record MonthOverview(YearMonth month,
                      List<CategoryExpense> categories,

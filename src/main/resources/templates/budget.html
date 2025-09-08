@@ -1,4 +1,4 @@
-<main class="flex justify-center">
+<main class="flex justify-center gap-x-4">
     <!-- /* Budget is already on its own div so in the future I can show a category's expenses on a second div */ -->
     <div id="main-budget-content"
          class="flex items-center flex-col">
@@ -18,14 +18,14 @@
              hx-swap="outerHTML"
              hx-target="main">
             <button class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
-                    th:hx-get="|/budget/${previous.getYear()}/${previous.getMonthValue()}|">
+                    th:hx-get="|/budget/${previous}|">
                 ← Previous
             </button>
 
-            <span th:text="${currentMonth}"></span>
+            <span th:text="${currentMonthText}"></span>
 
             <button class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
-                    th:hx-get="|/budget/${next.getYear()}/${next.getMonthValue()}|">
+                    th:hx-get="|/budget/${next}|">
                 Next →
             </button>
         </div>
@@ -36,27 +36,30 @@
             <span th:text="Category"></span>
             <span th:text="Assigned"></span>
             <span th:text="Balance"></span>
-            <th:block th:each="category: ${categories}">
-                <span th:text="${category.name}"></span>
+            <th:block th:each="budgetCategory: ${budgetCategories}">
+                <span th:text="${budgetCategory.name}"
+                th:hx-get="|/budget/${currentMonth}/${budgetCategory.categoryId}|"
+                hx-target="#category-expenses"
+                hx-swap="outerHTML"></span>
                 <!-- /* For creating a new budget */ -->
-                <input th:unless="${category.id}"
+                <input th:unless="${budgetCategory.id}"
                        th:name="amount"
-                       th:value="0"
+                       th:value="0.00"
                        class="text-right cursor-pointer"
-                       th:hx-post="|/budget/${category.name}/assignAmount|"
-                       hx-trigger=""
+                       th:hx-post="|/budget/${currentMonth}/${budgetCategory.categoryId}/assignAmount|"
+                       hx-trigger="change"
                        hx-include="this"
                        hx-target="#budget-info">
                 <!-- /* For updating an existing budget */ -->
-                <input th:if="${category.id}"
+                <input th:if="${budgetCategory.id}"
                        th:name="amount"
-                       th:value="${category.amountAssigned}"
+                       th:value="${budgetCategory.amountAssigned}"
                        class="text-right cursor-pointer"
-                       th:hx-put="|/budget/${category.id}/updateAmount|"
-                       hx-trigger=""
+                       th:hx-put="|/budget/${currentMonth}/${budgetCategory.categoryId}/updateAmount|"
+                       hx-trigger="change"
                        hx-include="this"
                        hx-target="#budget-info">
-                <span th:text="${category.totalAmount}"
+                <span th:text="|${budgetCategory.totalAmount}€|"
                       class="text-right"></span>
             </th:block>
 
@@ -66,9 +69,31 @@
             <span></span>
         </div>
     </div>
+
+    <script>
+        function closeCategoryDetail() {
+            const element = document.getElementById("category-expenses");
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+        }
+    </script>
+    <!-- /* TODO This should probably go on its own file */ -->
     <div id="category-expenses"
-         th:fragment="expenses"
-    hidden>
-        This should be empty and invisible
+         th:fragment="expenses">
+        <th:block th:if="${expenses}">
+            <span th:text="|Expenses for ${categoryName}"></span>
+            <button onclick="closeCategoryDetail()">Close</button>
+            <div class="grid grid-cols-4 py-1">
+                <th:block th:each="expense: ${expenses}">
+                    <span class="col-span-2 truncate" th:text="${expense.payee}">Payee</span>
+                    <span class="text-center" th:text="${expense.date}">Date</span>
+                    <span class="text-right" th:text="|${expense.amount}€|">€0</span>
+                </th:block>
+
+                <span class="col-span-3 border-t" th:text="Total">Total</span>
+                <span class="text-right border-t" th:text="|${categoryTotal}€|">0€</span>
+            </div>
+        </th:block>
     </div>
 </main>

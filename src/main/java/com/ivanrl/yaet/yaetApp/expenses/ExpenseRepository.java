@@ -21,6 +21,17 @@ public interface ExpenseRepository extends JpaRepository<ExpensePO, Integer> {
             """)
     List<ExpensePO> findAllByDateBetween(@Param("from") LocalDate from,
                                          @Param("to") LocalDate to);
+    @Query("""
+            FROM expenses e
+            JOIN FETCH e.category c
+            WHERE c.id = :categoryId
+            AND :from <= e.date
+            AND e.date <= :to
+            ORDER BY e.date ASC
+            """)
+    List<ExpensePO> findAllByCategoryAndDateBetween(@Param("categoryId") int categoryId,
+                                                    @Param("from") LocalDate from,
+                                                    @Param("to") LocalDate to);
 
     @Query("""
             FROM expenses e

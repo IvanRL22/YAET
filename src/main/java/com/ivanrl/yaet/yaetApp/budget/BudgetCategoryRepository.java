@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO, Integer> {
@@ -11,6 +12,7 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
 
     @Query("""
             select bc.id as id,
+            c.id as categoryId,
             bc.amountInherited as amountInherited,
             bc.amountAssigned as amountAssigned,
             c.name as name
@@ -20,5 +22,7 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
             order by c.name
             """)
     Set<BudgetCategoryProjection> findAllWithCategory(@Param("month") int month);
+
+    Optional<BudgetCategoryPO> findByCategoryIdAndMonth(int categoryId, int month);
 
 }
