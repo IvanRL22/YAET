@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @Controller
@@ -19,55 +19,33 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class BudgetController {
 
-    private static final String TOTAL_ASSIGNED = "totalAssigned";
-    private static final String CATEGORIES = "budgetCategories";
-
     private final BudgetCategoryRepository budgetCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
 
-    @GetMapping
-    public String currentBudget(Model model) {
-        YearMonth current = YearMonth.now();
 
-        var allCategories = getCategoriesInformation(current);
-
-        setUpMonthNavigation(model, current);
-
-        model.addAttribute("currentMonth", toDbInt(current));
-        model.addAttribute(CATEGORIES, allCategories);
-        if (allCategories.stream().allMatch(c -> BigDecimal.ZERO.equals(c.amountAssigned()))) {
-            model.addAttribute("emptyFutureBudget", true);
-        }
-        model.addAttribute(TOTAL_ASSIGNED,
-                           allCategories.stream()
-                                        .map(BudgetCategoryTO::amountAssigned)
-                                        .filter(Objects::nonNull)
-                                        .reduce(BigDecimal.ZERO, BigDecimal::add));
-
-        return "budget";
-    }
-
-    @GetMapping("/{currentMonth}")
-    public String budget(@PathVariable("currentMonth") int month,
+    @GetMapping(value = {"", "/{month}"})
+    public String budget(@PathVariable Optional<YearMonth> month,
                          Model model) {
-        YearMonth requestedMonth = fromDBInt(month);
-
+        var requestedMonth = month.orElse(YearMonth.now());
         var allCategories = getCategoriesInformation(requestedMonth);
 
-        setUpMonthNavigation(model, requestedMonth);
-        model.addAttribute("currentMonth", month);
+        var previous = requestedMonth.minusMonths(1);
+        var next = requestedMonth.plusMonths(1);
 
-        model.addAttribute(CATEGORIES, allCategories);
+        // Small utility to copy budget from previous month
         if (requestedMonth.isAfter(YearMonth.now())
                 && allCategories.stream().allMatch(c -> BigDecimal.ZERO.equals(c.amountAssigned()))) {
             model.addAttribute("emptyFutureBudget", true);
         }
-        model.addAttribute(TOTAL_ASSIGNED,
-                           allCategories.stream()
-                                        .map(BudgetCategoryTO::amountAssigned)
-                                        .filter(Objects::nonNull)
-                                        .reduce(BigDecimal.ZERO, BigDecimal::add));
+
+        // Navigation
+        model.addAttribute("previous", previous);
+        model.addAttribute("currentMonthText", "%s of %d".formatted(requestedMonth.getMonth(), requestedMonth.getYear()));
+        model.addAttribute("next", next);
+
+        // Budget information
+        addBudgetCategoriesInformationToModel(model, requestedMonth, allCategories);
 
         return "budget";
     }
@@ -83,15 +61,6 @@ public class BudgetController {
     }
 
     // TODO Somewhat duplicated from ExpensesController, a new utility class should be created
-    private static void setUpMonthNavigation(Model model, YearMonth current) {
-        var previous = current.minusMonths(1);
-        var next = current.plusMonths(1);
-
-        model.addAttribute("previous", toDbInt(previous));
-        model.addAttribute("currentMonthText", "%s of %d".formatted(current.getMonth(), current.getYear()));
-        model.addAttribute("next", toDbInt(next));
-    }
-
     private BudgetCategoryTO createCurrentMonthCategory(CategoryPO c,
                                                         Set<BudgetCategoryProjection> categories,
                                                         List<ExpensePO> expenses) {
@@ -107,67 +76,63 @@ public class BudgetController {
     }
 
     @Transactional
-    @PostMapping("/{currentMonth}/{categoryId}/assignAmount")
-    public String setAmount(@PathVariable("currentMonth") int currentMonth,
-                            @PathVariable("categoryId") int categoryId,
-                            @RequestParam("amount") BigDecimal amount,
+    @PostMapping("/{month}/{categoryId}/assignAmount")
+    public String setAmount(@PathVariable YearMonth month,
+                            @PathVariable int categoryId,
+                            @RequestParam BigDecimal amount,
                             Model model) {
 
         var po = new BudgetCategoryPO(this.categoryRepository.getReferenceById(categoryId),
-                                      currentMonth,
+                                      toDbInt(month),
                                       amount);
         this.budgetCategoryRepository.save(po);
 
-        var month = fromDBInt(currentMonth);
         var allCategories = getCategoriesInformation(month);
 
-        model.addAttribute("currentMonth", toDbInt(month));
-        model.addAttribute(CATEGORIES, allCategories);
-        model.addAttribute(TOTAL_ASSIGNED,
+        addBudgetCategoriesInformationToModel(model, month, allCategories);
+
+        return "budget :: budget-info";
+    }
+
+    private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryTO> allCategories) {
+        model.addAttribute("currentMonth", month);
+        model.addAttribute("budgetCategories", allCategories);
+        model.addAttribute("totalAssigned",
                            allCategories.stream()
                                         .map(BudgetCategoryTO::amountAssigned)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add));
-
-        return "budget :: budget-info";
     }
 
     @Transactional
-    @PutMapping("/{currentMonth}/{categoryId}/updateAmount")
-    public String updateAmount(@PathVariable("currentMonth") int currentMonth,
-                               @PathVariable("categoryId") int categoryId,
-                               @RequestParam("amount") BigDecimal amount,
+    @PutMapping("/{month}/{categoryId}/updateAmount")
+    public String updateAmount(@PathVariable YearMonth month,
+                               @PathVariable int categoryId,
+                               @RequestParam BigDecimal amount,
                                Model model) {
 
-        var po = budgetCategoryRepository.findByCategoryIdAndMonth(categoryId, currentMonth)
+        var po = budgetCategoryRepository.findByCategoryIdAndMonth(categoryId, toDbInt(month))
                                          .orElseThrow(); // TODO Handle - Need to decide how this should look in the frontend
         po.setAmountAssigned(amount);
 
-        var allCategories = getCategoriesInformation(fromDBInt(currentMonth));
+        var allCategories = getCategoriesInformation(month);
 
-        model.addAttribute(CATEGORIES, allCategories);
-        model.addAttribute(TOTAL_ASSIGNED,
-                           allCategories.stream()
-                                        .map(BudgetCategoryTO::amountAssigned)
-                                        .reduce(BigDecimal.ZERO, BigDecimal::add));
+        addBudgetCategoriesInformationToModel(model, month, allCategories);
 
         return "budget :: budget-info";
     }
 
-    @GetMapping("/{currentMonth}/{categoryId}")
-    public String getCategoryExpenses(@PathVariable int currentMonth,
+    @GetMapping("/{month}/{categoryId}")
+    public String getCategoryExpenses(@PathVariable YearMonth month,
                                       @PathVariable int categoryId,
                                       Model model) {
-        var requestedMonth = fromDBInt(currentMonth);
-        var from = requestedMonth.atDay(1);
-        var to = requestedMonth.atEndOfMonth();
+        var from = month.atDay(1);
+        var to = month.atEndOfMonth();
         var expenses = expenseRepository.findAllByCategoryAndDateBetween(categoryId, from, to);
 
         model.addAttribute("categoryName",
-                           categoryRepository.findById(categoryId)
-                                             .map(CategoryPO::getName)
-                                             .orElse(" - "));
+                           categoryRepository.findById(categoryId).orElseThrow().getName());
         model.addAttribute("expenses", expenses.stream()
-                .map(Expense::from));
+                                               .map(Expense::from));
         model.addAttribute("categoryTotal",
                            expenses.stream()
                                    .map(ExpensePO::getAmount)
