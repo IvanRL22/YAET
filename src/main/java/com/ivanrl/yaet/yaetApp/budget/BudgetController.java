@@ -133,7 +133,8 @@ public class BudgetController {
         model.addAttribute("categoryName",
                            categoryRepository.findById(categoryId).orElseThrow().getName());
         model.addAttribute("expenses", expenses.stream()
-                                               .map(Expense::from));
+                                               .map(Expense::from)
+                                               .toList());
         model.addAttribute("categoryTotal",
                            expenses.stream()
                                    .map(ExpensePO::getAmount)

@@ -70,21 +70,31 @@
         </div>
     </div>
 
-    <script>
-        function closeCategoryDetail() {
-            const element = document.getElementById("category-expenses");
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
+    <style>
+        #category-expenses.htmx-added {
+            opacity: 0;
         }
-    </script>
+        #category-expenses {
+            opacity: 1;
+            transition: opacity 0.2s ease-out;
+        }
+        #category-expenses.htmx-swapping {
+            opacity: 0;
+            transition: opacity 0.2s ease-out;
+        }
+    </style>
     <!-- /* TODO This should probably go on its own file */ -->
     <div id="category-expenses"
          th:fragment="expenses">
-        <th:block th:if="${expenses}">
+        <div id="category-expenses-content"
+             th:if="${expenses}"
+            class="w-90">
             <span th:text="|Expenses for ${categoryName}"></span>
-            <button onclick="closeCategoryDetail()">Close</button>
-            <div class="grid grid-cols-4 py-1">
+            <button onclick="document.getElementById('category-expenses-content').remove();">Close</button>
+            <span th:if="${expenses.size() == 0}"
+            class="block my-2">No expenses for this month</span>
+            <div th:unless="${expenses.size() == 0}"
+                 class="grid grid-cols-4 py-1">
                 <th:block th:each="expense: ${expenses}">
                     <span class="col-span-2 truncate" th:text="${expense.payee}">Payee</span>
                     <span class="text-center" th:text="${expense.date}">Date</span>
@@ -94,6 +104,6 @@
                 <span class="col-span-3 border-t" th:text="Total">Total</span>
                 <span class="text-right border-t" th:text="|${categoryTotal}€|">0€</span>
             </div>
-        </th:block>
+        </div>
     </div>
 </main>
