@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.YearMonth;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,8 +22,8 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
             where bc.month = :month
             order by c.name
             """)
-    Set<BudgetCategoryProjection> findAllWithCategory(@Param("month") int month);
+    Set<BudgetCategoryProjection> findAllWithCategory(@Param("month") YearMonth month);
 
-    Optional<BudgetCategoryPO> findByCategoryIdAndMonth(int categoryId, int month);
+    Optional<BudgetCategoryPO> findByCategoryIdAndMonth(int categoryId, YearMonth month);
 
 }

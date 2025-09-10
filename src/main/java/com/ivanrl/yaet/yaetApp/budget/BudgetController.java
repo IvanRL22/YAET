@@ -25,9 +25,10 @@ public class BudgetController {
 
 
     @GetMapping(value = {"", "/{month}"})
-    public String budget(@PathVariable Optional<YearMonth> month,
+    public String budget(@PathVariable(required = false) YearMonth month,
                          Model model) {
-        var requestedMonth = month.orElse(YearMonth.now());
+        var requestedMonth = Optional.ofNullable(month)
+                                     .orElse(YearMonth.now());
         var allCategories = getCategoriesInformation(requestedMonth);
 
         var previous = requestedMonth.minusMonths(1);
@@ -52,7 +53,7 @@ public class BudgetController {
 
     private List<BudgetCategoryTO> getCategoriesInformation(YearMonth requestedMonth) {
         var categories = categoryRepository.findAll();
-        Set<BudgetCategoryProjection> categoriesFromCurrentMonth = budgetCategoryRepository.findAllWithCategory(toDbInt(requestedMonth));
+        Set<BudgetCategoryProjection> categoriesFromCurrentMonth = budgetCategoryRepository.findAllWithCategory(requestedMonth);
         var from = requestedMonth.atDay(1);
         var to = requestedMonth.atEndOfMonth();
         var allExpenses = expenseRepository.findAllByDateBetween(from, to);
@@ -83,7 +84,7 @@ public class BudgetController {
                             Model model) {
 
         var po = new BudgetCategoryPO(this.categoryRepository.getReferenceById(categoryId),
-                                      toDbInt(month),
+                                      month,
                                       amount);
         this.budgetCategoryRepository.save(po);
 
@@ -110,7 +111,7 @@ public class BudgetController {
                                @RequestParam BigDecimal amount,
                                Model model) {
 
-        var po = budgetCategoryRepository.findByCategoryIdAndMonth(categoryId, toDbInt(month))
+        var po = budgetCategoryRepository.findByCategoryIdAndMonth(categoryId, month)
                                          .orElseThrow(); // TODO Handle - Need to decide how this should look in the frontend
         po.setAmountAssigned(amount);
 
@@ -140,14 +141,7 @@ public class BudgetController {
 
         return "budget :: expenses";
     }
-    
-    // TODO Both of these should be extracted somewhere else or made into a proper hibernate converter
-    private static int toDbInt(YearMonth yearMonth) {
-        return yearMonth.getYear() * 100 + yearMonth.getMonthValue();
-    }
-    private static YearMonth fromDBInt(int dbYearMonth) {
-        return YearMonth.of(dbYearMonth / 100, dbYearMonth % 100);
-    }
+
 }
 
 

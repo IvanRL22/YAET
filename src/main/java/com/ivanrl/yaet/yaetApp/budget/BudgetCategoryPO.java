@@ -1,5 +1,6 @@
 package com.ivanrl.yaet.yaetApp.budget;
 
+import com.ivanrl.yaet.yaetApp.YearMonthIntegerAttributeConverter;
 import com.ivanrl.yaet.yaetApp.expenses.CategoryPO;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
 
 
 @Entity(name = "budgetCategory")
@@ -17,7 +19,7 @@ import java.math.BigDecimal;
 public class BudgetCategoryPO {
 
     public BudgetCategoryPO(CategoryPO category,
-                            int month,
+                            YearMonth month,
                             BigDecimal amountAssigned) {
         this.category = category;
         this.month = month;
@@ -36,7 +38,8 @@ public class BudgetCategoryPO {
 
     // 'month' seems to be a reserved word in postgres
     @Column(name = "budget_month", scale = 6, nullable = false)
-    private int month;
+    @Convert(converter = YearMonthIntegerAttributeConverter.class)
+    private YearMonth month;
 
     @Column(name = "inherited", scale = 6, precision = 2, nullable = false)
     private BigDecimal amountInherited;
