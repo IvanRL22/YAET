@@ -22,6 +22,7 @@ public class BudgetController {
     private final BudgetCategoryRepository budgetCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
+    private final IncomeRepository incomeRepository;
 
 
     @GetMapping(value = {"", "/{month}"})
@@ -44,6 +45,16 @@ public class BudgetController {
         model.addAttribute("previous", previous);
         model.addAttribute("currentMonthText", "%s of %d".formatted(requestedMonth.getMonth(), requestedMonth.getYear()));
         model.addAttribute("next", next);
+
+        // Overview information
+        BigDecimal totalIncome = this.incomeRepository.getTotalIncome(requestedMonth.atDay(1),
+                                                                      requestedMonth.atEndOfMonth());
+        BigDecimal totalSpent = allCategories.stream()
+                                             .map(BudgetCategoryTO::amountSpent)
+                                             .reduce(BigDecimal.ZERO, BigDecimal::add);
+        model.addAttribute("monthIncome", totalIncome);
+        model.addAttribute("monthSpent", totalSpent);
+        model.addAttribute("monthBalance", totalIncome.subtract(totalSpent));
 
         // Budget information
         addBudgetCategoriesInformationToModel(model, requestedMonth, allCategories);

@@ -29,6 +29,19 @@
                 Next →
             </button>
         </div>
+        <div id="month-overview"
+             class="grid grid-cols-2 gap-x-4 w-120 border rounded-lg p-2 my-2">
+            <span>Total Income</span>
+            <span th:text="|${monthIncome}€|"
+                  class="text-right"></span>
+            <span>Total Spent</span>
+            <span th:text="|${monthSpent}€|"
+                  class="text-right"></span>
+            <span>BALANCE</span>
+            <span th:text="|${monthBalance}€|"
+                  class="text-right font-semibold"
+                  th:classappend="${monthBalance.signum() >= 0 ? 'text-green-600' : 'text-red-600'}"></span>
+        </div>
         <div id="budget-info"
              th:fragment="budget-info"
              class="grid grid-cols-3 gap-x-4 w-120"
