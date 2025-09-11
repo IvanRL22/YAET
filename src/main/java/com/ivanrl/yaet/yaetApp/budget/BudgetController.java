@@ -102,6 +102,10 @@ public class BudgetController {
                            allCategories.stream()
                                         .map(BudgetCategoryTO::amountAssigned)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add));
+        model.addAttribute("totalBalance",
+                           allCategories.stream()
+                                   .map(BudgetCategoryTO::getTotalAmount)
+                                   .reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 
     @Transactional
