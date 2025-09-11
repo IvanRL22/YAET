@@ -91,6 +91,8 @@
             class="w-90">
             <span th:text="|Expenses for ${categoryName}"></span>
             <button onclick="document.getElementById('category-expenses-content').remove();">Close</button>
+            <span th:text="${categoryDescription}"
+                  class="block my-1"></span>
             <span th:if="${expenses.size() == 0}"
             class="block my-2">No expenses for this month</span>
             <div th:unless="${expenses.size() == 0}"

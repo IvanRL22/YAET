@@ -130,8 +130,9 @@ public class BudgetController {
         var to = month.atEndOfMonth();
         var expenses = expenseRepository.findAllByCategoryAndDateBetween(categoryId, from, to);
 
-        model.addAttribute("categoryName",
-                           categoryRepository.findById(categoryId).orElseThrow().getName());
+        CategoryPO categoryPO = categoryRepository.findById(categoryId).orElseThrow();
+        model.addAttribute("categoryName", categoryPO.getName());
+        model.addAttribute("categoryDescription", categoryPO.getDescription());
         model.addAttribute("expenses", expenses.stream()
                                                .map(Expense::from)
                                                .toList());
