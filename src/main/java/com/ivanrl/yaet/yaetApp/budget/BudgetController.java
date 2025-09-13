@@ -91,12 +91,15 @@ public class BudgetController {
     @PostMapping("/{month}/{categoryId}/assignAmount")
     public String setAmount(@PathVariable YearMonth month,
                             @PathVariable int categoryId,
-                            @RequestParam BigDecimal amount,
+                            @RequestParam(required = false) BigDecimal amount,
                             Model model) {
+
+        var newAmount = Optional.ofNullable(amount)
+                                .orElse(BigDecimal.ZERO);
 
         var po = new BudgetCategoryPO(this.categoryRepository.getReferenceById(categoryId),
                                       month,
-                                      amount);
+                                      newAmount);
         this.budgetCategoryRepository.save(po);
 
         var allCategories = getCategoriesInformation(month);
@@ -123,12 +126,14 @@ public class BudgetController {
     @PutMapping("/{month}/{categoryId}/updateAmount")
     public String updateAmount(@PathVariable YearMonth month,
                                @PathVariable int categoryId,
-                               @RequestParam BigDecimal amount,
+                               @RequestParam(required = false) BigDecimal amount,
                                Model model) {
+        var newAmount = Optional.ofNullable(amount)
+                                .orElse(BigDecimal.ZERO);
 
         var po = budgetCategoryRepository.findByCategoryIdAndMonth(categoryId, month)
                                          .orElseThrow(); // TODO Handle - Need to decide how this should look in the frontend
-        po.setAmountAssigned(amount);
+        po.setAmountAssigned(newAmount);
 
         var allCategories = getCategoriesInformation(month);
 
