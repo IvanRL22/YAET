@@ -47,8 +47,11 @@
              class="grid grid-cols-3 gap-x-4 w-120"
              hx-target="main">
             <span th:text="Category"></span>
-            <span th:text="Assigned"></span>
-            <span th:text="Balance"></span>
+            <span th:text="Assigned"
+                  class="text-center"></span>
+            <span th:text="Balance"
+                  class="text-center"></span>
+            <hr class="col-span-3">
             <th:block th:each="budgetCategory: ${budgetCategories}">
                 <span th:text="${budgetCategory.name}"
                 th:hx-get="|/budget/${currentMonth}/${budgetCategory.categoryId}|"
@@ -75,12 +78,14 @@
                 <span th:text="|${budgetCategory.totalAmount}€|"
                       class="text-right"></span>
             </th:block>
+            <hr class="col-span-3">
 
             <span th:text="TOTAL"></span>
             <span th:text="|${totalAssigned}€|"
                   class="text-right"></span>
             <span th:text="|${totalBalance}€|"
-                  class="text-right"></span>
+                  class="text-right"
+                  th:classappend="${totalBalance.signum() >= 0 ? 'text-green-600' : 'text-red-600'}"></span>
         </div>
     </div>
 
