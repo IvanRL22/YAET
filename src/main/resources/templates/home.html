@@ -9,6 +9,16 @@
     <script type="text/javascript" th:src="@{/webjars/htmx.org/2.0.6/dist/htmx.min.js}"></script>
     <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script>
+        document.addEventListener('htmx:afterRequest', function(evt) {
+
+            if(evt.detail.xhr.status !== 200) {
+                // This is what we've come to... Parsing JSON response while using HTMX...
+                let problemDetail = JSON.parse(evt.detail.xhr.response);
+                alert(problemDetail.title + ': ' + problemDetail.detail);
+            }
+        });
+    </script>
     <style>
         main.htmx-request {
             opacity: 0.3;

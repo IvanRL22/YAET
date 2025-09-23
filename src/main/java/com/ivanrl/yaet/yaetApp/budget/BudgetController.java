@@ -1,5 +1,6 @@
 package com.ivanrl.yaet.yaetApp.budget;
 
+import com.ivanrl.yaet.yaetApp.BadRequestException;
 import com.ivanrl.yaet.yaetApp.UsedInTemplate;
 import com.ivanrl.yaet.yaetApp.expenses.*;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,10 @@ public class BudgetController {
         var requestedMonth = Optional.ofNullable(month)
                                      .orElse(now);
         YearMonth lastAvailableMonth = now.plusMonths(1);
+
+        if (requestedMonth.isAfter(lastAvailableMonth)) {
+            throw new BadRequestException("You can only see up to the next month.");
+        }
 
         var allCategories = getCategoriesInformation(requestedMonth);
 
