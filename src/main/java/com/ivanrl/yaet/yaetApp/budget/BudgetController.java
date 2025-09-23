@@ -28,8 +28,11 @@ public class BudgetController {
     @GetMapping(value = {"", "/{month}"})
     public String budget(@PathVariable(required = false) YearMonth month,
                          Model model) {
+        YearMonth now = YearMonth.now();
         var requestedMonth = Optional.ofNullable(month)
-                                     .orElse(YearMonth.now());
+                                     .orElse(now);
+        YearMonth lastAvailableMonth = now.plusMonths(1);
+
         var allCategories = getCategoriesInformation(requestedMonth);
 
         var previous = requestedMonth.minusMonths(1);
@@ -45,6 +48,7 @@ public class BudgetController {
         model.addAttribute("previous", previous);
         model.addAttribute("currentMonthText", "%s of %d".formatted(requestedMonth.getMonth(), requestedMonth.getYear()));
         model.addAttribute("next", next);
+        model.addAttribute("isLastMonth", requestedMonth.equals(lastAvailableMonth));
 
         // Overview information
         BigDecimal totalIncome = this.incomeRepository.getTotalIncome(requestedMonth.atDay(1),

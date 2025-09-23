@@ -25,8 +25,9 @@
 
             <span th:text="${currentMonthText}"></span>
 
-            <button class="w-[100px] px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
-                    th:hx-get="|/budget/${next}|">
+            <button class="w-[100px] px-3 py-1.5 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:hover:bg-gray-100 text-sm font-medium rounded-md transition"
+                    th:hx-get="|/budget/${next}|"
+                    th:disabled="${isLastMonth}">
                 Next →
             </button>
         </div>
