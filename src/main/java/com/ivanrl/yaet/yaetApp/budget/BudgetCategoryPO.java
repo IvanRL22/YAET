@@ -20,11 +20,12 @@ public class BudgetCategoryPO {
 
     public BudgetCategoryPO(CategoryPO category,
                             YearMonth month,
+                            BigDecimal amountInherited,
                             BigDecimal amountAssigned) {
         this.category = category;
         this.month = month;
+        this.amountInherited = amountInherited;
         this.amountAssigned = amountAssigned;
-        this.amountInherited = BigDecimal.ZERO;
     }
 
     @Id

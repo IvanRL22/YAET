@@ -1,14 +1,17 @@
 package com.ivanrl.yaet.yaetApp.expenses;
 
+import com.ivanrl.yaet.yaetApp.budget.BudgetCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Controller
 @RequestMapping("/new")
@@ -18,6 +21,7 @@ public class AddMovementController {
     private final ExpenseRepository repository;
     private final IncomeRepository incomeRepository;
     private final CategoryRepository categoryRepository;
+    private final BudgetCategoryRepository budgetCategoryRepository;
 
     @GetMapping
     public String baseView(Model model) {
@@ -34,12 +38,18 @@ public class AddMovementController {
         return "newExpense";
     }
 
+    @Transactional
     @PostMapping("/expense")
     public String addNewExpense(Model model,
                                 @RequestBody NewExpense newExpense) {
 
         ExpensePO newPO = new ExpensePO(categoryRepository.getReferenceById(newExpense.categoryId()), newExpense.payee(), newExpense.amount(), newExpense.date(), newExpense.comment());
-        this.repository.save(newPO);
+        this.repository.saveAndFlush(newPO); // Need to immediately persist to db
+
+        // Extend expense to future budgets
+        this.budgetCategoryRepository.updateBudgetCategoryAmount(newExpense.categoryId(),
+                                                                 YearMonth.from(newExpense.date()),
+                                                                 newExpense.amount().negate());
 
         model.addAttribute("message", "A new expense for %s€ was successfully added.".formatted(newPO.getAmount()));
         model.addAttribute("expense", newExpense);

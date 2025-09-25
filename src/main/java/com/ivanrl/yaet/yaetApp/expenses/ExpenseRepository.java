@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 public interface ExpenseRepository extends JpaRepository<ExpensePO, Integer> {
 
@@ -32,6 +33,18 @@ public interface ExpenseRepository extends JpaRepository<ExpensePO, Integer> {
     List<ExpensePO> findAllByCategoryAndDateBetween(@Param("categoryId") int categoryId,
                                                     @Param("from") LocalDate from,
                                                     @Param("to") LocalDate to);
+
+    @Query("""
+            FROM expenses e
+            JOIN FETCH e.category c
+            WHERE :from <= e.date
+            AND e.date <= :to
+            AND c.id in (:categoryIds)
+            ORDER BY e.date ASC
+            """)
+    List<ExpensePO> findAllWithCategory(LocalDate from,
+                                        LocalDate to,
+                                        Set<Integer> categoryIds);
 
     @Query("""
             FROM expenses e
