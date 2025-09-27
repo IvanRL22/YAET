@@ -42,12 +42,6 @@ public class BudgetController {
         var previous = requestedMonth.minusMonths(1);
         var next = requestedMonth.plusMonths(1);
 
-        // Small utility to copy budget from previous month
-        if (requestedMonth.isAfter(YearMonth.now())
-                && allCategories.stream().allMatch(c -> BigDecimal.ZERO.equals(c.amountAssigned()))) {
-            model.addAttribute("emptyFutureBudget", true);
-        }
-
         // Navigation
         model.addAttribute("previous", previous);
         model.addAttribute("currentMonthText", "%s of %d".formatted(requestedMonth.getMonth(), requestedMonth.getYear()));
@@ -202,6 +196,12 @@ public class BudgetController {
                            allCategories.stream()
                                    .map(BudgetCategoryTO::getTotalAmount)
                                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+
+        // Small utility to copy budget from previous month
+        if (month.isAfter(YearMonth.now())
+                && allCategories.stream().anyMatch(c -> BigDecimal.ZERO.equals(c.amountAssigned()))) {
+            model.addAttribute("missingBudgets", true);
+        }
     }
 
     @Transactional
@@ -250,6 +250,66 @@ public class BudgetController {
                                    .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         return "budget :: expenses";
+    }
+
+    @PostMapping("/copy-from-previous")
+    public String generateMonthBudget(@RequestParam YearMonth month,
+                                      Model model) {
+        var previous = month.minusMonths(1);
+        var allCategories = this.categoryRepository.findAll();
+        var currentMonthBudgets = this.budgetCategoryRepository.findAll(month);
+
+        List<CategoryPO> categoriesToGenerate;
+        if (currentMonthBudgets.isEmpty()) {
+            categoriesToGenerate = allCategories;
+        } else {
+            var categoriesWithBudget = currentMonthBudgets.stream()
+                                                          .map(BudgetCategoryProjection::getCategoryId)
+                                                          .collect(Collectors.toSet());
+            categoriesToGenerate = allCategories.stream()
+                                                .filter(c -> !categoriesWithBudget.contains(c.getId()))
+                                                .toList();
+        }
+
+        Set<BudgetCategoryProjection> budgetCategoryProjections = this.budgetCategoryRepository.findAll(previous,
+                                                                                                        categoriesToGenerate.stream().map(CategoryPO::getId).collect(Collectors.toSet()));
+
+        var expenses = this.expenseRepository.findAllWithCategory(previous.atDay(1),
+                                                                  previous.atEndOfMonth(),
+                                                                  budgetCategoryProjections.stream()
+                                                                                           .map(BudgetCategoryProjection::getCategoryId)
+                                                                                           .collect(Collectors.toSet()));
+
+        var expensesByCategory = expenses.stream().collect(Collectors.groupingBy(e -> e.getCategory().getId()));
+
+        var result = budgetCategoryProjections.stream()
+                                              .map(bc -> createBudgetCategory(month, bc, expensesByCategory.getOrDefault(bc.getCategoryId(),
+                                                                                                                         Collections.emptyList())))
+                                              .toList();
+
+        this.budgetCategoryRepository.saveAll(result);
+
+        addBudgetCategoriesInformationToModel(model,
+                                              month,
+                                              getCategoriesInformation(month));
+
+        return "budget :: budget-info";
+
+    }
+
+    private BudgetCategoryPO createBudgetCategory(YearMonth month,
+                                                  BudgetCategoryProjection bc,
+                                                  List<ExpensePO> expensePOS) {
+        var totalSpent = expensePOS.stream()
+                                   .map(ExpensePO::getAmount)
+                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new BudgetCategoryPO(this.categoryRepository.getReferenceById(bc.getCategoryId()),
+                                    month,
+                                    bc.getAmountInherited()
+                                      .add(bc.getAmountAssigned())
+                                      .subtract(totalSpent),
+                                    bc.getAmountAssigned());
     }
 
 }

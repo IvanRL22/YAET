@@ -3,17 +3,6 @@
     <div id="main-budget-content"
          class="flex items-center flex-col">
         <h1>Your budget</h1>
-        <!-- /* To be implemented in the future /* -->
-        <!-- /* Need to figure out how to deal with the inherited balance from previous month /* -->
-        <!-- /*
-        <div id="emtpy-budget-warning"
-             th:if="${emptyFutureBudget}"
-             class="py-2 flex flex-col">
-            <span>You have not defined any budget for any category in this month, do you want to copy the assignments from last month?</span>
-            <span class="self-center">You'll be able to adjust them normally afterwards</span>
-            <button class="self-center w-40 cursor-pointer hover:bg-gray-200">Copy from last month</button>
-        </div>
-        */ -->
         <div id="budget-navigator"
              hx-swap="outerHTML"
              hx-target="main"
@@ -88,6 +77,18 @@
             <span th:text="|${totalBalance}€|"
                   class="text-right"
                   th:classappend="${totalBalance.signum() >= 0 ? 'text-green-600' : 'text-red-600'}"></span>
+
+            <div id="empty-budget-warning"
+                 th:if="${missingBudgets}"
+                 class="col-span-3 py-2 flex flex-col items-center">
+                <span>Some categories still have no defined budget for this month</span>
+                <span>Do you want to copy the amount assigned from last month?</span>
+                <button class="my-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
+                        th:hx-post="|/budget/copy-from-previous?month=${currentMonth}|"
+                        hx-target="#budget-info"
+                        hx-swap="outerHTML"
+                >Copy from last month</button>
+            </div>
         </div>
     </div>
 
