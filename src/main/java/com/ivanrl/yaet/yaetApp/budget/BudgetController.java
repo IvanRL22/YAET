@@ -325,8 +325,8 @@ record BudgetCategoryTO(Integer id, Integer categoryId, String name, BigDecimal 
         return new BudgetCategoryTO(projection.getId(),
                                     projection.getCategoryId(),
                                     projection.getName(),
-                                    projection.getAmountInherited() != null ? projection.getAmountInherited() : BigDecimal.ZERO,
-                                    projection.getAmountAssigned() != null ? projection.getAmountAssigned() : BigDecimal.ZERO,
+                                    projection.getAmountInherited(),
+                                    projection.getAmountAssigned(),
                                     amountSpent);
     }
 

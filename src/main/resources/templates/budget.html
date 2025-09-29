@@ -51,7 +51,7 @@
                 <!-- /* For creating a new budget */ -->
                 <input th:unless="${budgetCategory.id}"
                        th:name="amount"
-                       th:value="0.00"
+                       th:placeholder="0.00"
                        class="text-right cursor-pointer"
                        th:hx-post="|/budget/${currentMonth}/${budgetCategory.categoryId}/assignAmount|"
                        hx-trigger="change"
