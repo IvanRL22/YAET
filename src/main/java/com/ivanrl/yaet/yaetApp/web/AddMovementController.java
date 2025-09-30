@@ -1,9 +1,9 @@
 package com.ivanrl.yaet.yaetApp.web;
 
-import com.ivanrl.yaet.yaetApp.domain.budget.persistence.BudgetCategoryRepository;
-import com.ivanrl.yaet.yaetApp.domain.category.persistence.CategoryRepository;
-import com.ivanrl.yaet.yaetApp.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.yaetApp.domain.expense.persistence.ExpenseRepository;
+import com.ivanrl.yaet.yaetApp.domain.category.domain.SeeCategoriesUseCase;
+import com.ivanrl.yaet.yaetApp.domain.expense.ManageExpensesUseCase;
+import com.ivanrl.yaet.yaetApp.domain.expense.NewExpenseRequest;
+import com.ivanrl.yaet.yaetApp.domain.expense.SeeExpensesUseCase;
 import com.ivanrl.yaet.yaetApp.domain.income.persistence.IncomePO;
 import com.ivanrl.yaet.yaetApp.domain.income.persistence.IncomeRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,24 +16,23 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.YearMonth;
 
 @Controller
 @RequestMapping("/new")
 @RequiredArgsConstructor
 public class AddMovementController {
 
-    private final ExpenseRepository repository;
     private final IncomeRepository incomeRepository;
-    private final CategoryRepository categoryRepository;
-    private final BudgetCategoryRepository budgetCategoryRepository;
+    private final ManageExpensesUseCase manageExpensesUseCase;
+    private final SeeExpensesUseCase seeExpensesUseCase;
+    private final SeeCategoriesUseCase seeCategoriesUseCase;
 
     @GetMapping
     public String baseView(Model model) {
-        model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
-        model.addAttribute("expense", new NewExpense(null, Strings.EMPTY, null, LocalDate.now(), Strings.EMPTY));
+        model.addAttribute("categories", this.seeCategoriesUseCase.getAll());
+        model.addAttribute("expense", NewExpenseRequest.empty());
 
-        model.addAttribute("lastExpenses", this.repository.findLastExpenses(Pageable.ofSize(10)));
+        model.addAttribute("lastExpenses", this.seeExpensesUseCase.getLastExpenses());
 
         model.addAttribute("income", new NewIncome(Strings.EMPTY, null, LocalDate.now()));
 
@@ -46,23 +45,17 @@ public class AddMovementController {
     @Transactional
     @PostMapping("/expense")
     public String addNewExpense(Model model,
-                                @RequestBody NewExpense newExpense) {
+                                @RequestBody NewExpenseRequest request) {
 
-        ExpensePO newPO = new ExpensePO(categoryRepository.getReferenceById(newExpense.categoryId()), newExpense.payee(), newExpense.amount(), newExpense.date(), newExpense.comment());
-        this.repository.saveAndFlush(newPO); // Need to immediately persist to db
+        var expense = this.manageExpensesUseCase.addExpense(request);
 
-        // Extend expense to future budgets
-        this.budgetCategoryRepository.updateBudgetCategoryAmount(newExpense.categoryId(),
-                                                                 YearMonth.from(newExpense.date()),
-                                                                 newExpense.amount().negate());
+        model.addAttribute("message", "A new expense for %s€ was successfully added.".formatted(expense.amount()));
+        model.addAttribute("expense", request);
 
-        model.addAttribute("message", "A new expense for %s€ was successfully added.".formatted(newPO.getAmount()));
-        model.addAttribute("expense", newExpense);
-
-        model.addAttribute("lastExpenses", this.repository.findLastExpenses(Pageable.ofSize(10)));
+        model.addAttribute("lastExpenses", this.seeExpensesUseCase.getLastExpenses());
 
         // Not great to have to call this everytime
-        model.addAttribute("categories", this.categoryRepository.findAll().stream().map(Category::from).toList());
+        model.addAttribute("categories", this.seeCategoriesUseCase.getAll());
 
         return "newExpense :: addExpense";
     }
@@ -72,7 +65,7 @@ public class AddMovementController {
                                   @RequestParam(defaultValue = "10") int size,
                                   Model model) {
 
-        model.addAttribute("lastExpenses", this.repository.findLastExpenses(Pageable.ofSize(size).withPage(page)));
+        model.addAttribute("lastExpenses", this.seeExpensesUseCase.getExpenses(Pageable.ofSize(size).withPage(page)));
 
         return "newExpense :: lastExpenses";
     }
@@ -91,5 +84,4 @@ public class AddMovementController {
     }
 }
 
-record NewExpense(Integer categoryId, String payee, BigDecimal amount, LocalDate date, String comment) {}
 record NewIncome(String payer, BigDecimal amount, LocalDate date) {}
