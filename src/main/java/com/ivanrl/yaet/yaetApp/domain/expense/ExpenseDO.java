@@ -1,6 +1,6 @@
 package com.ivanrl.yaet.yaetApp.domain.expense;
 
-import com.ivanrl.yaet.yaetApp.expenses.ExpensePO;
+import com.ivanrl.yaet.yaetApp.domain.expense.persistence.ExpensePO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

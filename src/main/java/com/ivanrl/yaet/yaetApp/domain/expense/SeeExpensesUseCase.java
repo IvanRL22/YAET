@@ -2,9 +2,9 @@ package com.ivanrl.yaet.yaetApp.domain.expense;
 
 import com.ivanrl.yaet.yaetApp.domain.CategoryExpensesDO;
 import com.ivanrl.yaet.yaetApp.domain.category.CategoryDO;
-import com.ivanrl.yaet.yaetApp.expenses.CategoryPO;
-import com.ivanrl.yaet.yaetApp.expenses.CategoryRepository;
-import com.ivanrl.yaet.yaetApp.expenses.ExpenseRepository;
+import com.ivanrl.yaet.yaetApp.domain.category.persistence.CategoryPO;
+import com.ivanrl.yaet.yaetApp.domain.category.persistence.CategoryRepository;
+import com.ivanrl.yaet.yaetApp.domain.expense.persistence.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

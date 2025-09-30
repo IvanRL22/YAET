@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.yaetApp.expenses;
+package com.ivanrl.yaet.yaetApp.domain.category.persistence;
 
 import jakarta.persistence.*;
 import lombok.Getter;

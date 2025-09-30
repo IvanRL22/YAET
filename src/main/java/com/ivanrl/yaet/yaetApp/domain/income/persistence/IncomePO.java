@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.yaetApp.expenses;
+package com.ivanrl.yaet.yaetApp.domain.income.persistence;
 
 
 import jakarta.persistence.*;
@@ -9,24 +9,20 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity(name = "expenses")
-@Table(name = "expenses")
+@Entity(name = "incomes")
+@Table(name = "incomes")
 @NoArgsConstructor
 @Getter
 @Setter
-public class ExpensePO {
+public class IncomePO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "category_id", nullable = false)
-    private CategoryPO category;
-
-    @Column(name = "payee", length = 50)
-    private String payee;
+    @Column(name = "payer", length = 50)
+    private String payer;
 
     @Column(name = "amount", scale = 6, precision = 2, nullable = false)
     private BigDecimal amount;
@@ -35,14 +31,9 @@ public class ExpensePO {
     @Temporal(TemporalType.DATE)
     private LocalDate date;
 
-    @Column(name = "comment")
-    private String comment;
-
-    public ExpensePO(CategoryPO category, String payee, BigDecimal amount, LocalDate date, String comment) {
-        this.category = category;
-        this.payee = payee;
+    public IncomePO(String payer, BigDecimal amount, LocalDate date) {
+        this.payer = payer;
         this.amount = amount;
         this.date = date;
-        this.comment = comment;
     }
 }

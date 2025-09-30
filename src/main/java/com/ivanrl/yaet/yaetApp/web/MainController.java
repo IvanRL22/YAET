@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.yaetApp;
+package com.ivanrl.yaet.yaetApp.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

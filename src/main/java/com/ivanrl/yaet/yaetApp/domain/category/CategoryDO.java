@@ -1,6 +1,6 @@
 package com.ivanrl.yaet.yaetApp.domain.category;
 
-import com.ivanrl.yaet.yaetApp.expenses.CategoryPO;
+import com.ivanrl.yaet.yaetApp.domain.category.persistence.CategoryPO;
 
 public record CategoryDO(int id, String name, String description) {
 

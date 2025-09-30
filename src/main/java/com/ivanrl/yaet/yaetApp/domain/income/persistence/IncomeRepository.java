@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.yaetApp.expenses;
+package com.ivanrl.yaet.yaetApp.domain.income.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,7 +1,7 @@
-package com.ivanrl.yaet.yaetApp.budget;
+package com.ivanrl.yaet.yaetApp.domain.budget.persistence;
 
 import com.ivanrl.yaet.yaetApp.YearMonthIntegerAttributeConverter;
-import com.ivanrl.yaet.yaetApp.expenses.CategoryPO;
+import com.ivanrl.yaet.yaetApp.domain.category.persistence.CategoryPO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

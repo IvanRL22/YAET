@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.yaetApp.budget;
+package com.ivanrl.yaet.yaetApp.web;
 
 import com.ivanrl.yaet.yaetApp.BadRequestException;
 import com.ivanrl.yaet.yaetApp.domain.budget.BudgetCategoryDO;

@@ -1,7 +1,11 @@
-package com.ivanrl.yaet.yaetApp.expenses;
+package com.ivanrl.yaet.yaetApp.web;
 
 import com.ivanrl.yaet.yaetApp.UsedInTemplate;
+import com.ivanrl.yaet.yaetApp.domain.category.persistence.CategoryPO;
 import com.ivanrl.yaet.yaetApp.domain.expense.ExpenseDO;
+import com.ivanrl.yaet.yaetApp.domain.expense.persistence.ExpensePO;
+import com.ivanrl.yaet.yaetApp.domain.expense.persistence.ExpenseRepository;
+import com.ivanrl.yaet.yaetApp.domain.income.persistence.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -124,6 +128,7 @@ public class ExpensesController {
     }
 }
 
+// TODO Replace with CategoryDO
 record Category(Integer id, String name, String description) {
 
     public static Category from(CategoryPO po) {
@@ -131,7 +136,10 @@ record Category(Integer id, String name, String description) {
     }
 }
 
+// TODO Replace with CategoryExpensesDO
 record CategoryExpense(String category, BigDecimal totalAmount, List<ExpenseDO> expenses) {}
+
+// TODO Extract as domain object - Probably exctract the total quantities as its own domain object aswell
 record MonthOverview(YearMonth month,
                      List<CategoryExpense> categories,
                      BigDecimal totalExpense,
