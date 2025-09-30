@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.yaetApp.budget;
+package com.ivanrl.yaet.yaetApp.domain.budget;
 
 import java.math.BigDecimal;
 

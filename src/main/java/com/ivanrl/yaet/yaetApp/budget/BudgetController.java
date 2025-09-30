@@ -1,7 +1,9 @@
 package com.ivanrl.yaet.yaetApp.budget;
 
 import com.ivanrl.yaet.yaetApp.BadRequestException;
-import com.ivanrl.yaet.yaetApp.UsedInTemplate;
+import com.ivanrl.yaet.yaetApp.domain.budget.BudgetCategoryDO;
+import com.ivanrl.yaet.yaetApp.domain.budget.BudgetCategoryProjection;
+import com.ivanrl.yaet.yaetApp.domain.budget.SeeMonthBudgetUseCase;
 import com.ivanrl.yaet.yaetApp.expenses.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -22,7 +24,7 @@ public class BudgetController {
     private final BudgetCategoryRepository budgetCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
-    private final IncomeRepository incomeRepository;
+    private final SeeMonthBudgetUseCase seeMonthBudgetUseCase;
 
 
     @GetMapping(value = {"", "/{month}"})
@@ -37,7 +39,9 @@ public class BudgetController {
             throw new BadRequestException("You can only see up to the next month.");
         }
 
-        var allCategories = getCategoriesInformation(requestedMonth);
+        var monthlyBudget = this.seeMonthBudgetUseCase.seeMonthlyBudget(requestedMonth);
+
+        var allCategories = monthlyBudget.categories();
 
         var previous = requestedMonth.minusMonths(1);
         var next = requestedMonth.plusMonths(1);
@@ -48,11 +52,9 @@ public class BudgetController {
         model.addAttribute("next", next);
         model.addAttribute("isLastMonth", requestedMonth.equals(lastAvailableMonth));
 
-        // Overview information
-        BigDecimal totalIncome = this.incomeRepository.getTotalIncome(requestedMonth.atDay(1),
-                                                                      requestedMonth.atEndOfMonth());
+        BigDecimal totalIncome = monthlyBudget.totalIncome();
         BigDecimal totalSpent = allCategories.stream()
-                                             .map(BudgetCategoryTO::amountSpent)
+                                             .map(BudgetCategoryDO::amountSpent)
                                              .reduce(BigDecimal.ZERO, BigDecimal::add);
         model.addAttribute("monthIncome", totalIncome);
         model.addAttribute("monthSpent", totalSpent);
@@ -64,7 +66,7 @@ public class BudgetController {
         return "budget";
     }
 
-    private List<BudgetCategoryTO> getCategoriesInformation(YearMonth requestedMonth) {
+    private List<BudgetCategoryDO> getCategoriesInformation(YearMonth requestedMonth) {
         Set<BudgetCategoryProjection> categoriesFromCurrentMonth = budgetCategoryRepository.findAll(requestedMonth);
         var currentMonthExpenses = expenseRepository.findAllByDateBetween(requestedMonth.atDay(1),
                                                                           requestedMonth.atEndOfMonth());
@@ -84,15 +86,15 @@ public class BudgetController {
         // From here, we know there are categories without budget for the requested month
 
         var categoriesWithoutBudget = getCategoriesWithoutCurrentMonthBudget(requestedMonth, missingCategories);
-        List<BudgetCategoryTO> allCategories = new ArrayList<>(currentMonthCategories.size() + missingCategories.size());
+        List<BudgetCategoryDO> allCategories = new ArrayList<>(currentMonthCategories.size() + missingCategories.size());
         allCategories.addAll(categoriesWithoutBudget);
         allCategories.addAll(currentMonthCategories);
-        allCategories.sort(Comparator.comparing(BudgetCategoryTO::name));
+        allCategories.sort(Comparator.comparing(BudgetCategoryDO::name));
 
         return allCategories;
     }
 
-    private List<BudgetCategoryTO> getCategoriesWithoutCurrentMonthBudget(YearMonth requestedMonth,
+    private List<BudgetCategoryDO> getCategoriesWithoutCurrentMonthBudget(YearMonth requestedMonth,
                                                                           List<CategoryPO> missingCategories) {
         YearMonth previousMonth = requestedMonth.minusMonths(1);
         // What if some category still does not have a budget for the previous month?
@@ -119,13 +121,13 @@ public class BudgetController {
 
     // Should this be a static method on BudgetCategoryTO?
     // The expenses are expected to be just for the budgetCategory
-    private BudgetCategoryTO createCurrentMonthCategoryWithoutBudget(BudgetCategoryProjection budgetCategory,
+    private BudgetCategoryDO createCurrentMonthCategoryWithoutBudget(BudgetCategoryProjection budgetCategory,
                                                                      List<ExpensePO> pastMonthExpenses) {
         var totalSpent = pastMonthExpenses.stream()
                                           .map(ExpensePO::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new BudgetCategoryTO(budgetCategory.getCategoryId(),
+        return new BudgetCategoryDO(budgetCategory.getCategoryId(),
                                     budgetCategory.getName(),
                                     budgetCategory.getAmountInherited().add(budgetCategory.getAmountAssigned()).subtract(totalSpent),
                                     BigDecimal.ZERO,
@@ -133,13 +135,13 @@ public class BudgetController {
     }
 
     // TODO Somewhat duplicated from ExpensesController, a new utility class should be created
-    private BudgetCategoryTO createCurrentMonthCategory(BudgetCategoryProjection c,
+    private BudgetCategoryDO createCurrentMonthCategory(BudgetCategoryProjection c,
                                                         List<ExpensePO> expenses) {
         var totalSpentInCategory = expenses.stream()
                                            .filter(e -> e.getCategory().getName().equals(c.getName()))
                                            .map(ExpensePO::getAmount)
                                            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return BudgetCategoryTO.from(c, totalSpentInCategory);
+        return BudgetCategoryDO.from(c, totalSpentInCategory);
     }
 
     @Transactional
@@ -185,16 +187,16 @@ public class BudgetController {
                                      .subtract(totalMonthExpenses);
     }
 
-    private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryTO> allCategories) {
+    private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryDO> allCategories) {
         model.addAttribute("currentMonth", month);
         model.addAttribute("budgetCategories", allCategories);
         model.addAttribute("totalAssigned",
                            allCategories.stream()
-                                        .map(BudgetCategoryTO::amountAssigned)
+                                        .map(BudgetCategoryDO::amountAssigned)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add));
         model.addAttribute("totalBalance",
                            allCategories.stream()
-                                   .map(BudgetCategoryTO::getTotalAmount)
+                                   .map(BudgetCategoryDO::getTotalAmount)
                                    .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         // Small utility to copy budget from previous month
@@ -315,23 +317,3 @@ public class BudgetController {
 }
 
 
-record BudgetCategoryTO(Integer id, Integer categoryId, String name, BigDecimal amountInherited, BigDecimal amountAssigned, BigDecimal amountSpent) {
-
-    BudgetCategoryTO(Integer categoryId, String name, BigDecimal amountInherited, BigDecimal amountAssigned, BigDecimal amountSpent) {
-        this(null, categoryId, name, amountInherited, amountAssigned, amountSpent);
-    }
-
-    public static BudgetCategoryTO from(BudgetCategoryProjection projection, BigDecimal amountSpent) {
-        return new BudgetCategoryTO(projection.getId(),
-                                    projection.getCategoryId(),
-                                    projection.getName(),
-                                    projection.getAmountInherited(),
-                                    projection.getAmountAssigned(),
-                                    amountSpent);
-    }
-
-    @UsedInTemplate
-    public BigDecimal getTotalAmount() {
-        return amountAssigned.add(amountInherited).subtract(amountSpent);
-    }
-}

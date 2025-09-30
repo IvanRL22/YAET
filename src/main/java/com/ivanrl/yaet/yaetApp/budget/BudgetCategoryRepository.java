@@ -1,5 +1,6 @@
 package com.ivanrl.yaet.yaetApp.budget;
 
+import com.ivanrl.yaet.yaetApp.domain.budget.BudgetCategoryProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
