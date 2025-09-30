@@ -5,6 +5,7 @@ import com.ivanrl.yaet.yaetApp.budget.BudgetCategoryRepository;
 import com.ivanrl.yaet.yaetApp.expenses.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -23,6 +24,7 @@ public class SeeMonthBudgetUseCase {
     private final ExpenseRepository expenseRepository;
     private final IncomeRepository incomeRepository;
 
+    @Transactional(readOnly = true)
     public BudgetMonthDO seeMonthlyBudget(YearMonth requestedMonth) {
         YearMonth lastAvailableMonth = YearMonth.now().plusMonths(1);
         // TODO Should this be a different exception?
@@ -37,7 +39,8 @@ public class SeeMonthBudgetUseCase {
         return new BudgetMonthDO(totalIncome, categories);
     }
 
-    public List<BudgetCategoryDO> getMonhtlyBudgets(YearMonth requestedMonth) {
+    @Transactional(readOnly = true)
+    public List<BudgetCategoryDO> getBudgets(YearMonth requestedMonth) {
         return getCategoriesInformation(requestedMonth);
     }
 

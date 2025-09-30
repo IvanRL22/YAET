@@ -4,10 +4,10 @@ import com.ivanrl.yaet.yaetApp.BadRequestException;
 import com.ivanrl.yaet.yaetApp.domain.budget.BudgetCategoryDO;
 import com.ivanrl.yaet.yaetApp.domain.budget.BudgetCategoryProjection;
 import com.ivanrl.yaet.yaetApp.domain.budget.SeeMonthBudgetUseCase;
+import com.ivanrl.yaet.yaetApp.domain.budget.UpdateMonthBudgetUseCase;
 import com.ivanrl.yaet.yaetApp.expenses.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +25,7 @@ public class BudgetController {
     private final CategoryRepository categoryRepository;
     private final ExpenseRepository expenseRepository;
     private final SeeMonthBudgetUseCase seeMonthBudgetUseCase;
+    private final UpdateMonthBudgetUseCase updateMonthBudgetUseCase;
 
 
     @GetMapping(value = {"", "/{month}"})
@@ -144,7 +145,6 @@ public class BudgetController {
         return BudgetCategoryDO.from(c, totalSpentInCategory);
     }
 
-    @Transactional
     @PostMapping("/{month}/{categoryId}/assignAmount")
     public String setAmount(@PathVariable YearMonth month,
                             @PathVariable int categoryId,
@@ -153,38 +153,14 @@ public class BudgetController {
 
         var newAmount = Optional.ofNullable(amount)
                                 .orElse(BigDecimal.ZERO);
-        YearMonth previousMonth = month.minusMonths(1);
-        var previousBudgetCategory = this.budgetCategoryRepository.findByCategoryIdAndMonth(categoryId,
-                                                                                            previousMonth);
 
-        BigDecimal balanceFromLastMonth = previousBudgetCategory.map(balance -> getMonthBalance(balance, previousMonth))
-                                                                  .orElse(BigDecimal.ZERO);
+        this.updateMonthBudgetUseCase.createMonthBudget(month, categoryId, newAmount);
 
-        var po = new BudgetCategoryPO(this.categoryRepository.getReferenceById(categoryId),
-                                      month,
-                                      balanceFromLastMonth,
-                                      newAmount);
-        this.budgetCategoryRepository.save(po);
-
-        var allCategories = getCategoriesInformation(month);
+        var allCategories = this.seeMonthBudgetUseCase.getBudgets(month);
 
         addBudgetCategoriesInformationToModel(model, month, allCategories);
 
         return "budget :: budget-info";
-    }
-
-    private BigDecimal getMonthBalance(BudgetCategoryPO previousBudgetCategory, YearMonth month) {
-        var expenses = this.expenseRepository.findAllByCategoryAndDateBetween(previousBudgetCategory.getCategory().getId(),
-                                                                              month.atDay(1),
-                                                                              month.atEndOfMonth());
-
-        BigDecimal totalMonthExpenses = expenses.stream()
-                                                .map(ExpensePO::getAmount)
-                                                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return previousBudgetCategory.getAmountInherited()
-                                     .add(previousBudgetCategory.getAmountAssigned())
-                                     .subtract(totalMonthExpenses);
     }
 
     private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryDO> allCategories) {
@@ -206,7 +182,6 @@ public class BudgetController {
         }
     }
 
-    @Transactional
     @PutMapping("/{month}/{categoryId}/updateAmount")
     public String updateAmount(@PathVariable YearMonth month,
                                @PathVariable int categoryId,
@@ -215,17 +190,9 @@ public class BudgetController {
         var newAmount = Optional.ofNullable(amount)
                                 .orElse(BigDecimal.ZERO);
 
-        var po = budgetCategoryRepository.findByCategoryIdAndMonth(categoryId, month)
-                                         .orElseThrow(); // TODO Handle - Need to decide how this should look in the frontend
-        var differenceInAmountAssigned = newAmount.subtract(po.getAmountAssigned());
-        po.setAmountAssigned(newAmount);
+        this.updateMonthBudgetUseCase.setBudgetAmount(month, categoryId, newAmount);
 
-        // Update future budgets (at most 1 for now)
-        budgetCategoryRepository.updateBudgetCategoryAmount(categoryId,
-                                                            month,
-                                                            differenceInAmountAssigned);
-
-        var allCategories = getCategoriesInformation(month);
+        var allCategories = this.seeMonthBudgetUseCase.getBudgets(month);
 
         addBudgetCategoriesInformationToModel(model, month, allCategories);
 
