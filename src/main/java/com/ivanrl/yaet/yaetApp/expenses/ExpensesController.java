@@ -1,6 +1,7 @@
 package com.ivanrl.yaet.yaetApp.expenses;
 
 import com.ivanrl.yaet.yaetApp.UsedInTemplate;
+import com.ivanrl.yaet.yaetApp.domain.expense.ExpenseDO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -101,10 +102,10 @@ public class ExpensesController {
         BigDecimal totalAmount = expensesPOs.stream()
                                                  .map(ExpensePO::getAmount)
                                                  .reduce(BigDecimal.ZERO, BigDecimal::add);
-        List<Expense> expenses = expensesPOs.stream()
-                                            .map(Expense::from)
-                                            .sorted(Comparator.comparing(Expense::date))
-                                            .toList();
+        List<ExpenseDO> expenses = expensesPOs.stream()
+                                              .map(ExpenseDO::from)
+                                              .sorted(Comparator.comparing(ExpenseDO::date))
+                                              .toList();
 
         return new CategoryExpense(entry.getKey().getName(),
                                    totalAmount,
@@ -130,7 +131,7 @@ record Category(Integer id, String name, String description) {
     }
 }
 
-record CategoryExpense(String category, BigDecimal totalAmount, List<Expense> expenses) {}
+record CategoryExpense(String category, BigDecimal totalAmount, List<ExpenseDO> expenses) {}
 record MonthOverview(YearMonth month,
                      List<CategoryExpense> categories,
                      BigDecimal totalExpense,

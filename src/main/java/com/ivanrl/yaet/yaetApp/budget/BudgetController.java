@@ -5,7 +5,8 @@ import com.ivanrl.yaet.yaetApp.domain.budget.BudgetCategoryDO;
 import com.ivanrl.yaet.yaetApp.domain.budget.CopyFromPreviousUseCase;
 import com.ivanrl.yaet.yaetApp.domain.budget.SeeMonthBudgetUseCase;
 import com.ivanrl.yaet.yaetApp.domain.budget.UpdateMonthBudgetUseCase;
-import com.ivanrl.yaet.yaetApp.expenses.*;
+import com.ivanrl.yaet.yaetApp.domain.expense.ExpenseDO;
+import com.ivanrl.yaet.yaetApp.domain.expense.SeeExpensesUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,10 +22,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BudgetController {
 
-    private final CategoryRepository categoryRepository;
-    private final ExpenseRepository expenseRepository;
     private final SeeMonthBudgetUseCase seeMonthBudgetUseCase;
     private final UpdateMonthBudgetUseCase updateMonthBudgetUseCase;
+    private final SeeExpensesUseCase seeExpensesUseCase;
     private final CopyFromPreviousUseCase copyFromPreviousUseCase;
 
 
@@ -106,20 +106,16 @@ public class BudgetController {
     public String getCategoryExpenses(@PathVariable YearMonth month,
                                       @PathVariable int categoryId,
                                       Model model) {
-        var from = month.atDay(1);
-        var to = month.atEndOfMonth();
-        var expenses = expenseRepository.findAllByCategoryAndDateBetween(categoryId, from, to);
 
-        CategoryPO categoryPO = categoryRepository.findById(categoryId).orElseThrow();
-        model.addAttribute("categoryName", categoryPO.getName());
-        model.addAttribute("categoryDescription", categoryPO.getDescription());
-        model.addAttribute("expenses", expenses.stream()
-                                               .map(Expense::from)
-                                               .toList());
+        var categoryExpenses = this.seeExpensesUseCase.getExpenses(categoryId, month);
+
+        model.addAttribute("categoryName",categoryExpenses.category().name());
+        model.addAttribute("categoryDescription", categoryExpenses.category().description());
+        model.addAttribute("expenses", categoryExpenses.expenses());
         model.addAttribute("categoryTotal",
-                           expenses.stream()
-                                   .map(ExpensePO::getAmount)
-                                   .reduce(BigDecimal.ZERO, BigDecimal::add));
+                           categoryExpenses.expenses().stream()
+                                           .map(ExpenseDO::amount)
+                                           .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         return "budget :: expenses";
     }
