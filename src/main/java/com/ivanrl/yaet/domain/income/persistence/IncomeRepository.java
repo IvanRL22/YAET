@@ -1,0 +1,22 @@
+package com.ivanrl.yaet.domain.income.persistence;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+public interface IncomeRepository extends JpaRepository<IncomePO, Integer> {
+
+    @Query("""
+            select coalesce(sum(amount), 0)
+            from incomes
+            where date >= :from
+            and date <= :to
+            """)
+    BigDecimal getTotalIncome(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    List<IncomePO> findTop10ByOrderByDateDesc();
+}
