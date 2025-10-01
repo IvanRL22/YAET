@@ -41,7 +41,6 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
             """)
     Set<BudgetCategoryProjection> findAll(YearMonth month, Set<Integer> categoryIds);
 
-
     Optional<BudgetCategoryPO> findByCategoryIdAndMonth(int categoryId, YearMonth month);
 
     @Modifying

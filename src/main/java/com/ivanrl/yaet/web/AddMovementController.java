@@ -4,28 +4,26 @@ import com.ivanrl.yaet.domain.category.domain.SeeCategoriesUseCase;
 import com.ivanrl.yaet.domain.expense.ManageExpensesUseCase;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
 import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
-import com.ivanrl.yaet.domain.income.persistence.IncomePO;
-import com.ivanrl.yaet.domain.income.persistence.IncomeRepository;
+import com.ivanrl.yaet.domain.income.ManageIncomeUseCase;
+import com.ivanrl.yaet.domain.income.NewIncomeRequest;
+import com.ivanrl.yaet.domain.income.SeeIncomesUseCase;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 @Controller
 @RequestMapping("/new")
 @RequiredArgsConstructor
 public class AddMovementController {
 
-    private final IncomeRepository incomeRepository;
     private final ManageExpensesUseCase manageExpensesUseCase;
     private final SeeExpensesUseCase seeExpensesUseCase;
     private final SeeCategoriesUseCase seeCategoriesUseCase;
+    private final ManageIncomeUseCase manageIncomeUseCase;
+    private final SeeIncomesUseCase seeIncomesUseCase;
 
     @GetMapping
     public String baseView(Model model) {
@@ -34,9 +32,9 @@ public class AddMovementController {
 
         model.addAttribute("lastExpenses", this.seeExpensesUseCase.getLastExpenses());
 
-        model.addAttribute("income", new NewIncome(Strings.EMPTY, null, LocalDate.now()));
+        model.addAttribute("income", NewIncomeRequest.empty());
 
-        model.addAttribute("lastIncomes", this.incomeRepository.findTop10ByOrderByDateDesc());
+        model.addAttribute("lastIncomes", this.seeIncomesUseCase.getIncomes());
 
 
         return "newExpense";
@@ -72,16 +70,14 @@ public class AddMovementController {
 
     @PostMapping("/income")
     public String addNewIncome(Model model,
-                               @RequestBody NewIncome newIncome) {
-        IncomePO newPO = new IncomePO(newIncome.payer(), newIncome.amount(), newIncome.date());
-        this.incomeRepository.save(newPO);
+                               @RequestBody NewIncomeRequest newIncome) {
+        var income = this.manageIncomeUseCase.addNewIncome(newIncome);
 
-        model.addAttribute("incomeMessage", "A new income for %s€ was successfully added.".formatted(newPO.getAmount()));
-        model.addAttribute("income", newIncome);
-        model.addAttribute("lastIncomes", this.incomeRepository.findTop10ByOrderByDateDesc());
+        model.addAttribute("incomeMessage", "A new income for %s€ was successfully added.".formatted(income.amount()));
+        model.addAttribute("income", newIncome); // Using same data is fine, as long as nothing changes when persisting
+        model.addAttribute("lastIncomes", this.seeIncomesUseCase.getIncomes());
 
         return "newExpense :: addIncome";
     }
 }
 
-record NewIncome(String payer, BigDecimal amount, LocalDate date) {}
