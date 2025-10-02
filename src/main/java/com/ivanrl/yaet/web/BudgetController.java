@@ -1,11 +1,9 @@
 package com.ivanrl.yaet.web;
 
 import com.ivanrl.yaet.BadRequestException;
-import com.ivanrl.yaet.domain.budget.BudgetCategoryDO;
 import com.ivanrl.yaet.domain.budget.CopyFromPreviousUseCase;
 import com.ivanrl.yaet.domain.budget.SeeMonthBudgetUseCase;
 import com.ivanrl.yaet.domain.budget.UpdateMonthBudgetUseCase;
-import com.ivanrl.yaet.domain.expense.ExpenseDO;
 import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -40,7 +38,7 @@ public class BudgetController {
             throw new BadRequestException("You can only see up to the next month.");
         }
 
-        var monthlyBudget = this.seeMonthBudgetUseCase.seeMonthlyBudget(requestedMonth);
+        var monthlyBudget = BudgetMonthTO.from(this.seeMonthBudgetUseCase.seeMonthlyBudget(requestedMonth));
 
         var allCategories = monthlyBudget.categories();
 
@@ -55,7 +53,7 @@ public class BudgetController {
 
         BigDecimal totalIncome = monthlyBudget.totalIncome();
         BigDecimal totalSpent = allCategories.stream()
-                                             .map(BudgetCategoryDO::amountSpent)
+                                             .map(BudgetCategoryTO::amountSpent)
                                              .reduce(BigDecimal.ZERO, BigDecimal::add);
         model.addAttribute("monthIncome", totalIncome);
         model.addAttribute("monthSpent", totalSpent);
@@ -78,7 +76,10 @@ public class BudgetController {
 
         this.updateMonthBudgetUseCase.createMonthBudget(month, categoryId, newAmount);
 
-        var allCategories = this.seeMonthBudgetUseCase.getBudgets(month);
+        var allCategories = this.seeMonthBudgetUseCase.getBudgets(month)
+                                                      .stream()
+                                                      .map(BudgetCategoryTO::from)
+                                                      .toList();
 
         addBudgetCategoriesInformationToModel(model, month, allCategories);
 
@@ -95,7 +96,10 @@ public class BudgetController {
 
         this.updateMonthBudgetUseCase.setBudgetAmount(month, categoryId, newAmount);
 
-        var allCategories = this.seeMonthBudgetUseCase.getBudgets(month);
+        var allCategories = this.seeMonthBudgetUseCase.getBudgets(month)
+                                                      .stream()
+                                                      .map(BudgetCategoryTO::from)
+                                                      .toList();
 
         addBudgetCategoriesInformationToModel(model, month, allCategories);
 
@@ -107,14 +111,14 @@ public class BudgetController {
                                       @PathVariable int categoryId,
                                       Model model) {
 
-        var categoryExpenses = this.seeExpensesUseCase.getExpenses(categoryId, month);
+        var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(categoryId, month));
 
         model.addAttribute("categoryName",categoryExpenses.category().name());
         model.addAttribute("categoryDescription", categoryExpenses.category().description());
         model.addAttribute("expenses", categoryExpenses.expenses());
         model.addAttribute("categoryTotal",
                            categoryExpenses.expenses().stream()
-                                           .map(ExpenseDO::amount)
+                                           .map(BasicExpenseTO::amount)
                                            .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         return "budget :: expenses";
@@ -125,7 +129,10 @@ public class BudgetController {
                                       Model model) {
         this.copyFromPreviousUseCase.copyFor(month);
 
-        var categoryBudgets = this.seeMonthBudgetUseCase.getBudgets(month);
+        var categoryBudgets = this.seeMonthBudgetUseCase.getBudgets(month)
+                                                        .stream()
+                                                        .map(BudgetCategoryTO::from)
+                                                        .toList();
 
         addBudgetCategoriesInformationToModel(model,
                                               month,
@@ -134,16 +141,16 @@ public class BudgetController {
         return "budget :: budget-info";
     }
 
-    private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryDO> allCategories) {
+    private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryTO> allCategories) {
         model.addAttribute("currentMonth", month);
         model.addAttribute("budgetCategories", allCategories);
         model.addAttribute("totalAssigned",
                            allCategories.stream()
-                                        .map(BudgetCategoryDO::amountAssigned)
+                                        .map(BudgetCategoryTO::amountAssigned)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add));
         model.addAttribute("totalBalance",
                            allCategories.stream()
-                                        .map(BudgetCategoryDO::getTotalAmount)
+                                        .map(BudgetCategoryTO::getTotalAmount)
                                         .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         // Small utility to copy budget from previous month
