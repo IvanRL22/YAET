@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -27,8 +28,8 @@ public class BudgetController {
 
 
     @GetMapping(value = {"", "/{month}"})
-    public String budget(@PathVariable(required = false) YearMonth month,
-                         Model model) {
+    public ModelAndView budget(@PathVariable(required = false) YearMonth month,
+                               Model model) {
         YearMonth now = YearMonth.now();
         var requestedMonth = Optional.ofNullable(month)
                                      .orElse(now);
@@ -62,14 +63,14 @@ public class BudgetController {
         // Budget information
         addBudgetCategoriesInformationToModel(model, requestedMonth, allCategories);
 
-        return "budget";
+        return new ModelAndView("budget", model.asMap());
     }
 
     @PostMapping("/{month}/{categoryId}/assignAmount")
-    public String setAmount(@PathVariable YearMonth month,
-                            @PathVariable int categoryId,
-                            @RequestParam(required = false) BigDecimal amount,
-                            Model model) {
+    public ModelAndView setAmount(@PathVariable YearMonth month,
+                                  @PathVariable int categoryId,
+                                  @RequestParam(required = false) BigDecimal amount,
+                                  Model model) {
 
         var newAmount = Optional.ofNullable(amount)
                                 .orElse(BigDecimal.ZERO);
@@ -83,14 +84,14 @@ public class BudgetController {
 
         addBudgetCategoriesInformationToModel(model, month, allCategories);
 
-        return "budget :: budget-info";
+        return new ModelAndView("budget :: budget-info", model.asMap());
     }
 
     @PutMapping("/{month}/{categoryId}/updateAmount")
-    public String updateAmount(@PathVariable YearMonth month,
-                               @PathVariable int categoryId,
-                               @RequestParam(required = false) BigDecimal amount,
-                               Model model) {
+    public ModelAndView updateAmount(@PathVariable YearMonth month,
+                                     @PathVariable int categoryId,
+                                     @RequestParam(required = false) BigDecimal amount,
+                                     Model model) {
         var newAmount = Optional.ofNullable(amount)
                                 .orElse(BigDecimal.ZERO);
 
@@ -103,11 +104,11 @@ public class BudgetController {
 
         addBudgetCategoriesInformationToModel(model, month, allCategories);
 
-        return "budget :: budget-info";
+        return new ModelAndView("budget :: budget-info", model.asMap());
     }
 
     @GetMapping("/{month}/{categoryId}")
-    public String getCategoryExpenses(@PathVariable YearMonth month,
+    public ModelAndView getCategoryExpenses(@PathVariable YearMonth month,
                                       @PathVariable int categoryId,
                                       Model model) {
 
@@ -121,11 +122,11 @@ public class BudgetController {
                                            .map(BasicExpenseTO::amount)
                                            .reduce(BigDecimal.ZERO, BigDecimal::add));
 
-        return "budget :: expenses";
+        return new ModelAndView("budget :: expenses", model.asMap());
     }
 
     @PostMapping("/copy-from-previous")
-    public String generateMonthBudget(@RequestParam YearMonth month,
+    public ModelAndView generateMonthBudget(@RequestParam YearMonth month,
                                       Model model) {
         this.copyFromPreviousUseCase.copyFor(month);
 
@@ -138,7 +139,7 @@ public class BudgetController {
                                               month,
                                               categoryBudgets);
 
-        return "budget :: budget-info";
+        return new ModelAndView("budget :: budget-info", model.asMap());
     }
 
     private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryTO> allCategories) {
