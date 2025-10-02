@@ -1,6 +1,7 @@
 package com.ivanrl.yaet.domain.category.domain;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
 import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,6 @@ public class SeeCategoriesUseCase {
     private final CategoryRepository categoryRepository;
 
     public List<CategoryDO> getAll() {
-        return this.categoryRepository.findAll().stream().map(CategoryDO::from).toList();
+        return this.categoryRepository.findAll().stream().map(CategoryPO::toDomainModel).toList();
     }
 }

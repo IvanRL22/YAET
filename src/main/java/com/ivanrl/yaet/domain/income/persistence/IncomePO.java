@@ -1,6 +1,7 @@
 package com.ivanrl.yaet.domain.income.persistence;
 
 
+import com.ivanrl.yaet.domain.income.IncomeDO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,5 +36,12 @@ public class IncomePO {
         this.payer = payer;
         this.amount = amount;
         this.date = date;
+    }
+
+    public IncomeDO toDomainModel() {
+        return new IncomeDO(this.getId(),
+                            this.getPayer(),
+                            this.getDate(),
+                            this.getAmount());
     }
 }

@@ -1,7 +1,6 @@
 package com.ivanrl.yaet.domain.expense;
 
 import com.ivanrl.yaet.domain.CategoryExpensesDO;
-import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
 import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
 import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
@@ -29,10 +28,10 @@ public class SeeExpensesUseCase {
         CategoryPO categoryPO = categoryRepository.findById(categoryId).orElseThrow(); // TODO - Create specific exception
         var expenses = expenseRepository.findAllByCategoryAndDateBetween(categoryId, from, to)
                                         .stream()
-                                        .map(ExpenseDO::from)
+                                        .map(ExpensePO::toDomainModel)
                                         .toList();
 
-        return new CategoryExpensesDO(CategoryDO.from(categoryPO),
+        return new CategoryExpensesDO(categoryPO.toDomainModel(),
                                       expenses);
     }
 

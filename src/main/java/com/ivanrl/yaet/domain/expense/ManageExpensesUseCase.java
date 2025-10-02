@@ -28,6 +28,6 @@ public class ManageExpensesUseCase {
                                                                  YearMonth.from(newExpenseRequest.date()),
                                                                  newExpenseRequest.amount().negate());
 
-        return ExpenseDO.from(newPO);
+        return newPO.toDomainModel();
     }
 }

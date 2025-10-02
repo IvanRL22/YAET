@@ -1,5 +1,6 @@
 package com.ivanrl.yaet.domain.category.persistence;
 
+import com.ivanrl.yaet.domain.category.CategoryDO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,5 +23,11 @@ public class CategoryPO {
 
     @Column(name = "description")
     private String description;
+
+    public CategoryDO toDomainModel() {
+        return new CategoryDO(this.getId(),
+                              this.getName(),
+                              this.getDescription());
+    }
 
 }

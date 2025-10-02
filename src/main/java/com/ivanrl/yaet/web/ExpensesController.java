@@ -107,7 +107,7 @@ public class ExpensesController {
                                                  .map(ExpensePO::getAmount)
                                                  .reduce(BigDecimal.ZERO, BigDecimal::add);
         List<ExpenseDO> expenses = expensesPOs.stream()
-                                              .map(ExpenseDO::from)
+                                              .map(ExpensePO::toDomainModel)
                                               .sorted(Comparator.comparing(ExpenseDO::date))
                                               .toList();
 

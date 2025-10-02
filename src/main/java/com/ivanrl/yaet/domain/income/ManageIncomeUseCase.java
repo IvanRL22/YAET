@@ -16,6 +16,6 @@ public class ManageIncomeUseCase {
                                                                  request.amount(),
                                                                  request.date()));
 
-        return IncomeDO.from(newPO);
+        return newPO.toDomainModel();
     }
 }

@@ -2,6 +2,7 @@ package com.ivanrl.yaet.domain.expense.persistence;
 
 
 import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
+import com.ivanrl.yaet.domain.expense.ExpenseDO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,5 +46,13 @@ public class ExpensePO {
         this.amount = amount;
         this.date = date;
         this.comment = comment;
+    }
+
+    public ExpenseDO toDomainModel() {
+        return new ExpenseDO(this.getId(),
+                             this.getCategory().getName(),
+                             this.getPayee(),
+                             this.getAmount(),
+                             this.getDate());
     }
 }
