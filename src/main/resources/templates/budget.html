@@ -1,7 +1,6 @@
 <main class="flex justify-center gap-x-4">
-    <!-- /* Budget is already on its own div so in the future I can show a category's expenses on a second div */ -->
     <div id="main-budget-content"
-         class="flex items-center flex-col">
+         class="grow-1 flex items-center flex-col">
         <h1>Your budget</h1>
         <div id="budget-navigator"
              hx-swap="outerHTML"
@@ -107,12 +106,14 @@
     </style>
     <!-- /* TODO This should probably go on its own file */ -->
     <div id="category-expenses"
-         th:fragment="expenses">
+         th:fragment="expenses"
+         class="bg-white has-[div]:basis-4/10">
         <div id="category-expenses-content"
              th:if="${expenses}"
-            class="w-90">
+             class="w-120 relative">
             <span th:text="|Expenses for ${categoryName}"></span>
-            <button onclick="document.getElementById('category-expenses-content').remove();">Close</button>
+            <button onclick="document.getElementById('category-expenses-content').remove();"
+                    class="absolute right-0 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition">X</button>
             <span th:text="${categoryDescription}"
                   class="block my-1"></span>
             <span th:if="${expenses.size() == 0}"
