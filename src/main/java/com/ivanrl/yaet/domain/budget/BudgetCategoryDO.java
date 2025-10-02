@@ -1,7 +1,10 @@
 package com.ivanrl.yaet.domain.budget;
 
+import com.ivanrl.yaet.domain.DomainModel;
+
 import java.math.BigDecimal;
 
+@DomainModel
 public record BudgetCategoryDO(Integer id,
                                Integer categoryId, // TODO Replace with actual object
                                String name, // TODO Replace with actual object
