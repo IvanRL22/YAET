@@ -1,28 +1,23 @@
 package com.ivanrl.yaet.domain.expense;
 
 
-import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryRepository;
+import com.ivanrl.yaet.persistence.budget.BudgetCategoryDAO;
 import com.ivanrl.yaet.persistence.expense.ExpenseDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.time.YearMonth;
 
 @Service
 @RequiredArgsConstructor
 public class ManageExpensesUseCase {
 
-    private final BudgetCategoryRepository budgetCategoryRepository;
     private final ExpenseDAO expenseDAO;
+    private final BudgetCategoryDAO budgetCategoryDAO;
     
     public ExpenseDO addExpense(NewExpenseRequest newExpenseRequest) {
         var newExpense = this.expenseDAO.create(newExpenseRequest);
 
         // Extend expense to future budgets
-        // TODO Parameters should be replaced with fields from domain object
-        this.budgetCategoryRepository.updateBudgetCategoryAmount(newExpenseRequest.categoryId(),
-                                                                 YearMonth.from(newExpenseRequest.date()),
-                                                                 newExpenseRequest.amount().negate());
+        this.budgetCategoryDAO.updateBudgetCategoryWithNewExpense(newExpenseRequest);
 
         return newExpense;
     }

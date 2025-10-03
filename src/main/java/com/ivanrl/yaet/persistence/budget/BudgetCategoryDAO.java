@@ -3,6 +3,7 @@ package com.ivanrl.yaet.persistence.budget;
 import com.ivanrl.yaet.domain.budget.BudgetCategoryProjection;
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryRepository;
+import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -31,5 +32,11 @@ public class BudgetCategoryDAO {
                               .map(BudgetCategoryProjection::toDomainModel)
                               .toList();
 
+    }
+
+    public void updateBudgetCategoryWithNewExpense(NewExpenseRequest request) { // Does it make sense to use the request?
+        this.repository.updateBudgetCategoryAmount(request.categoryId(),
+                                                   YearMonth.from(request.date()),
+                                                   request.amount());
     }
 }
