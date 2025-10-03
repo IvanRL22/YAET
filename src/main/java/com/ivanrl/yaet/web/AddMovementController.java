@@ -64,7 +64,7 @@ public class AddMovementController {
                                   @RequestParam(defaultValue = "10") int size,
                                   Model model) {
 
-        model.addAttribute("lastExpenses", this.seeExpensesUseCase.getExpenses(Pageable.ofSize(size).withPage(page)));
+        model.addAttribute("lastExpenses", this.seeExpensesUseCase.getLastExpenses(Pageable.ofSize(size).withPage(page)));
 
         return new ModelAndView("newExpense :: lastExpenses", model.asMap());
     }

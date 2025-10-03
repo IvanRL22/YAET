@@ -1,10 +1,7 @@
 package com.ivanrl.yaet.domain.expense;
 
 import com.ivanrl.yaet.domain.CategoryExpensesDO;
-import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
-import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
+import com.ivanrl.yaet.persistence.expense.ExpenseDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,28 +15,18 @@ import java.time.YearMonth;
 @Transactional(readOnly = true)
 public class SeeExpensesUseCase {
 
-    private final ExpenseRepository expenseRepository;
-    private final CategoryRepository categoryRepository;
+    private final ExpenseDAO expenseDAO;
 
     public CategoryExpensesDO getExpenses(int categoryId,
                                           YearMonth month) {
-        var from = month.atDay(1);
-        var to = month.atEndOfMonth();
-        CategoryPO categoryPO = categoryRepository.findById(categoryId).orElseThrow(); // TODO - Create specific exception
-        var expenses = expenseRepository.findAllByCategoryAndDateBetween(categoryId, from, to)
-                                        .stream()
-                                        .map(ExpensePO::toDomainModel)
-                                        .toList();
-
-        return new CategoryExpensesDO(categoryPO.toDomainModel(),
-                                      expenses);
+        return this.expenseDAO.findAllBy(month, categoryId);
     }
 
-    public Page<ExpensePO> getLastExpenses() {
-        return this.expenseRepository.findLastExpenses(Pageable.ofSize(10));
+    public Page<ExpenseDO> getLastExpenses() {
+        return this.expenseDAO.getLastExpenses(Pageable.ofSize(10));
     }
 
-    public Page<ExpensePO> getExpenses(Pageable pageable) {
-        return this.expenseRepository.findLastExpenses(pageable);
+    public Page<ExpenseDO> getLastExpenses(Pageable pageable) {
+        return this.expenseDAO.getLastExpenses(pageable);
     }
 }

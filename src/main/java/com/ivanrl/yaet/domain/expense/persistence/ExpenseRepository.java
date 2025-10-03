@@ -30,9 +30,9 @@ public interface ExpenseRepository extends JpaRepository<ExpensePO, Integer> {
             AND e.date <= :to
             ORDER BY e.date ASC
             """)
-    List<ExpensePO> findAllByCategoryAndDateBetween(@Param("categoryId") int categoryId,
-                                                    @Param("from") LocalDate from,
-                                                    @Param("to") LocalDate to);
+    List<ExpensePO> findAllWithCategoryByCategoryAndDateBetween(@Param("categoryId") int categoryId,
+                                                                @Param("from") LocalDate from,
+                                                                @Param("to") LocalDate to);
 
     @Query("""
             FROM expenses e

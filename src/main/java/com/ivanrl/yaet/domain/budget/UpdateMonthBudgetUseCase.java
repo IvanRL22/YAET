@@ -57,9 +57,9 @@ public class UpdateMonthBudgetUseCase {
     }
 
     private BigDecimal getMonthBalance(BudgetCategoryPO previousBudgetCategory, YearMonth month) {
-        var expenses = this.expenseRepository.findAllByCategoryAndDateBetween(previousBudgetCategory.getCategory().getId(),
-                                                                              month.atDay(1),
-                                                                              month.atEndOfMonth());
+        var expenses = this.expenseRepository.findAllWithCategoryByCategoryAndDateBetween(previousBudgetCategory.getCategory().getId(),
+                                                                                          month.atDay(1),
+                                                                                          month.atEndOfMonth());
 
         BigDecimal totalMonthExpenses = expenses.stream()
                                                 .map(ExpensePO::getAmount)
