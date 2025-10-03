@@ -1,7 +1,6 @@
 package com.ivanrl.yaet.domain.income;
 
-import com.ivanrl.yaet.domain.income.persistence.IncomePO;
-import com.ivanrl.yaet.domain.income.persistence.IncomeRepository;
+import com.ivanrl.yaet.persistence.income.IncomeDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,13 +8,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ManageIncomeUseCase {
 
-    private final IncomeRepository incomeRepository;
+    private final IncomeDAO incomeDAO;
 
     public IncomeDO addNewIncome(NewIncomeRequest request) {
-        IncomePO newPO = this.incomeRepository.save(new IncomePO(request.payer(),
-                                                                 request.amount(),
-                                                                 request.date()));
-
-        return newPO.toDomainModel();
+        return this.incomeDAO.create(request);
     }
 }
