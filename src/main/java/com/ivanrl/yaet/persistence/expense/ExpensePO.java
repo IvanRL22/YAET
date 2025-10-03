@@ -1,9 +1,9 @@
-package com.ivanrl.yaet.domain.expense.persistence;
+package com.ivanrl.yaet.persistence.expense;
 
 
-import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
 import com.ivanrl.yaet.domain.expense.ExpenseDO;
 import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
+import com.ivanrl.yaet.persistence.category.CategoryPO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

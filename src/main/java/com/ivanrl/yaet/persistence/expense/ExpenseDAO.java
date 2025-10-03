@@ -1,13 +1,11 @@
 package com.ivanrl.yaet.persistence.expense;
 
 import com.ivanrl.yaet.domain.CategoryExpensesDO;
-import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
-import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
 import com.ivanrl.yaet.domain.expense.ExpenseDO;
 import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
+import com.ivanrl.yaet.persistence.category.CategoryPO;
+import com.ivanrl.yaet.persistence.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

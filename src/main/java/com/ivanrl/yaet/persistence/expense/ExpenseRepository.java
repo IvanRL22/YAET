@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.domain.expense.persistence;
+package com.ivanrl.yaet.persistence.expense;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

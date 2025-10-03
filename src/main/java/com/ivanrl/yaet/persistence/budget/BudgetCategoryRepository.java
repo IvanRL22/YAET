@@ -1,6 +1,5 @@
-package com.ivanrl.yaet.domain.budget.persistence;
+package com.ivanrl.yaet.persistence.budget;
 
-import com.ivanrl.yaet.domain.budget.BudgetCategoryProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

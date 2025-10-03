@@ -1,5 +1,6 @@
-package com.ivanrl.yaet.domain.budget;
+package com.ivanrl.yaet.persistence.budget;
 
+import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.domain.category.CategoryDO;
 
 import java.math.BigDecimal;

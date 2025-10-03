@@ -2,7 +2,7 @@ package com.ivanrl.yaet.domain.expense;
 
 import com.ivanrl.yaet.domain.DomainModel;
 import com.ivanrl.yaet.domain.category.CategoryDO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
+import com.ivanrl.yaet.persistence.expense.ExpensePO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,5 +19,9 @@ public record ExpenseWithCategoryDO(int id,
                                          po.getPayee(),
                                          po.getDate(),
                                          po.getAmount());
+    }
+
+    public int getCategoryId() {
+        return category.id();
     }
 }

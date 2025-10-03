@@ -1,10 +1,10 @@
 package com.ivanrl.yaet.domain.budget;
 
-import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryPO;
-import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryRepository;
-import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
+import com.ivanrl.yaet.persistence.budget.BudgetCategoryPO;
+import com.ivanrl.yaet.persistence.budget.BudgetCategoryRepository;
+import com.ivanrl.yaet.persistence.category.CategoryRepository;
+import com.ivanrl.yaet.persistence.expense.ExpensePO;
+import com.ivanrl.yaet.persistence.expense.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

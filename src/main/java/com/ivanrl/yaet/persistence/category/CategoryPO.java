@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.domain.category.persistence;
+package com.ivanrl.yaet.persistence.category;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
 import jakarta.persistence.*;

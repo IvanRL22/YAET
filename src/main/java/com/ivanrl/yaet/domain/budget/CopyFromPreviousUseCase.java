@@ -1,11 +1,10 @@
 package com.ivanrl.yaet.domain.budget;
 
-import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryPO;
-import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryRepository;
-import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
-import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
+import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
+import com.ivanrl.yaet.persistence.budget.BudgetCategoryDAO;
+import com.ivanrl.yaet.persistence.category.CategoryDAO;
+import com.ivanrl.yaet.persistence.expense.ExpenseDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,66 +12,61 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CopyFromPreviousUseCase {
 
-    private final BudgetCategoryRepository budgetCategoryRepository;
-    private final CategoryRepository categoryRepository;
-    private final ExpenseRepository expenseRepository;
+    private final CategoryDAO categoryDAO;
+    private final BudgetCategoryDAO budgetCategoryDAO;
+    private final ExpenseDAO expenseDAO;
 
     public void copyFor(YearMonth month) {
 
-        var previous = month.minusMonths(1);
-        var allCategories = this.categoryRepository.findAll();
-        var currentMonthBudgets = this.budgetCategoryRepository.findAll(month);
+        var previousMonth = month.minusMonths(1);
+        var allCategories = this.categoryDAO.getAll();
+        var currentMonthBudgets = this.budgetCategoryDAO.findAllBy(month);
 
-        List<CategoryPO> categoriesToGenerate;
+        List<CategoryDO> categoriesToGenerate;
         if (currentMonthBudgets.isEmpty()) {
             categoriesToGenerate = allCategories;
         } else {
             var categoriesWithBudget = currentMonthBudgets.stream()
-                                                          .map(BudgetCategoryProjection::getCategoryId)
+                                                          .map(SimpleBudgetCategoryDO::categoryId)
                                                           .collect(Collectors.toSet());
             categoriesToGenerate = allCategories.stream()
-                                                .filter(c -> !categoriesWithBudget.contains(c.getId()))
+                                                .filter(c -> !categoriesWithBudget.contains(c.id()))
                                                 .toList();
         }
 
-        Set<BudgetCategoryProjection> budgetCategoryProjections = this.budgetCategoryRepository.findAll(previous,
-                                                                                                        categoriesToGenerate.stream().map(CategoryPO::getId).collect(Collectors.toSet()));
+        List<SimpleBudgetCategoryDO> budgetCategoryProjections = this.budgetCategoryDAO.findAllBy(previousMonth,
+                                                                                                  categoriesToGenerate.stream()
+                                                                                                                      .map(CategoryDO::id)
+                                                                                                                      .collect(Collectors.toSet()));
 
-        var expenses = this.expenseRepository.findAllWithCategory(previous.atDay(1),
-                                                                  previous.atEndOfMonth(),
-                                                                  budgetCategoryProjections.stream()
-                                                                                           .map(BudgetCategoryProjection::getCategoryId)
-                                                                                           .collect(Collectors.toSet()));
+        var expenses = this.expenseDAO.findAllBy(previousMonth,
+                                                 budgetCategoryProjections.stream()
+                                                                          .map(SimpleBudgetCategoryDO::categoryId)
+                                                                          .collect(Collectors.toSet()));
 
-        var expensesByCategory = expenses.stream().collect(Collectors.groupingBy(e -> e.getCategory().getId()));
+        var expensesByCategory = expenses.stream().collect(Collectors.groupingBy(ExpenseWithCategoryDO::getCategoryId));
 
         var result = budgetCategoryProjections.stream()
-                                              .map(bc -> createBudgetCategory(month, bc, expensesByCategory.getOrDefault(bc.getCategoryId(),
+                                              .map(bc -> createBudgetCategory(bc, expensesByCategory.getOrDefault(bc.categoryId(),
                                                                                                                          Collections.emptyList())))
                                               .toList();
 
-        this.budgetCategoryRepository.saveAll(result);
+        this.budgetCategoryDAO.saveAll(result, month);
     }
 
-    private BudgetCategoryPO createBudgetCategory(YearMonth month,
-                                                  BudgetCategoryProjection bc,
-                                                  List<ExpensePO> expensePOS) {
-        var totalSpent = expensePOS.stream()
-                                   .map(ExpensePO::getAmount)
+    private BudgetCategoryDO createBudgetCategory(SimpleBudgetCategoryDO budgetCategory,
+                                                  List<ExpenseWithCategoryDO> expenses) {
+        var totalSpent = expenses.stream()
+                                   .map(ExpenseWithCategoryDO::amount)
                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new BudgetCategoryPO(this.categoryRepository.getReferenceById(bc.getCategoryId()),
-                                    month,
-                                    bc.getAmountInherited()
-                                      .add(bc.getAmountAssigned())
-                                      .subtract(totalSpent),
-                                    bc.getAmountAssigned());
+        return BudgetCategoryDO.from(budgetCategory,
+                                     totalSpent);
     }
 }

@@ -1,11 +1,11 @@
 package com.ivanrl.yaet.web;
 
 import com.ivanrl.yaet.UsedInTemplate;
-import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
 import com.ivanrl.yaet.domain.expense.ExpenseDO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
-import com.ivanrl.yaet.domain.income.persistence.IncomeRepository;
+import com.ivanrl.yaet.persistence.category.CategoryPO;
+import com.ivanrl.yaet.persistence.expense.ExpensePO;
+import com.ivanrl.yaet.persistence.expense.ExpenseRepository;
+import com.ivanrl.yaet.persistence.income.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.domain.income.persistence;
+package com.ivanrl.yaet.persistence.income;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
