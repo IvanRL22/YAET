@@ -6,6 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @DomainModel
-public record IncomeDO(int id, String payee, LocalDate date, BigDecimal amount) {
+public record IncomeDO(int id, String payer, LocalDate date, BigDecimal amount) {
 
 }

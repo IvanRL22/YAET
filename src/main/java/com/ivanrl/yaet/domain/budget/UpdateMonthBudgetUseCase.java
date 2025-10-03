@@ -1,10 +1,8 @@
 package com.ivanrl.yaet.domain.budget;
 
-import com.ivanrl.yaet.persistence.budget.BudgetCategoryPO;
-import com.ivanrl.yaet.persistence.budget.BudgetCategoryRepository;
-import com.ivanrl.yaet.persistence.category.CategoryRepository;
-import com.ivanrl.yaet.persistence.expense.ExpensePO;
-import com.ivanrl.yaet.persistence.expense.ExpenseRepository;
+import com.ivanrl.yaet.domain.expense.ExpenseDO;
+import com.ivanrl.yaet.persistence.budget.BudgetCategoryDAO;
+import com.ivanrl.yaet.persistence.expense.ExpenseDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +14,8 @@ import java.time.YearMonth;
 @RequiredArgsConstructor
 public class UpdateMonthBudgetUseCase {
 
-    private final BudgetCategoryRepository budgetCategoryRepository;
-    private final CategoryRepository categoryRepository;
-    private final ExpenseRepository expenseRepository;
+    private final ExpenseDAO expenseDAO;
+    private BudgetCategoryDAO budgetCategoryDAO;
 
     @Transactional
     public void createMonthBudget(YearMonth month,
@@ -26,17 +23,16 @@ public class UpdateMonthBudgetUseCase {
                              BigDecimal amount) {
 
         YearMonth previousMonth = month.minusMonths(1);
-        var previousBudgetCategory = this.budgetCategoryRepository.findByCategoryIdAndMonth(categoryId,
-                                                                                            previousMonth);
+        var previousBudgetCategory = this.budgetCategoryDAO.findBy(previousMonth,
+                                                                   categoryId);
 
         BigDecimal balanceFromLastMonth = previousBudgetCategory.map(balance -> getMonthBalance(balance, previousMonth))
                                                                 .orElse(BigDecimal.ZERO);
 
-        var po = new BudgetCategoryPO(this.categoryRepository.getReferenceById(categoryId),
+        this.budgetCategoryDAO.create(categoryId,
                                       month,
                                       balanceFromLastMonth,
                                       amount);
-        this.budgetCategoryRepository.save(po);
 
     }
 
@@ -44,29 +40,28 @@ public class UpdateMonthBudgetUseCase {
     public void setBudgetAmount(YearMonth month,
                                 int categoryId,
                                 BigDecimal amount) {
-
-        var po = budgetCategoryRepository.findByCategoryIdAndMonth(categoryId, month)
-                                         .orElseThrow(); // TODO Handle - Need to decide how this should look in the frontend
-        var differenceInAmountAssigned = amount.subtract(po.getAmountAssigned());
-        po.setAmountAssigned(amount);
+        // It feels odd to do it like this, should I bring the object to the domain first?
+        var diffenceInAmount = this.budgetCategoryDAO.assignAmount(month,
+                                                                   categoryId,
+                                                                   amount);
 
         // Update future budgets (at most 1 for now)
-        budgetCategoryRepository.updateBudgetCategoryAmount(categoryId,
-                                                            month,
-                                                            differenceInAmountAssigned);
+        this.budgetCategoryDAO.updateBudgetCategory(categoryId,
+                                                    month,
+                                                    diffenceInAmount);
     }
 
-    private BigDecimal getMonthBalance(BudgetCategoryPO previousBudgetCategory, YearMonth month) {
-        var expenses = this.expenseRepository.findAllWithCategoryByCategoryAndDateBetween(previousBudgetCategory.getCategory().getId(),
-                                                                                          month.atDay(1),
-                                                                                          month.atEndOfMonth());
+    private BigDecimal getMonthBalance(SimpleBudgetCategoryDO previousBudgetCategory, YearMonth month) {
+        var categoryExpenses = this.expenseDAO.findAllBy(month,
+                                                           previousBudgetCategory.categoryId());
 
-        BigDecimal totalMonthExpenses = expenses.stream()
-                                                .map(ExpensePO::getAmount)
-                                                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalMonthExpenses = categoryExpenses.expenses()
+                                                        .stream()
+                                                        .map(ExpenseDO::amount)
+                                                        .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return previousBudgetCategory.getAmountInherited()
-                                     .add(previousBudgetCategory.getAmountAssigned())
+        return previousBudgetCategory.amountInherited()
+                                     .add(previousBudgetCategory.amountAssigned())
                                      .subtract(totalMonthExpenses);
     }
 }
