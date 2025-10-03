@@ -18,12 +18,12 @@ public record BudgetCategoryDO(Integer id,
 
     // TODO This should be somewhere else
     // It's not the business of the domain to know about the persistence details
-    public static BudgetCategoryDO from(BudgetCategoryProjection projection, BigDecimal amountSpent) {
-        return new BudgetCategoryDO(projection.getId(),
-                                    projection.getCategoryId(),
-                                    projection.getName(),
-                                    projection.getAmountInherited(),
-                                    projection.getAmountAssigned(),
+    public static BudgetCategoryDO from(SimpleBudgetCategoryDO budgetCategory, BigDecimal amountSpent) {
+        return new BudgetCategoryDO(budgetCategory.id(),
+                                    budgetCategory.category().id(),
+                                    budgetCategory.category().name(),
+                                    budgetCategory.amountInherited(),
+                                    budgetCategory.amountAssigned(),
                                     amountSpent);
     }
 

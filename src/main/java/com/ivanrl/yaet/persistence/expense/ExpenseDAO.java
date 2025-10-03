@@ -4,6 +4,7 @@ import com.ivanrl.yaet.domain.CategoryExpensesDO;
 import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
 import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
 import com.ivanrl.yaet.domain.expense.ExpenseDO;
+import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
 import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
 import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
@@ -13,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.YearMonth;
+import java.util.List;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -30,6 +33,14 @@ public class ExpenseDAO {
                                                            request.comment()));
 
         return persisted.toDomainModel();
+    }
+
+    public List<ExpenseWithCategoryDO> findAllBy(YearMonth month) {
+        return this.repository.findAllByDateBetween(month.atDay(1),
+                                                    month.atEndOfMonth())
+                              .stream()
+                              .map(ExpenseWithCategoryDO::toDomainModel)
+                              .toList();
     }
 
     public CategoryExpensesDO findAllBy(YearMonth month,
@@ -50,6 +61,16 @@ public class ExpenseDAO {
                                       peristenceExpenses.stream()
                                                         .map(ExpensePO::toDomainModel)
                                                         .toList());
+    }
+
+    public List<ExpenseWithCategoryDO> findAllBy(YearMonth month,
+                                                 Set<Integer> categoryIds) {
+        return this.repository.findAllWithCategory(month.atDay(1),
+                                                   month.atEndOfMonth(),
+                                                   categoryIds)
+                              .stream()
+                              .map(ExpensePO::toDomainModelWithCategory)
+                              .toList();
     }
 
     public Page<ExpenseDO> getLastExpenses(Pageable pageable) {

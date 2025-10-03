@@ -1,12 +1,12 @@
 package com.ivanrl.yaet.domain.budget;
 
 import com.ivanrl.yaet.BadRequestException;
-import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryRepository;
-import com.ivanrl.yaet.domain.category.persistence.CategoryPO;
-import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
-import com.ivanrl.yaet.domain.income.persistence.IncomeRepository;
+import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
+import com.ivanrl.yaet.persistence.budget.BudgetCategoryDAO;
+import com.ivanrl.yaet.persistence.category.CategoryDAO;
+import com.ivanrl.yaet.persistence.expense.ExpenseDAO;
+import com.ivanrl.yaet.persistence.income.IncomeDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,17 +16,16 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class SeeMonthBudgetUseCase {
 
-    private final BudgetCategoryRepository budgetCategoryRepository;
-    private final CategoryRepository categoryRepository;
-    private final ExpenseRepository expenseRepository;
-    private final IncomeRepository incomeRepository;
+    private final ExpenseDAO expenseDAO;
+    private final IncomeDAO incomeDAO;
+    private final CategoryDAO categoryDAO;
+    private final BudgetCategoryDAO budgetCategoryDAO;
 
     @Transactional(readOnly = true)
     public BudgetMonthDO seeMonthlyBudget(YearMonth requestedMonth) {
@@ -36,8 +35,7 @@ public class SeeMonthBudgetUseCase {
             throw new BadRequestException("You can only see up to the next month.");
         }
 
-        BigDecimal totalIncome = this.incomeRepository.getTotalIncome(requestedMonth.atDay(1),
-                                                                      requestedMonth.atEndOfMonth());
+        BigDecimal totalIncome = this.incomeDAO.getTotalIncome(requestedMonth);
         List<BudgetCategoryDO> categories = getCategoriesInformation(requestedMonth);
 
         return new BudgetMonthDO(totalIncome, categories);
@@ -49,17 +47,17 @@ public class SeeMonthBudgetUseCase {
     }
 
     private List<BudgetCategoryDO> getCategoriesInformation(YearMonth requestedMonth) {
-        Set<BudgetCategoryProjection> categoriesFromCurrentMonth = budgetCategoryRepository.findAll(requestedMonth);
-        var currentMonthExpenses = expenseRepository.findAllByDateBetween(requestedMonth.atDay(1),
-                                                                          requestedMonth.atEndOfMonth());
+        var categoriesFromCurrentMonth = this.budgetCategoryDAO.findAllBy(requestedMonth);
+        var currentMonthExpenses = this.expenseDAO.findAllBy(requestedMonth);
+
         var currentMonthCategories = categoriesFromCurrentMonth.stream()
                                                                .map(c -> createCurrentMonthCategory(c, currentMonthExpenses)).toList();
 
         // Checking if all categories have a budget for the requested month
         // Having to check this for each time does not seem very performant
-        var missingCategories = categoryRepository.findAll();
+        var missingCategories = new ArrayList<>(this.categoryDAO.getAll());
         missingCategories.removeIf(c -> categoriesFromCurrentMonth.stream()
-                                                                  .anyMatch(bcp -> bcp.getCategoryId() == c.getId()));
+                                                                  .anyMatch(bcp -> bcp.category().id() == c.id()));
 
         if (missingCategories.isEmpty()) {
             return currentMonthCategories;
@@ -77,50 +75,49 @@ public class SeeMonthBudgetUseCase {
     }
 
     private List<BudgetCategoryDO> getCategoriesWithoutCurrentMonthBudget(YearMonth requestedMonth,
-                                                                          List<CategoryPO> missingCategories) {
+                                                                          List<CategoryDO> missingCategories) {
         YearMonth previousMonth = requestedMonth.minusMonths(1);
         // What if some category still does not have a budget for the previous month?
-        var categoriesWithoutMonthBudget = budgetCategoryRepository.findAll(previousMonth,
+        var categoriesWithoutMonthBudget = this.budgetCategoryDAO.findAllBy(previousMonth,
                                                                             missingCategories.stream()
-                                                                                             .map(CategoryPO::getId)
+                                                                                             .map(CategoryDO::id)
                                                                                              .collect(Collectors.toSet()));
 
-        var pastMonthExpenses = expenseRepository.findAllWithCategory(previousMonth.atDay(1),
-                                                                      previousMonth.atEndOfMonth(),
-                                                                      categoriesWithoutMonthBudget.stream()
-                                                                                                  .map(BudgetCategoryProjection::getCategoryId)
-                                                                                                  .collect(Collectors.toSet()));
+        var pastMonthExpenses = this.expenseDAO.findAllBy(previousMonth,
+                                                         categoriesWithoutMonthBudget.stream()
+                                                                                     .map(SimpleBudgetCategoryDO::categoryId)
+                                                                                     .collect(Collectors.toSet()));
 
         // Grouping the expenses by category now to avoid having to iterate through all of them when creating each TO
         var pastMonthExpensesByCategory = pastMonthExpenses.stream()
-                                                           .collect(Collectors.groupingBy(e -> e.getCategory().getId()));
+                                                           .collect(Collectors.groupingBy(e -> e.category().id()));
 
         return categoriesWithoutMonthBudget.stream()
-                                           .map(cwmb -> createCurrentMonthCategoryWithoutBudget(cwmb, pastMonthExpensesByCategory.getOrDefault(cwmb.getCategoryId(),
+                                           .map(cwmb -> createCurrentMonthCategoryWithoutBudget(cwmb, pastMonthExpensesByCategory.getOrDefault(cwmb.categoryId(),
                                                                                                                                                new ArrayList<>())))
                                            .toList();
     }
 
     // Should this be a static method on BudgetCategoryTO?
     // The expenses are expected to be just for the budgetCategory
-    private BudgetCategoryDO createCurrentMonthCategoryWithoutBudget(BudgetCategoryProjection budgetCategory,
-                                                                     List<ExpensePO> pastMonthExpenses) {
+    private BudgetCategoryDO createCurrentMonthCategoryWithoutBudget(SimpleBudgetCategoryDO budgetCategory,
+                                                                     List<ExpenseWithCategoryDO> pastMonthExpenses) {
         var totalSpent = pastMonthExpenses.stream()
-                                          .map(ExpensePO::getAmount)
+                                          .map(ExpenseWithCategoryDO::amount)
                                           .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new BudgetCategoryDO(budgetCategory.getCategoryId(),
-                                    budgetCategory.getName(),
-                                    budgetCategory.getAmountInherited().add(budgetCategory.getAmountAssigned()).subtract(totalSpent),
+        return new BudgetCategoryDO(budgetCategory.category().id(),
+                                    budgetCategory.category().name(),
+                                    budgetCategory.getBalance().subtract(totalSpent),
                                     BigDecimal.ZERO,
                                     BigDecimal.ZERO);
     }
 
-    private BudgetCategoryDO createCurrentMonthCategory(BudgetCategoryProjection c,
-                                                        List<ExpensePO> expenses) {
+    private BudgetCategoryDO createCurrentMonthCategory(SimpleBudgetCategoryDO c,
+                                                        List<ExpenseWithCategoryDO> expenses) {
         var totalSpentInCategory = expenses.stream()
-                                           .filter(e -> e.getCategory().getName().equals(c.getName()))
-                                           .map(ExpensePO::getAmount)
+                                           .filter(e -> e.category().name().equals(c.category().name()))
+                                           .map(ExpenseWithCategoryDO::amount)
                                            .reduce(BigDecimal.ZERO, BigDecimal::add);
         return BudgetCategoryDO.from(c, totalSpentInCategory);
     }
