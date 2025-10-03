@@ -2,6 +2,7 @@ package com.ivanrl.yaet.persistence.budget;
 
 import com.ivanrl.yaet.YearMonthIntegerAttributeConverter;
 import com.ivanrl.yaet.domain.budget.BudgetCategoryDO;
+import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.persistence.category.CategoryPO;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -56,6 +57,13 @@ public class BudgetCategoryPO {
                                     month,
                                     domainObject.amountInherited(),
                                     domainObject.amountAssigned());
+    }
+
+    public SimpleBudgetCategoryDO toSimpleDomainModel() {
+        return new SimpleBudgetCategoryDO(this.getId(),
+                                    this.category.toDomainModel(),
+                                    this.amountInherited,
+                                    this.amountAssigned);
     }
 }
 

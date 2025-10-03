@@ -45,9 +45,9 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
     @Modifying
     @Query("""
             update budgetCategory bc
-            set bc.amountInherited = bc.amountInherited - :newAmount
+            set bc.amountInherited = bc.amountInherited + :amount
             where bc.category.id = :categoryId
             and bc.month > :month
             """)
-    void updateBudgetCategoryAmount(int categoryId, YearMonth month, BigDecimal newAmount);
+    void updateBudgetCategoryAmount(int categoryId, YearMonth month, BigDecimal amount);
 }

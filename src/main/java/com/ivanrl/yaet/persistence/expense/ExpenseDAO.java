@@ -1,6 +1,6 @@
 package com.ivanrl.yaet.persistence.expense;
 
-import com.ivanrl.yaet.domain.CategoryExpensesDO;
+import com.ivanrl.yaet.domain.expense.CategoryExpensesDO;
 import com.ivanrl.yaet.domain.expense.ExpenseDO;
 import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
@@ -37,7 +37,7 @@ public class ExpenseDAO {
         return this.repository.findAllByDateBetween(month.atDay(1),
                                                     month.atEndOfMonth())
                               .stream()
-                              .map(ExpenseWithCategoryDO::toDomainModel)
+                              .map(ExpensePO::toDomainModelWithCategory)
                               .toList();
     }
 

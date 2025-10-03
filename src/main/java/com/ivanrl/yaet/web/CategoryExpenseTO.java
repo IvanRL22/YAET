@@ -1,6 +1,6 @@
 package com.ivanrl.yaet.web;
 
-import com.ivanrl.yaet.domain.CategoryExpensesDO;
+import com.ivanrl.yaet.domain.expense.CategoryExpensesDO;
 
 import java.util.List;
 

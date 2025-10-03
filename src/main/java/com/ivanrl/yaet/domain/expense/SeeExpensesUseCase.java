@@ -1,6 +1,5 @@
 package com.ivanrl.yaet.domain.expense;
 
-import com.ivanrl.yaet.domain.CategoryExpensesDO;
 import com.ivanrl.yaet.persistence.expense.ExpenseDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -1,9 +1,11 @@
 package com.ivanrl.yaet.domain.budget;
 
+import com.ivanrl.yaet.domain.DomainModel;
 import com.ivanrl.yaet.domain.category.CategoryDO;
 
 import java.math.BigDecimal;
 
+@DomainModel
 public record SimpleBudgetCategoryDO(Integer id,
                                      CategoryDO category,
                                      BigDecimal amountInherited,

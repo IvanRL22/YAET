@@ -7,8 +7,10 @@ import com.ivanrl.yaet.persistence.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -36,10 +38,18 @@ public class BudgetCategoryDAO {
 
     }
 
+    public Optional<SimpleBudgetCategoryDO> findBy(YearMonth month,
+                                                   int categoryId) {
+        return this.repository.findByCategoryIdAndMonth(categoryId,
+                                                        month)
+                              .map(BudgetCategoryPO::toSimpleDomainModel);
+
+    }
+
     public void updateBudgetCategoryWithNewExpense(NewExpenseRequest request) { // Does it make sense to use the request?
         this.repository.updateBudgetCategoryAmount(request.categoryId(),
                                                    YearMonth.from(request.date()),
-                                                   request.amount());
+                                                   request.amount().negate()); // Amount needs to be negated to be substracted
     }
 
     public void saveAll(List<BudgetCategoryDO> result, YearMonth month) {
@@ -49,5 +59,39 @@ public class BudgetCategoryDAO {
     private BudgetCategoryPO map(BudgetCategoryDO domainObject, YearMonth month) {
         var categoryPO = this.categoryRepository.getReferenceById(domainObject.categoryId());
         return BudgetCategoryPO.from(domainObject, categoryPO, month);
+    }
+
+    public void create(int categoryId,
+                       YearMonth month,
+                       BigDecimal balanceFromLastMonth,
+                       BigDecimal amount) {
+        var po = new BudgetCategoryPO(this.categoryRepository.getReferenceById(categoryId),
+                                      month,
+                                      balanceFromLastMonth,
+                                      amount);
+        this.repository.save(po);
+    }
+
+    public BigDecimal assignAmount(YearMonth month,
+                                   int categoryId,
+                                   BigDecimal amount) {
+
+        var po = this.repository.findByCategoryIdAndMonth(categoryId,
+                                                          month)
+                .orElseThrow();
+
+        var difference = amount.subtract(po.getAmountAssigned());
+        po.setAmountAssigned(amount);
+        this.repository.save(po);
+
+        return difference;
+    }
+
+    public void updateBudgetCategory(int categoryId,
+                                     YearMonth month,
+                                     BigDecimal diffenceInAmount) {
+        this.repository.updateBudgetCategoryAmount(categoryId,
+                                                   month,
+                                                   diffenceInAmount);
     }
 }

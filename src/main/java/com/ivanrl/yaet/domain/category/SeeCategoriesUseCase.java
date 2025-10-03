@@ -1,6 +1,5 @@
-package com.ivanrl.yaet.domain.category.domain;
+package com.ivanrl.yaet.domain.category;
 
-import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.persistence.category.CategoryDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

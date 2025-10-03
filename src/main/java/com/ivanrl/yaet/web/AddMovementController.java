@@ -1,6 +1,6 @@
 package com.ivanrl.yaet.web;
 
-import com.ivanrl.yaet.domain.category.domain.SeeCategoriesUseCase;
+import com.ivanrl.yaet.domain.category.SeeCategoriesUseCase;
 import com.ivanrl.yaet.domain.expense.ManageExpensesUseCase;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
 import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
