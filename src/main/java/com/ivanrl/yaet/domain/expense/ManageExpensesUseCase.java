@@ -2,9 +2,7 @@ package com.ivanrl.yaet.domain.expense;
 
 
 import com.ivanrl.yaet.domain.budget.persistence.BudgetCategoryRepository;
-import com.ivanrl.yaet.domain.category.persistence.CategoryRepository;
-import com.ivanrl.yaet.domain.expense.persistence.ExpensePO;
-import com.ivanrl.yaet.domain.expense.persistence.ExpenseRepository;
+import com.ivanrl.yaet.persistence.expense.ExpenseDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,20 +12,18 @@ import java.time.YearMonth;
 @RequiredArgsConstructor
 public class ManageExpensesUseCase {
 
-    private final CategoryRepository categoryRepository;
-    private final ExpenseRepository expenseRepository;
     private final BudgetCategoryRepository budgetCategoryRepository;
+    private final ExpenseDAO expenseDAO;
     
     public ExpenseDO addExpense(NewExpenseRequest newExpenseRequest) {
-
-        ExpensePO newPO = new ExpensePO(categoryRepository.getReferenceById(newExpenseRequest.categoryId()), newExpenseRequest.payee(), newExpenseRequest.amount(), newExpenseRequest.date(), newExpenseRequest.comment());
-        this.expenseRepository.saveAndFlush(newPO); // Need to immediately persist to db
+        var newExpense = this.expenseDAO.create(newExpenseRequest);
 
         // Extend expense to future budgets
+        // TODO Parameters should be replaced with fields from domain object
         this.budgetCategoryRepository.updateBudgetCategoryAmount(newExpenseRequest.categoryId(),
                                                                  YearMonth.from(newExpenseRequest.date()),
                                                                  newExpenseRequest.amount().negate());
 
-        return newPO.toDomainModel();
+        return newExpense;
     }
 }
