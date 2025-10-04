@@ -14,8 +14,8 @@ record BudgetCategoryTO(Integer id,
 
     static BudgetCategoryTO from(BudgetCategoryDO domainObject) {
         return new BudgetCategoryTO(domainObject.id(),
-                                    domainObject.categoryId(),
-                                    domainObject.name(),
+                                    domainObject.category().id(),
+                                    domainObject.category().name(),
                                     domainObject.amountInherited(),
                                     domainObject.amountAssigned(),
                                     domainObject.amountSpent());

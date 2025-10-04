@@ -57,7 +57,7 @@ public class BudgetCategoryDAO {
     }
 
     private BudgetCategoryPO map(BudgetCategoryDO domainObject, YearMonth month) {
-        var categoryPO = this.categoryRepository.getReferenceById(domainObject.categoryId());
+        var categoryPO = this.categoryRepository.getReferenceById(domainObject.category().id());
         return BudgetCategoryPO.from(domainObject, categoryPO, month);
     }
 

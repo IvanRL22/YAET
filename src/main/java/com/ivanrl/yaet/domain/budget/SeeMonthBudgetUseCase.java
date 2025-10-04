@@ -69,7 +69,7 @@ public class SeeMonthBudgetUseCase {
         List<BudgetCategoryDO> allCategories = new ArrayList<>(currentMonthCategories.size() + missingCategories.size());
         allCategories.addAll(categoriesWithoutBudget);
         allCategories.addAll(currentMonthCategories);
-        allCategories.sort(Comparator.comparing(BudgetCategoryDO::name));
+        allCategories.sort(Comparator.comparing(BudgetCategoryDO::getCategoryName));
 
         return allCategories;
     }
@@ -106,8 +106,7 @@ public class SeeMonthBudgetUseCase {
                                           .map(ExpenseWithCategoryDO::amount)
                                           .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new BudgetCategoryDO(budgetCategory.category().id(),
-                                    budgetCategory.category().name(),
+        return new BudgetCategoryDO(budgetCategory.category(),
                                     budgetCategory.getBalance().subtract(totalSpent),
                                     BigDecimal.ZERO,
                                     BigDecimal.ZERO);
