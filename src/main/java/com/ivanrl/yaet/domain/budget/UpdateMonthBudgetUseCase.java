@@ -15,12 +15,12 @@ import java.time.YearMonth;
 public class UpdateMonthBudgetUseCase {
 
     private final ExpenseDAO expenseDAO;
-    private BudgetCategoryDAO budgetCategoryDAO;
+    private final BudgetCategoryDAO budgetCategoryDAO;
 
     @Transactional
     public void createMonthBudget(YearMonth month,
-                             int categoryId,
-                             BigDecimal amount) {
+                                  int categoryId,
+                                  BigDecimal amount) {
 
         YearMonth previousMonth = month.minusMonths(1);
         var previousBudgetCategory = this.budgetCategoryDAO.findBy(previousMonth,
