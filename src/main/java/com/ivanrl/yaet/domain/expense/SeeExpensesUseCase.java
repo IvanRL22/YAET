@@ -28,4 +28,8 @@ public class SeeExpensesUseCase {
     public Page<ExpenseDO> getLastExpenses(Pageable pageable) {
         return this.expenseDAO.getLastExpenses(pageable);
     }
+
+    public ExpenseWithCategoryDO findExpense(int id) {
+        return this.expenseDAO.findBy(id);
+    }
 }

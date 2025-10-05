@@ -62,6 +62,7 @@ public class ExpensePO {
                                          this.getCategory().toDomainModel(),
                                          this.getPayee(),
                                          this.getDate(),
-                                         this.getAmount());
+                                         this.getAmount(),
+                                         this.comment);
     }
 }

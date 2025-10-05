@@ -121,7 +121,12 @@
             <div th:unless="${expenses.size() == 0}"
                  class="grid grid-cols-4 py-1">
                 <th:block th:each="expense: ${expenses}">
-                    <span class="col-span-2 truncate" th:text="${expense.payee}">Payee</span>
+                    <span class="col-span-2 truncate"
+                          th:text="${expense.payee}"
+                          th:hx-get="|/expense-dialog/${expense.id}|"
+                          hx-swap="beforeend"
+                          hx-target="body"
+                          hx-on::after-request="document.getElementById('expense-dialog').showModal(); console.log('Done');">Payee</span>
                     <span class="text-center" th:text="${expense.date}">Date</span>
                     <span class="text-right" th:text="|${expense.amount}€|">€0</span>
                 </th:block>

@@ -77,4 +77,9 @@ public class ExpenseDAO {
     }
 
 
+    public ExpenseWithCategoryDO findBy(int id) {
+        return this.repository.findById(id)
+                .map(ExpensePO::toDomainModelWithCategory)
+                .orElseThrow();// TODO Create proper exception
+    }
 }

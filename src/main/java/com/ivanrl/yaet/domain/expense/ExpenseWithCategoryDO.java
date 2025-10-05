@@ -11,7 +11,8 @@ public record ExpenseWithCategoryDO(int id,
                                     CategoryDO category,
                                     String payee,
                                     LocalDate date,
-                                    BigDecimal amount) {
+                                    BigDecimal amount,
+                                    String comment) {
 
     public int getCategoryId() {
         return category.id();
