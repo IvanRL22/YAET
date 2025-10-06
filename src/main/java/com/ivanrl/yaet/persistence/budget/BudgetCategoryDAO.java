@@ -47,9 +47,9 @@ public class BudgetCategoryDAO {
     }
 
     public void updateBudgetCategoryWithNewExpense(NewExpenseRequest request) { // Does it make sense to use the request?
-        this.repository.updateBudgetCategoryAmount(request.categoryId(),
-                                                   YearMonth.from(request.date()),
-                                                   request.amount().negate()); // Amount needs to be negated to be substracted
+        this.repository.updateCurrentAndFutureBudgetCategories(request.categoryId(),
+                                                               YearMonth.from(request.date()).plusMonths(1),
+                                                               request.amount().negate()); // Amount needs to be negated so it is subtracted
     }
 
     public void saveAll(List<BudgetCategoryDO> result, YearMonth month) {
@@ -87,11 +87,11 @@ public class BudgetCategoryDAO {
         return difference;
     }
 
-    public void updateBudgetCategory(int categoryId,
-                                     YearMonth month,
-                                     BigDecimal diffenceInAmount) {
-        this.repository.updateBudgetCategoryAmount(categoryId,
-                                                   month,
-                                                   diffenceInAmount);
+    public void updateCurrentAndFutureBudgetCategories(int categoryId,
+                                                       YearMonth month,
+                                                       BigDecimal diffenceInAmount) {
+        this.repository.updateCurrentAndFutureBudgetCategories(categoryId,
+                                                               month,
+                                                               diffenceInAmount);
     }
 }

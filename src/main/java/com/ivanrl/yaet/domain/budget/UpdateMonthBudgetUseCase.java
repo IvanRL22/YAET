@@ -46,9 +46,9 @@ public class UpdateMonthBudgetUseCase {
                                                                    amount);
 
         // Update future budgets (at most 1 for now)
-        this.budgetCategoryDAO.updateBudgetCategory(categoryId,
-                                                    month,
-                                                    diffenceInAmount);
+        this.budgetCategoryDAO.updateCurrentAndFutureBudgetCategories(categoryId,
+                                                                      month.plusMonths(1),
+                                                                      diffenceInAmount);
     }
 
     private BigDecimal getMonthBalance(SimpleBudgetCategoryDO previousBudgetCategory, YearMonth month) {

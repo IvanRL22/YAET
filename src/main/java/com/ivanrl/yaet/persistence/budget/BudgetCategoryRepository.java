@@ -42,12 +42,18 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
 
     Optional<BudgetCategoryPO> findByCategoryIdAndMonth(int categoryId, YearMonth month);
 
+    /**
+     * Adjusts current and future budgets with the amount
+     * @param categoryId Identifier of the category
+     * @param month Start of the adjustment. This month and futures ones will be adjusted
+     * @param amount Amount to be added to the budgets. Can be negative.
+     */
     @Modifying
     @Query("""
             update budgetCategory bc
             set bc.amountInherited = bc.amountInherited + :amount
             where bc.category.id = :categoryId
-            and bc.month > :month
+            and bc.month >= :month
             """)
-    void updateBudgetCategoryAmount(int categoryId, YearMonth month, BigDecimal amount);
+    void updateCurrentAndFutureBudgetCategories(int categoryId, YearMonth month, BigDecimal amount);
 }
