@@ -1,9 +1,6 @@
 package com.ivanrl.yaet.persistence.expense;
 
-import com.ivanrl.yaet.domain.expense.CategoryExpensesDO;
-import com.ivanrl.yaet.domain.expense.ExpenseDO;
-import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
-import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
+import com.ivanrl.yaet.domain.expense.*;
 import com.ivanrl.yaet.persistence.category.CategoryPO;
 import com.ivanrl.yaet.persistence.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -81,5 +78,16 @@ public class ExpenseDAO {
         return this.repository.findById(id)
                 .map(ExpensePO::toDomainModelWithCategory)
                 .orElseThrow();// TODO Create proper exception
+    }
+
+    public ExpenseWithCategoryDO update(UpdateExpenseRequest request) {
+        var po = this.repository.findById(request.id()).orElseThrow();
+        po.setPayee(request.payee());
+        po.setDate(request.date());
+        po.setAmount(request.amount());
+        po.setComment(request.comment());
+
+        this.repository.save(po);
+        return po.toDomainModelWithCategory();
     }
 }

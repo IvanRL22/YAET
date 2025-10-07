@@ -1,5 +1,5 @@
 <dialog id="expense-dialog"
-        onclose="this.remove()"
+        onclose="this.remove();"
         class="p-3 flex flex-col justify-center rounded-xl p-6 shadow-xl backdrop:bg-black/50">
     <script>
         function closeDialog() {
@@ -44,53 +44,74 @@
     <hr>
 
     <form id="newExpenseForm"
+          th:fragment="expense-form"
+          th:object="${request}"
           class="mt-3 grid grid-cols-2 max-w-sm self-center"
-          hx-put="/expense"
-          hx-target="#expense-dialog"
-          hx-swap="outerHTML"
-          hx-ext="json-enc">
+          hx-put="/expense-dialog"
+          hx-target="this"
+          hx-swap="outerHTML">
+        <div id="messages"
+             class="col-span-2"
+             th:fragment="messages">
+            <div th:if="${messages}"
+                 class="mb-3 p-2 border rounded-lg border-cyan-600 bg-cyan-100">
+                <ul>
+                    <li th:each="mes : ${messages}" th:text="${mes}">Information</li>
+                </ul>
+            </div>
+        </div>
+        <div id="errors"
+             class="col-span-2"
+             th:fragment="errors">
+            <div th:if="${errors}"
+                 class="mb-3 p-2 border rounded-lg border-red-600 bg-red-100 text-red-500">
+                <ul>
+                    <li th:each="err : ${errors}" th:text="${err}">Input is incorrect</li>
+                </ul>
+            </div>
+        </div>
         <input hidden
                id="id"
                name="id"
-               th:value="${expense.id}">
+               th:field="*{id}">
         <label for="category">Category:</label>
         <select id="category"
                 name="categoryId"
-                th:value="${expense.category.id}">
+                th:value="${expense.category.id}"
+                disabled>
             <option th:each="c : ${categories}"
                     th:value="${c.id}"
                     th:text="${c.name}"
                     th:selected="${c.id == expense.category.id}">
             </option>
         </select>
-<!--        <input id="category"-->
-<!--               name="category"-->
-<!--               class="text-center"-->
-<!--               th:value="${expense.category}">-->
         <label for="payee">Payee:</label>
         <input id="payee"
                name="payee"
-               th:value="${expense.payee}">
+               th:field="*{payee}"
+               maxlength="50">
         <label for="date">Date:</label>
         <input id="date"
                name="date"
                type="date"
-               th:value="${expense.date}">
+               th:value="*{date}"
+               th:min="${minDate}"
+               th:max="${maxDate}">
         <label for="amount">Amount:</label>
         <input id="amount"
                name="amount"
-               class="text-right"
-               th:value="${expense.amount}">
+               th:field="*{amount}"
+               class="text-right">
 
         <label for="comment">Comment:</label>
         <textarea id="comment"
                   name="comment"
-                  th:text="${expense.comment}"
+                  th:field="*{comment}"
                   rows="3"
                   maxlength="255"
                   class="resize-none"></textarea>
         
         <button type="reset">Reset</button>
-        <button type="submit" disabled>Update</button>
+        <button>Update</button>
     </form>
 </dialog>

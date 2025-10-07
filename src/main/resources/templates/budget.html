@@ -126,7 +126,7 @@
                           th:hx-get="|/expense-dialog/${expense.id}|"
                           hx-swap="beforeend"
                           hx-target="body"
-                          hx-on::after-request="document.getElementById('expense-dialog').showModal(); console.log('Done');">Payee</span>
+                          hx-on::after-request="document.getElementById('expense-dialog').showModal();">Payee</span>
                     <span class="text-center" th:text="${expense.date}">Date</span>
                     <span class="text-right" th:text="|${expense.amount}€|">€0</span>
                 </th:block>
