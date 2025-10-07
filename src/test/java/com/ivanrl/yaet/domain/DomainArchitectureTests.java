@@ -32,4 +32,13 @@ class DomainArchitectureTests extends AbstractArchitectureTests {
         rule.because("domain model should not depend on external classes").check(domainClasses);
     }
 
+    @Test
+    void test_that_domain_does_not_depend_on_web() {
+        JavaClasses domainClasses = classFileImporterIgnoringTests().importPackages(ALL_DOMAIN_PACKAGES);
+
+        ArchRule rule = noClasses().should().dependOnClassesThat().resideInAnyPackage("com.ivanrl.yaet.web",
+                                                                                      "com.ivanrl.yaet.web.*");
+
+        rule.because("domain should not depend on web").check(domainClasses);
+    }
 }
