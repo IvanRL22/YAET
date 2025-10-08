@@ -30,8 +30,13 @@ public class ManageExpensesUseCase {
     @Transactional
     public void updateExpense(UpdateExpenseRequest request) {
         var old = this.expenseDAO.findBy(request.id());
+        // TODO Adjust logic to allow changing the month of the expense
         if (!old.date().getMonth().equals(request.date().getMonth())) {
             throw new BadRequestException("Cannot change the date of an expense to a different month");
+        }
+        // TODO Adjust logic to allow changing the category
+        if (old.category().id() != request.categoryId()) {
+            throw new BadRequestException("Changing the category is not supported at the moment");
         }
         var differenceInAmount = old.amount().subtract(request.amount()); // Subtracting from old to get the right sign
 

@@ -48,26 +48,28 @@
           th:object="${request}"
           class="mt-3 grid grid-cols-2 max-w-sm self-center"
           hx-put="/expense-dialog"
-          hx-target="this"
-          hx-swap="outerHTML">
-        <div id="messages"
-             class="col-span-2"
-             th:fragment="messages">
-            <div th:if="${messages}"
-                 class="mb-3 p-2 border rounded-lg border-cyan-600 bg-cyan-100">
-                <ul>
-                    <li th:each="mes : ${messages}" th:text="${mes}">Information</li>
-                </ul>
+          hx-target="#result-information"
+          hx-swap="outerHTML"
+          hx-select-oob="#budget-info, #category-expenses-content, #month-overview">
+        <div id="result-information"
+             class="col-span-2">
+            <div id="messages"
+                 th:fragment="messages">
+                <div th:if="${messages}"
+                     class="mb-3 p-2 border rounded-lg border-cyan-600 bg-cyan-100">
+                    <ul>
+                        <li th:each="mes : ${messages}" th:text="${mes}">Information</li>
+                    </ul>
+                </div>
             </div>
-        </div>
-        <div id="errors"
-             class="col-span-2"
-             th:fragment="errors">
-            <div th:if="${errors}"
-                 class="mb-3 p-2 border rounded-lg border-red-600 bg-red-100 text-red-500">
-                <ul>
-                    <li th:each="err : ${errors}" th:text="${err}">Input is incorrect</li>
-                </ul>
+            <div id="errors"
+                 th:fragment="errors">
+                <div th:if="${errors}"
+                     class="mb-3 p-2 border rounded-lg border-red-600 bg-red-100 text-red-500">
+                    <ul>
+                        <li th:each="err : ${errors}" th:text="${err}">Input is incorrect</li>
+                    </ul>
+                </div>
             </div>
         </div>
         <input hidden
@@ -77,8 +79,7 @@
         <label for="category">Category:</label>
         <select id="category"
                 name="categoryId"
-                th:value="${expense.category.id}"
-                disabled>
+                th:field="*{categoryId}">
             <option th:each="c : ${categories}"
                     th:value="${c.id}"
                     th:text="${c.name}"

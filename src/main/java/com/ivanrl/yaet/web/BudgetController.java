@@ -142,7 +142,8 @@ public class BudgetController {
         return new ModelAndView("budget :: budget-info", model.asMap());
     }
 
-    private static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryTO> allCategories) {
+    // TODO Consider moving this to reusable component
+    public static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryTO> allCategories) {
         model.addAttribute("currentMonth", month);
         model.addAttribute("budgetCategories", allCategories);
         model.addAttribute("totalAssigned",

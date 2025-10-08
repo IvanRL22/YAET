@@ -11,6 +11,7 @@ import java.time.LocalDate;
 
 // TODO Consider if a specific annotation should be defined for web objects
 record UpdateExpenseRequestTO(int id,
+                              int categoryId,
                               @NotEmpty(message = "Payee must not be empty")
                               @Size(max = 50, message = "Payee cannot exceed 50 characters")
                               String payee,
@@ -22,12 +23,13 @@ record UpdateExpenseRequestTO(int id,
                               String comment) {
 
     public UpdateExpenseRequest toDomainModel() {
-        return new UpdateExpenseRequest(id, payee, date, amount, comment);
+        return new UpdateExpenseRequest(id, categoryId, payee, date, amount, comment);
     }
 
 
     public static UpdateExpenseRequestTO from(ExpenseWithCategoryDO expense) {
         return new UpdateExpenseRequestTO(expense.id(),
+                                          expense.category().id(),
                                           expense.payee(),
                                           expense.date(),
                                           expense.amount(),

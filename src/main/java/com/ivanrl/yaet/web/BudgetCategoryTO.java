@@ -5,7 +5,7 @@ import com.ivanrl.yaet.domain.budget.BudgetCategoryDO;
 
 import java.math.BigDecimal;
 
-record BudgetCategoryTO(Integer id,
+public record BudgetCategoryTO(Integer id,
                         Integer categoryId,
                         String name,
                         BigDecimal amountInherited,
