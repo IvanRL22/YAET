@@ -33,7 +33,7 @@ public class ManageExpensesUseCase {
         if (!old.date().getMonth().equals(request.date().getMonth())) {
             throw new BadRequestException("Cannot change the date of an expense to a different month");
         }
-        var differenceInAmount = request.amount().subtract(old.amount());
+        var differenceInAmount = old.amount().subtract(request.amount()); // Subtracting from old to get the right sign
 
         this.expenseDAO.update(request);
 
