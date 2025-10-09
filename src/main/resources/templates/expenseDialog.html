@@ -80,10 +80,18 @@
         <select id="category"
                 name="categoryId"
                 th:field="*{categoryId}">
+            <!-- Slight duplication trick to disable all other options and avoid the user changing the category -->
             <option th:each="c : ${categories}"
+                    th:if="${c.id == categoryId}"
                     th:value="${c.id}"
                     th:text="${c.name}"
-                    th:selected="${c.id == expense.category.id}">
+                    selected>
+            </option>
+            <option th:each="c : ${categories}"
+                    th:unless="${c.id == categoryId}"
+                    th:value="${c.id}"
+                    th:text="${c.name}"
+            disabled>
             </option>
         </select>
         <label for="payee">Payee:</label>
