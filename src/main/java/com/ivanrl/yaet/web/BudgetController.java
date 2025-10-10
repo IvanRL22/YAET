@@ -5,7 +5,9 @@ import com.ivanrl.yaet.domain.budget.CopyFromPreviousUseCase;
 import com.ivanrl.yaet.domain.budget.SeeMonthBudgetUseCase;
 import com.ivanrl.yaet.domain.budget.UpdateMonthBudgetUseCase;
 import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
+import com.ivanrl.yaet.web.components.BudgetInformationComponent;
 import com.ivanrl.yaet.web.components.CategoryExpensesComponent;
+import com.ivanrl.yaet.web.components.MonthOverviewComponent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +16,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -58,12 +59,13 @@ public class BudgetController {
         BigDecimal totalSpent = allCategories.stream()
                                              .map(BudgetCategoryTO::amountSpent)
                                              .reduce(BigDecimal.ZERO, BigDecimal::add);
-        model.addAttribute("monthIncome", totalIncome);
-        model.addAttribute("monthSpent", totalSpent);
-        model.addAttribute("monthBalance", totalIncome.subtract(totalSpent));
+        var monthOverviewComponent = new MonthOverviewComponent(totalIncome,
+                                                                totalSpent);
+        monthOverviewComponent.attach(model);
 
-        // Budget information
-        addBudgetCategoriesInformationToModel(model, requestedMonth, allCategories);
+        var budgetInformationComponent = new BudgetInformationComponent(requestedMonth,
+                                                                        allCategories);
+        budgetInformationComponent.attach(model);
 
         if(categoryDetailsId != null) {
             var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(categoryDetailsId, month));
@@ -90,7 +92,10 @@ public class BudgetController {
                                                       .map(BudgetCategoryTO::from)
                                                       .toList();
 
-        addBudgetCategoriesInformationToModel(model, month, allCategories);
+        var budgetInformationComponent = new BudgetInformationComponent(month,
+                                                                        allCategories);
+        budgetInformationComponent.attach(model);
+
 
         return new ModelAndView("budget :: budget-info", model.asMap());
     }
@@ -110,32 +115,29 @@ public class BudgetController {
                                                       .map(BudgetCategoryTO::from)
                                                       .toList();
 
-        addBudgetCategoriesInformationToModel(model, month, allCategories);
+        var budgetInformationComponent = new BudgetInformationComponent(month,
+                                                                        allCategories);
+        budgetInformationComponent.attach(model);
+
 
         return new ModelAndView("budget :: budget-info", model.asMap());
     }
 
     @GetMapping("/{month}/{categoryId}")
     public ModelAndView getCategoryExpenses(@PathVariable YearMonth month,
-                                      @PathVariable int categoryId,
-                                      Model model) {
+                                            @PathVariable int categoryId,
+                                            Model model) {
 
         var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(categoryId, month));
-
-        model.addAttribute("categoryName",categoryExpenses.category().name());
-        model.addAttribute("categoryDescription", categoryExpenses.category().description());
-        model.addAttribute("expenses", categoryExpenses.expenses());
-        model.addAttribute("categoryTotal",
-                           categoryExpenses.expenses().stream()
-                                           .map(BasicExpenseTO::amount)
-                                           .reduce(BigDecimal.ZERO, BigDecimal::add));
+        var component = new CategoryExpensesComponent(categoryExpenses);
+        component.attach(model);
 
         return new ModelAndView("budget :: expenses", model.asMap());
     }
 
     @PostMapping("/copy-from-previous")
     public ModelAndView generateMonthBudget(@RequestParam YearMonth month,
-                                      Model model) {
+                                            Model model) {
         this.copyFromPreviousUseCase.copyFor(month);
 
         var categoryBudgets = this.seeMonthBudgetUseCase.getBudgets(month)
@@ -143,31 +145,12 @@ public class BudgetController {
                                                         .map(BudgetCategoryTO::from)
                                                         .toList();
 
-        addBudgetCategoriesInformationToModel(model,
-                                              month,
-                                              categoryBudgets);
+        var budgetInformationComponent = new BudgetInformationComponent(month,
+                                                                        categoryBudgets);
+        budgetInformationComponent.attach(model);
+
 
         return new ModelAndView("budget :: budget-info", model.asMap());
-    }
-
-    // TODO Consider moving this to reusable component
-    public static void addBudgetCategoriesInformationToModel(Model model, YearMonth month, List<BudgetCategoryTO> allCategories) {
-        model.addAttribute("currentMonth", month);
-        model.addAttribute("budgetCategories", allCategories);
-        model.addAttribute("totalAssigned",
-                           allCategories.stream()
-                                        .map(BudgetCategoryTO::amountAssigned)
-                                        .reduce(BigDecimal.ZERO, BigDecimal::add));
-        model.addAttribute("totalBalance",
-                           allCategories.stream()
-                                        .map(BudgetCategoryTO::getTotalAmount)
-                                        .reduce(BigDecimal.ZERO, BigDecimal::add));
-
-        // Small utility to copy budget from previous month
-        if (month.isAfter(YearMonth.now())
-                && allCategories.stream().anyMatch(c -> BigDecimal.ZERO.equals(c.amountAssigned()))) {
-            model.addAttribute("missingBudgets", true);
-        }
     }
 
 }

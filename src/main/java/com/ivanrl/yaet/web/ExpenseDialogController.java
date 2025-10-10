@@ -22,8 +22,6 @@ import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
-import static com.ivanrl.yaet.web.BudgetController.addBudgetCategoriesInformationToModel;
-
 @Controller
 @RequestMapping("/expense-dialog")
 @RequiredArgsConstructor
