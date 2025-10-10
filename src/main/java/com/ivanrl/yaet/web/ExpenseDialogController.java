@@ -70,9 +70,7 @@ public class ExpenseDialogController {
         YearMonth month = YearMonth.from(request.date());
         var monthlyBudget = BudgetMonthTO.from(this.seeMonthBudgetUseCase.seeMonthlyBudget(month));
         var allCategories = monthlyBudget.categories();
-
         var budgetInfoComponent = new BudgetInformationComponent(month, allCategories);
-        budgetInfoComponent.attach(model);
 
         BigDecimal totalIncome = monthlyBudget.totalIncome();
         BigDecimal totalSpent = allCategories.stream()
@@ -80,16 +78,14 @@ public class ExpenseDialogController {
                                              .reduce(BigDecimal.ZERO, BigDecimal::add);
         var monthOverviewComponent = new MonthOverviewComponent(totalIncome,
                                                                 totalSpent);
-        monthOverviewComponent.attach(model);
 
         var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(request.categoryId(),
                                                                                           month));
         var categoryExpensesComponent = new CategoryExpensesComponent(categoryExpenses);
-        categoryExpensesComponent.attach(model);
 
         return List.of(new ModelAndView("expenseDialog :: #result-information", model.asMap()),
-                       new ModelAndView("budget :: #month-overview", model.asMap()),
-                       new ModelAndView("budget :: budget-info", model.asMap()),
-                       new ModelAndView("budget :: #category-expenses-content", model.asMap()));
+                       monthOverviewComponent.toModelAndView(),
+                       budgetInfoComponent.toModelAndView(),
+                       categoryExpensesComponent.toModelAndView());
     }
 }

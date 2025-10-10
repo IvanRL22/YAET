@@ -48,7 +48,7 @@
                 <span th:text="${budgetCategory.name}"
                 th:hx-get="|/budget/${currentMonth}/${budgetCategory.categoryId}|"
                 hx-target="#category-expenses"
-                hx-swap="outerHTML"></span>
+                hx-swap="innerHTML"></span>
                 <!-- /* For creating a new budget */ -->
                 <input th:unless="${budgetCategory.id}"
                        th:name="amount"

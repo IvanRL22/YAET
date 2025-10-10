@@ -79,8 +79,7 @@ public class BudgetController {
     @PostMapping("/{month}/{categoryId}/assignAmount")
     public ModelAndView setAmount(@PathVariable YearMonth month,
                                   @PathVariable int categoryId,
-                                  @RequestParam(required = false) BigDecimal amount,
-                                  Model model) {
+                                  @RequestParam(required = false) BigDecimal amount) {
 
         var newAmount = Optional.ofNullable(amount)
                                 .orElse(BigDecimal.ZERO);
@@ -94,17 +93,15 @@ public class BudgetController {
 
         var budgetInformationComponent = new BudgetInformationComponent(month,
                                                                         allCategories);
-        budgetInformationComponent.attach(model);
 
-
-        return new ModelAndView("budget :: budget-info", model.asMap());
+        return budgetInformationComponent.toModelAndView();
     }
 
     @PutMapping("/{month}/{categoryId}/updateAmount")
     public ModelAndView updateAmount(@PathVariable YearMonth month,
                                      @PathVariable int categoryId,
-                                     @RequestParam(required = false) BigDecimal amount,
-                                     Model model) {
+                                     @RequestParam(required = false) BigDecimal amount) {
+
         var newAmount = Optional.ofNullable(amount)
                                 .orElse(BigDecimal.ZERO);
 
@@ -117,27 +114,22 @@ public class BudgetController {
 
         var budgetInformationComponent = new BudgetInformationComponent(month,
                                                                         allCategories);
-        budgetInformationComponent.attach(model);
 
-
-        return new ModelAndView("budget :: budget-info", model.asMap());
+        return budgetInformationComponent.toModelAndView();
     }
 
     @GetMapping("/{month}/{categoryId}")
     public ModelAndView getCategoryExpenses(@PathVariable YearMonth month,
-                                            @PathVariable int categoryId,
-                                            Model model) {
+                                            @PathVariable int categoryId) {
 
         var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(categoryId, month));
         var component = new CategoryExpensesComponent(categoryExpenses);
-        component.attach(model);
 
-        return new ModelAndView("budget :: expenses", model.asMap());
+        return component.toModelAndView();
     }
 
     @PostMapping("/copy-from-previous")
-    public ModelAndView generateMonthBudget(@RequestParam YearMonth month,
-                                            Model model) {
+    public ModelAndView generateMonthBudget(@RequestParam YearMonth month) {
         this.copyFromPreviousUseCase.copyFor(month);
 
         var categoryBudgets = this.seeMonthBudgetUseCase.getBudgets(month)
@@ -147,10 +139,8 @@ public class BudgetController {
 
         var budgetInformationComponent = new BudgetInformationComponent(month,
                                                                         categoryBudgets);
-        budgetInformationComponent.attach(model);
 
-
-        return new ModelAndView("budget :: budget-info", model.asMap());
+        return budgetInformationComponent.toModelAndView();
     }
 
 }
