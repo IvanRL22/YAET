@@ -7,7 +7,8 @@
              hx-target="main"
              class="w-120 grid grid-cols-3 gap-2 justify-items-center">
             <button class="w-[100px] px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
-                    th:hx-get="|/budget/${previous}|">
+                    th:hx-get="|/budget/${previous}|"
+                    hx-include="#categoryDetailsId">
                 ← Previous
             </button>
 
@@ -15,7 +16,8 @@
 
             <button class="w-[100px] px-3 py-1.5 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:hover:bg-gray-100 text-sm font-medium rounded-md transition"
                     th:hx-get="|/budget/${next}|"
-                    th:disabled="${isLastMonth}">
+                    th:disabled="${isLastMonth}"
+                    hx-include="#categoryDetailsId">
                 Next →
             </button>
         </div>
@@ -111,6 +113,10 @@
         <div id="category-expenses-content"
              th:if="${expenses}"
              class="w-120 relative">
+            <input id="categoryDetailsId"
+                   name="categoryDetailsId"
+                   th:value="${categoryDetailsId}"
+                   hidden/>
             <span th:text="|Expenses for ${categoryName}"></span>
             <button onclick="document.getElementById('category-expenses-content').remove();"
                     class="absolute right-0 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition">X</button>

@@ -4,6 +4,9 @@ import com.ivanrl.yaet.domain.budget.SeeMonthBudgetUseCase;
 import com.ivanrl.yaet.domain.category.SeeCategoriesUseCase;
 import com.ivanrl.yaet.domain.expense.ManageExpensesUseCase;
 import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
+import com.ivanrl.yaet.web.components.BudgetInformationComponent;
+import com.ivanrl.yaet.web.components.CategoryExpensesComponent;
+import com.ivanrl.yaet.web.components.MonthOverviewComponent;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -64,43 +67,31 @@ public class ExpenseDialogController {
 
 
         this.manageExpensesUseCase.updateExpense(request.toDomainModel());
+        model.addAttribute("messages", List.of("The expense was updated"));
 
-        // TODO Duplicated from budgetcontroller - Consider moving logic to reusable component objects
         YearMonth month = YearMonth.from(request.date());
         var monthlyBudget = BudgetMonthTO.from(this.seeMonthBudgetUseCase.seeMonthlyBudget(month));
         var allCategories = monthlyBudget.categories();
 
+        var budgetInfoComponent = new BudgetInformationComponent(month, allCategories);
+        budgetInfoComponent.attach(model);
 
         BigDecimal totalIncome = monthlyBudget.totalIncome();
         BigDecimal totalSpent = allCategories.stream()
                                              .map(BudgetCategoryTO::amountSpent)
                                              .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        model.addAttribute("monthIncome", totalIncome);
-        model.addAttribute("monthSpent", totalSpent);
-        model.addAttribute("monthBalance", totalIncome.subtract(totalSpent));
-
-        addBudgetCategoriesInformationToModel(model, month, allCategories);
-
-        model.addAttribute("messages", List.of("The expense was updated"));
+        var monthOverviewComponent = new MonthOverviewComponent(totalIncome,
+                                                                totalSpent);
+        monthOverviewComponent.attach(model);
 
         var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(request.categoryId(),
                                                                                           month));
-
-        model.addAttribute("categoryName",categoryExpenses.category().name());
-        model.addAttribute("categoryDescription", categoryExpenses.category().description());
-        model.addAttribute("expenses", categoryExpenses.expenses());
-        model.addAttribute("categoryTotal",
-                           categoryExpenses.expenses().stream()
-                                           .map(BasicExpenseTO::amount)
-                                           .reduce(BigDecimal.ZERO, BigDecimal::add));
-
+        var categoryExpensesComponent = new CategoryExpensesComponent(categoryExpenses);
+        categoryExpensesComponent.attach(model);
 
         return List.of(new ModelAndView("expenseDialog :: #result-information", model.asMap()),
                        new ModelAndView("budget :: #month-overview", model.asMap()),
                        new ModelAndView("budget :: budget-info", model.asMap()),
                        new ModelAndView("budget :: #category-expenses-content", model.asMap()));
-
-
     }
 }

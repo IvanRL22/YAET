@@ -5,6 +5,7 @@ import com.ivanrl.yaet.domain.budget.CopyFromPreviousUseCase;
 import com.ivanrl.yaet.domain.budget.SeeMonthBudgetUseCase;
 import com.ivanrl.yaet.domain.budget.UpdateMonthBudgetUseCase;
 import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
+import com.ivanrl.yaet.web.components.CategoryExpensesComponent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +30,7 @@ public class BudgetController {
 
     @GetMapping(value = {"", "/{month}"})
     public ModelAndView budget(@PathVariable(required = false) YearMonth month,
+                               @RequestParam(required = false) Integer categoryDetailsId,
                                Model model) {
         YearMonth now = YearMonth.now();
         var requestedMonth = Optional.ofNullable(month)
@@ -62,6 +64,12 @@ public class BudgetController {
 
         // Budget information
         addBudgetCategoriesInformationToModel(model, requestedMonth, allCategories);
+
+        if(categoryDetailsId != null) {
+            var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(categoryDetailsId, month));
+            var component = new CategoryExpensesComponent(categoryExpenses);
+            component.attach(model);
+        }
 
         return new ModelAndView("budget", model.asMap());
     }

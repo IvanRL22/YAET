@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.web.bs;
+package com.ivanrl.yaet.web.components;
 
 import org.springframework.ui.Model;
 
