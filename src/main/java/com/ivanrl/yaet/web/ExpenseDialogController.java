@@ -37,7 +37,6 @@ public class ExpenseDialogController {
                                    Model model) {
 
         var expense = this.seeExpensesUseCase.findExpense(id);
-        model.addAttribute("expense", expense); // When I move category into the request I will be able to remove this
         model.addAttribute("request", UpdateExpenseRequestTO.from(expense));
 
         // For now cannot change the date to a different month
