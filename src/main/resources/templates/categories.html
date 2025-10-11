@@ -1,0 +1,14 @@
+<main class="flex justify-center">
+
+    <div id="category-list"
+         class="ml-6 grid">
+        <span class="text-xl">Your categories</span>
+        <hr>
+        <span th:each="category: ${categories}"
+              th:text="${category.name}"
+              class="cursor-pointer rounded text-center hover:bg-gray-300 transition">
+
+        </span>
+    </div>
+
+</main>
