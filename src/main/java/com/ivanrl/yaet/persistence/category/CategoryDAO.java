@@ -1,6 +1,7 @@
 package com.ivanrl.yaet.persistence.category;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.UptadeCategoryRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -18,5 +19,18 @@ public class CategoryDAO {
                               .toList();
     }
 
+    public CategoryDO getById(int id) {
+        return this.repository.findById(id).map(CategoryPO::toDomainModel).orElseThrow();
+    }
 
+    public CategoryDO update(UptadeCategoryRequest request) {
+        var po = this.repository.findById(request.id()).orElseThrow();
+
+        po.setName(request.name());
+        po.setDescription(request.description());
+
+        this.repository.save(po);
+
+        return po.toDomainModel();
+    }
 }

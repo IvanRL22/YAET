@@ -17,4 +17,8 @@ public class SeeCategoriesUseCase {
     public List<CategoryDO> getAll() {
         return this.categoryDAO.getAll();
     }
+
+    public CategoryDO getById(int id) {
+        return this.categoryDAO.getById(id);
+    }
 }
