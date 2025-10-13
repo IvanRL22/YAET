@@ -1,8 +1,8 @@
 <main class="flex justify-center gap-x-4">
 
-    <div id="category-list"
-         class="grow-1 flex items-center flex-col">
-        <div class="flex flex-col">
+    <div class="grow-1 flex items-center flex-col">
+        <div id="category-list"
+             class="flex flex-col">
             <span class="text-xl">Your categories</span>
             <hr>
             <span th:id="|cat_${category.id}|"
@@ -13,9 +13,13 @@
                   th:hx-get="|/category/${category.id}|"
                   hx-target="#category-details"
                   hx-swap="innerHTML">
-
             </span>
         </div>
+        <button class="mt-5"
+                hx-get="/category-dialog"
+                hx-swap="beforeend"
+                hx-target="body"
+                hx-on::after-request="document.getElementById('category-dialog').showModal();">New category</button>
     </div>
     
     <div id="category-details"

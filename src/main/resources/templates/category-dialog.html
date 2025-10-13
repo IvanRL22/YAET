@@ -1,0 +1,90 @@
+<dialog id="category-dialog"
+        onclose="this.remove();"
+        class="p-3 flex flex-col justify-center rounded-xl p-6 shadow-xl backdrop:bg-black/50">
+    <script>
+        function closeDialog() {
+            document.getElementById('category-dialog').close();
+        }
+    </script>
+
+    <style>
+        #category-dialog {
+
+        /* Position visible dialog near the top of the window */
+            margin-top:10vh;
+
+            /* Sizing for visible dialog */
+            width:80%;
+            max-width:600px;
+
+            /* Display properties for visible dialog*/
+            border:solid 1px #999;
+            border-radius:8px;
+            box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
+            background-color:white;
+            padding:20px;
+
+            /* Animate when opening */
+            animation-name:zoomIn;
+            animation-duration:150ms;
+            animation-timing-function: ease;
+
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%);
+
+        }
+    </style>
+    <div class="mb-2">
+        <h3 class="text-center">Payment details</h3>
+        <button onclick="closeDialog();"
+                class="absolute right-0 top-0 m-2 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition">X</button>
+    </div>
+
+    <hr>
+
+    <form id="new-category"
+          th:object="${request}"
+          class="mt-3 grid grid-cols-2 max-w-sm self-center"
+          hx-put="/category-dialog"
+          hx-target="#result-information"
+          hx-swap="outerHTML"
+          hx-select-oob="#category-list">
+        <div id="result-information"
+             class="col-span-2">
+            <div id="messages"
+                 th:fragment="messages">
+                <div th:if="${messages}"
+                     class="mb-3 p-2 border rounded-lg border-cyan-600 bg-cyan-100">
+                    <ul>
+                        <li th:each="mes : ${messages}" th:text="${mes}">Information</li>
+                    </ul>
+                </div>
+            </div>
+            <div id="errors"
+                 th:fragment="errors">
+                <div th:if="${errors}"
+                     class="mb-3 p-2 border rounded-lg border-red-600 bg-red-100 text-red-500">
+                    <ul>
+                        <li th:each="err : ${errors}" th:text="${err}">Input is incorrect</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <label for="name">Name:</label>
+        <input id="name"
+                name="name"
+                th:field="*{name}">
+
+        <label for="description">Description:</label>
+        <textarea id="description"
+                  name="description"
+                  th:field="*{description}"
+                  rows="3"
+                  maxlength="255"
+                  class="resize-none"></textarea>
+        
+        <button type="reset">Reset</button>
+        <button>Update</button>
+    </form>
+</dialog>

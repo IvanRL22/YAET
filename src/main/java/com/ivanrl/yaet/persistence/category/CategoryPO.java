@@ -1,14 +1,16 @@
 package com.ivanrl.yaet.persistence.category;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.CreateCategoryRequest;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity(name = "categories")
 @Table(name = "categories")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Setter
 public class CategoryPO {
@@ -23,6 +25,11 @@ public class CategoryPO {
 
     @Column(name = "description")
     private String description;
+
+    public CategoryPO(CreateCategoryRequest createRequest) {
+        this.name = createRequest.name();
+        this.description = createRequest.description();
+    }
 
     public CategoryDO toDomainModel() {
         return new CategoryDO(this.getId(),

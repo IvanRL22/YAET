@@ -1,5 +1,6 @@
 package com.ivanrl.yaet;
 
+import com.ivanrl.yaet.domain.ValidationError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -29,13 +30,22 @@ public class GlobalErrorHandler {
                         .collect(Collectors.joining("\n\t")));
     }
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler
     public ProblemDetail handleBadRequest(BadRequestException bre) {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, bre.getMessage());
         problem.setTitle(bre.getTitle());
         logHandledException(bre, problem);
         return problem;
     }
+
+    @ExceptionHandler
+    public ProblemDetail handleValidationError(ValidationError ve) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ve.getMessage());
+        problem.setTitle("Validation error");
+        logHandledException(ve, problem);
+        return problem;
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleException(Exception e) {
