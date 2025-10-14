@@ -5,6 +5,7 @@ import com.ivanrl.yaet.domain.expense.ExpenseDO;
 import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
 import com.ivanrl.yaet.persistence.category.CategoryPO;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 
 @Entity(name = "expenses")
 @Table(name = "expenses")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 public class ExpensePO {

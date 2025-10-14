@@ -3,6 +3,7 @@ package com.ivanrl.yaet.persistence.income;
 
 import com.ivanrl.yaet.domain.income.IncomeDO;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 
 @Entity(name = "incomes")
 @Table(name = "incomes")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 public class IncomePO {

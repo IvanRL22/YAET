@@ -5,6 +5,7 @@ import com.ivanrl.yaet.domain.budget.BudgetCategoryDO;
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.persistence.category.CategoryPO;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +16,7 @@ import java.time.YearMonth;
 
 @Entity(name = "budgetCategory")
 @Table(name = "budget_categories")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 public class BudgetCategoryPO {

@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Entity(name = "categories")
 @Table(name = "categories")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 public class CategoryPO {
