@@ -16,6 +16,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,19 +79,28 @@ public class SeeMonthBudgetUseCase {
                                                                           List<CategoryDO> missingCategories) {
         YearMonth previousMonth = requestedMonth.minusMonths(1);
         // What if some category still does not have a budget for the previous month?
-        var categoriesWithoutMonthBudget = this.budgetCategoryDAO.findAllBy(previousMonth,
-                                                                            missingCategories.stream()
-                                                                                             .map(CategoryDO::id)
-                                                                                             .collect(Collectors.toSet()));
+        List<SimpleBudgetCategoryDO> missingBudgetsFromPastMonth = this.budgetCategoryDAO.findAllBy(previousMonth,
+                                                                                                     missingCategories.stream()
+                                                                                                                      .map(CategoryDO::id)
+                                                                                                                      .collect(Collectors.toSet()));
 
-        var pastMonthExpenses = this.expenseDAO.findAllBy(previousMonth,
-                                                         categoriesWithoutMonthBudget.stream()
-                                                                                     .map(SimpleBudgetCategoryDO::categoryId)
-                                                                                     .collect(Collectors.toSet()));
+        // TODO This is not very elegant, there's probably a better way to do this by tweaking the model a bit
+        List<SimpleBudgetCategoryDO> categoriesWithoutMonthBudget = new ArrayList<>(missingBudgetsFromPastMonth);
+        for (CategoryDO c : missingCategories) {
+            if (categoriesWithoutMonthBudget.stream().noneMatch(cwmb -> cwmb.category().equals(c))) {
+                categoriesWithoutMonthBudget.add(SimpleBudgetCategoryDO.emptyFrom(c));
+            }
+        }
+
+
+        List<ExpenseWithCategoryDO> pastMonthExpenses = this.expenseDAO.findAllBy(previousMonth,
+                                                                                  categoriesWithoutMonthBudget.stream()
+                                                                                                              .map(SimpleBudgetCategoryDO::categoryId)
+                                                                                                              .collect(Collectors.toSet()));
 
         // Grouping the expenses by category now to avoid having to iterate through all of them when creating each TO
-        var pastMonthExpensesByCategory = pastMonthExpenses.stream()
-                                                           .collect(Collectors.groupingBy(e -> e.category().id()));
+        Map<Integer, List<ExpenseWithCategoryDO>> pastMonthExpensesByCategory = pastMonthExpenses.stream()
+                                                                                                 .collect(Collectors.groupingBy(e -> e.category().id()));
 
         return categoriesWithoutMonthBudget.stream()
                                            .map(cwmb -> createCurrentMonthCategoryWithoutBudget(cwmb, pastMonthExpensesByCategory.getOrDefault(cwmb.categoryId(),

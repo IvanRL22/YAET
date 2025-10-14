@@ -11,6 +11,13 @@ public record SimpleBudgetCategoryDO(Integer id,
                                      BigDecimal amountInherited,
                                      BigDecimal amountAssigned) {
 
+    public static SimpleBudgetCategoryDO emptyFrom(CategoryDO c) {
+        return new SimpleBudgetCategoryDO(null,
+                                          c,
+                                          BigDecimal.ZERO,
+                                          BigDecimal.ZERO);
+    }
+
     public int categoryId() {
         return category.id();
     }
