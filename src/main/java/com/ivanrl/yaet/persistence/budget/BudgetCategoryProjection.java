@@ -1,7 +1,7 @@
 package com.ivanrl.yaet.persistence.budget;
 
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
-import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 
 import java.math.BigDecimal;
 
@@ -16,7 +16,7 @@ public interface BudgetCategoryProjection extends Comparable<String> {
 
     default SimpleBudgetCategoryDO toDomainModel() {
         return new SimpleBudgetCategoryDO(this.getId(),
-                                          new CategoryDO(this.getCategoryId(), this.getName(), null),
+                                          new SimpleCategoryDO(this.getCategoryId(), this.getName()),
                                           this.getAmountInherited(),
                                           this.getAmountAssigned());
     }

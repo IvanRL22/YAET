@@ -1,22 +1,28 @@
 package com.ivanrl.yaet.domain.budget;
 
 import com.ivanrl.yaet.domain.DomainModel;
-import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 
 import java.math.BigDecimal;
 
 @DomainModel
+// TODO: Should this object have yearMonth instead of id?
+// Since what identifies it really is yearMonth and category
 public record BudgetCategoryDO(Integer id,
-                               CategoryDO category,
+                               SimpleCategoryDO category,
                                BigDecimal amountInherited,
                                BigDecimal amountAssigned,
                                BigDecimal amountSpent) {
 
-    public BudgetCategoryDO(CategoryDO category, BigDecimal amountInherited, BigDecimal amountAssigned, BigDecimal amountSpent) {
+    public BudgetCategoryDO(SimpleCategoryDO category,
+                            BigDecimal amountInherited,
+                            BigDecimal amountAssigned,
+                            BigDecimal amountSpent) {
         this(null, category, amountInherited, amountAssigned, amountSpent);
     }
 
-    public static BudgetCategoryDO from(SimpleBudgetCategoryDO budgetCategory, BigDecimal amountSpent) {
+    public static BudgetCategoryDO from(SimpleBudgetCategoryDO budgetCategory,
+                                        BigDecimal amountSpent) {
         return new BudgetCategoryDO(budgetCategory.id(),
                                     budgetCategory.category(),
                                     budgetCategory.amountInherited(),

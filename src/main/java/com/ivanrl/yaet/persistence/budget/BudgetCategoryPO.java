@@ -62,7 +62,7 @@ public class BudgetCategoryPO {
 
     public SimpleBudgetCategoryDO toSimpleDomainModel() {
         return new SimpleBudgetCategoryDO(this.getId(),
-                                    this.category.toDomainModel(),
+                                    this.category.toSimpleDomainModel(),
                                     this.amountInherited,
                                     this.amountAssigned);
     }

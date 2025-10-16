@@ -1,17 +1,17 @@
 package com.ivanrl.yaet.domain.budget;
 
 import com.ivanrl.yaet.domain.DomainModel;
-import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 
 import java.math.BigDecimal;
 
 @DomainModel
 public record SimpleBudgetCategoryDO(Integer id,
-                                     CategoryDO category,
+                                     SimpleCategoryDO category,
                                      BigDecimal amountInherited,
                                      BigDecimal amountAssigned) {
 
-    public static SimpleBudgetCategoryDO emptyFrom(CategoryDO c) {
+    public static SimpleBudgetCategoryDO emptyWith(SimpleCategoryDO c) {
         return new SimpleBudgetCategoryDO(null,
                                           c,
                                           BigDecimal.ZERO,

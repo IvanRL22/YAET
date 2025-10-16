@@ -2,6 +2,7 @@ package com.ivanrl.yaet.persistence.category;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.CreateCategoryRequest;
+import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,9 +33,12 @@ public class CategoryPO {
     }
 
     public CategoryDO toDomainModel() {
-        return new CategoryDO(this.getId(),
-                              this.getName(),
-                              this.getDescription());
+        return new CategoryDO(id,
+                              name,
+                              description);
     }
 
+    public SimpleCategoryDO toSimpleDomainModel() {
+        return  new SimpleCategoryDO(id, name);
+    }
 }

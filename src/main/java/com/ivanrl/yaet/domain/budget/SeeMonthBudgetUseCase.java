@@ -1,7 +1,7 @@
 package com.ivanrl.yaet.domain.budget;
 
 import com.ivanrl.yaet.BadRequestException;
-import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 import com.ivanrl.yaet.domain.expense.ExpenseWithCategoryDO;
 import com.ivanrl.yaet.persistence.budget.BudgetCategoryDAO;
 import com.ivanrl.yaet.persistence.category.CategoryDAO;
@@ -56,7 +56,7 @@ public class SeeMonthBudgetUseCase {
 
         // Checking if all categories have a budget for the requested month
         // Having to check this for each time does not seem very performant
-        var missingCategories = new ArrayList<>(this.categoryDAO.getAll());
+        var missingCategories = new ArrayList<>(this.categoryDAO.getAllSimple());
         missingCategories.removeIf(c -> categoriesFromCurrentMonth.stream()
                                                                   .anyMatch(bcp -> bcp.category().id() == c.id()));
 
@@ -76,19 +76,19 @@ public class SeeMonthBudgetUseCase {
     }
 
     private List<BudgetCategoryDO> getCategoriesWithoutCurrentMonthBudget(YearMonth requestedMonth,
-                                                                          List<CategoryDO> missingCategories) {
+                                                                          List<SimpleCategoryDO> missingCategories) {
         YearMonth previousMonth = requestedMonth.minusMonths(1);
         // What if some category still does not have a budget for the previous month?
         List<SimpleBudgetCategoryDO> missingBudgetsFromPastMonth = this.budgetCategoryDAO.findAllBy(previousMonth,
                                                                                                      missingCategories.stream()
-                                                                                                                      .map(CategoryDO::id)
+                                                                                                                      .map(SimpleCategoryDO::id)
                                                                                                                       .collect(Collectors.toSet()));
 
         // TODO This is not very elegant, there's probably a better way to do this by tweaking the model a bit
         List<SimpleBudgetCategoryDO> categoriesWithoutMonthBudget = new ArrayList<>(missingBudgetsFromPastMonth);
-        for (CategoryDO c : missingCategories) {
+        for (SimpleCategoryDO c : missingCategories) {
             if (categoriesWithoutMonthBudget.stream().noneMatch(cwmb -> cwmb.category().equals(c))) {
-                categoriesWithoutMonthBudget.add(SimpleBudgetCategoryDO.emptyFrom(c));
+                categoriesWithoutMonthBudget.add(SimpleBudgetCategoryDO.emptyWith(c));
             }
         }
 

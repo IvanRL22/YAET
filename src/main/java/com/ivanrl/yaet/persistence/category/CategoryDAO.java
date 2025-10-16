@@ -2,6 +2,7 @@ package com.ivanrl.yaet.persistence.category;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.CreateCategoryRequest;
+import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 import com.ivanrl.yaet.domain.category.UptadeCategoryRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -17,6 +18,12 @@ public class CategoryDAO {
     public List<CategoryDO> getAll() {
         return this.repository.findAll().stream()
                               .map(CategoryPO::toDomainModel)
+                              .toList();
+    }
+
+    public List<SimpleCategoryDO> getAllSimple() {
+        return this.repository.findAll().stream()
+                              .map(CategoryPO::toSimpleDomainModel)
                               .toList();
     }
 
