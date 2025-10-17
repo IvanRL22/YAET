@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity(name = "categories")
 @Table(name = "categories")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,6 +29,9 @@ public class CategoryPO {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "default_amount", scale = 6, precision = 2)
+    private BigDecimal defaultAmount;
+
     public CategoryPO(CreateCategoryRequest createRequest) {
         this.name = createRequest.name();
         this.description = createRequest.description();
@@ -35,7 +40,8 @@ public class CategoryPO {
     public CategoryDO toDomainModel() {
         return new CategoryDO(id,
                               name,
-                              description);
+                              description,
+                              defaultAmount);
     }
 
     public SimpleCategoryDO toSimpleDomainModel() {

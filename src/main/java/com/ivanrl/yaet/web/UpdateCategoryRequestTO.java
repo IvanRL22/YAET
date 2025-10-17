@@ -2,9 +2,9 @@ package com.ivanrl.yaet.web;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.UptadeCategoryRequest;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+
+import java.math.BigDecimal;
 
 public record UpdateCategoryRequestTO(@NotNull(message = "There is an issue when identifying this category")
                                       Integer id,
@@ -12,16 +12,20 @@ public record UpdateCategoryRequestTO(@NotNull(message = "There is an issue when
                                       @Size(max = 50, message = "Name cannot exceed 50 characters")
                                       String name,
                                       @Size(max = 255, message = "Description must not exceed 255 characters")
-                                      String description) {
+                                      String description,
+                                      @Positive(message = "Default amount cannot be negative")
+                                      @DecimalMax(value = "9999.99", message = "Amount must be less than 10000")
+                                      BigDecimal defaultAmount) {
 
     static UpdateCategoryRequestTO from(CategoryDO domainObject) {
         return new UpdateCategoryRequestTO(domainObject.id(),
                                            domainObject.name(),
-                                           domainObject.description());
+                                           domainObject.description(),
+                                           domainObject.defaultAmount());
     }
 
     UptadeCategoryRequest toDomainModel() {
-        return new UptadeCategoryRequest(id, name, description);
+        return new UptadeCategoryRequest(id, name, description, defaultAmount);
     }
 
 }

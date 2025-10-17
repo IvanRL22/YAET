@@ -79,6 +79,14 @@
                           maxlength="255"
                           class="resize-none"></textarea>
 
+                <label for="default_amount">Default amount:</label>
+                <input id="default_amount"
+                       name="defaultAmount"
+                       th:field="*{defaultAmount}"
+                       pattern="[0-9]{1,6}(\.[0-9]{2})?"
+                       title="Must be a valid amount in numeric format"
+                       maxlength="50">
+
                 <button type="reset">Reset</button>
                 <button>Update</button>
 

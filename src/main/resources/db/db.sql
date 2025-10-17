@@ -47,3 +47,6 @@ create table budget_categories (
 	amount 		    numeric(6, 2) 	not null
 );
 -- End
+
+alter table categories
+add column default_amount numeric(6, 2);

@@ -44,6 +44,7 @@ public class CategoryDAO {
 
         po.setName(request.name());
         po.setDescription(request.description());
+        po.setDefaultAmount(request.defaultAmount());
 
         this.repository.save(po);
 
