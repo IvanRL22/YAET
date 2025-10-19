@@ -28,7 +28,10 @@ public class AddMovementController {
 
     @GetMapping
     public ModelAndView baseView(Model model) {
-        model.addAttribute("categories", this.seeCategoriesUseCase.getAll());
+        model.addAttribute("categories", this.seeCategoriesUseCase.getAll().stream()
+                                                                  .map(SimpleCategoryTO::from)
+                                                                  .sorted());
+
         model.addAttribute("expense", NewExpenseRequest.empty());
 
         model.addAttribute("lastExpenses", this.seeExpensesUseCase.getLastExpenses());
