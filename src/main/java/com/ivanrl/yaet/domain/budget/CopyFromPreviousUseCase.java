@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,20 +30,19 @@ public class CopyFromPreviousUseCase {
         var allCategories = this.categoryDAO.getAll();
         var currentMonthBudgets = this.budgetCategoryDAO.findAllBy(month);
 
-        List<CategoryDO> categoriesToGenerate;
-        if (currentMonthBudgets.isEmpty()) {
-            categoriesToGenerate = allCategories;
-        } else {
-            var categoriesWithBudget = currentMonthBudgets.stream()
-                                                          .map(SimpleBudgetCategoryDO::categoryId)
-                                                          .collect(Collectors.toSet());
-            categoriesToGenerate = allCategories.stream()
-                                                .filter(c -> !categoriesWithBudget.contains(c.id()))
-                                                .toList();
-        }
+        var categoriesWithDefaultAmount = allCategories.stream()
+                                                       .filter(c -> c.defaultAmount() != null)
+                                                       .collect(Collectors.toSet());
+
+        List<CategoryDO> categoriesWithoutCurrentBudget = new ArrayList<>(allCategories);
+        var categoriesWithBudgetIds = currentMonthBudgets.stream()
+                                                         .map(SimpleBudgetCategoryDO::categoryId)
+                                                         .collect(Collectors.toSet());
+
+        categoriesWithoutCurrentBudget.removeIf(c -> categoriesWithBudgetIds.contains(c.id()));
 
         List<SimpleBudgetCategoryDO> budgetCategoryProjections = this.budgetCategoryDAO.findAllBy(previousMonth,
-                                                                                                  categoriesToGenerate.stream()
+                                                                                                  categoriesWithoutCurrentBudget.stream()
                                                                                                                       .map(CategoryDO::id)
                                                                                                                       .collect(Collectors.toSet()));
 
@@ -52,21 +53,35 @@ public class CopyFromPreviousUseCase {
 
         var expensesByCategory = expenses.stream().collect(Collectors.groupingBy(ExpenseWithCategoryDO::getCategoryId));
 
-        var result = budgetCategoryProjections.stream()
-                                              .map(bc -> createBudgetCategory(bc, expensesByCategory.getOrDefault(bc.categoryId(),
-                                                                                                                         Collections.emptyList())))
-                                              .toList();
+        List<NewBudgetCategoryRequest> result = new ArrayList<>(budgetCategoryProjections.size());
+        for (SimpleBudgetCategoryDO budget : budgetCategoryProjections) {
+            Optional<CategoryDO> matchingCategoryWithoutBudget = categoriesWithDefaultAmount.stream()
+                                                                                            .filter(cwda -> cwda.id() == budget.category().id())
+                                                                                            .findAny(); // There should only be one
+            result.add(createNewCategoryRequest(matchingCategoryWithoutBudget,
+                                                budget,
+                                                expensesByCategory.getOrDefault(budget.categoryId(),
+                                                                                  Collections.emptyList())));
+        }
 
         this.budgetCategoryDAO.saveAll(result, month);
     }
 
-    private BudgetCategoryDO createBudgetCategory(SimpleBudgetCategoryDO budgetCategory,
-                                                  List<ExpenseWithCategoryDO> expenses) {
-        var totalSpent = expenses.stream()
-                                   .map(ExpenseWithCategoryDO::amount)
-                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
+    private NewBudgetCategoryRequest createNewCategoryRequest(Optional<CategoryDO> c,
+                                                              SimpleBudgetCategoryDO pastMonthBudget,
+                                                              List<ExpenseWithCategoryDO> expenses) {
+        var totalSpentLastMonth = expenses.stream()
+                                          .map(ExpenseWithCategoryDO::amount)
+                                          .reduce(BigDecimal.ZERO, BigDecimal::add);
+        var amountInherited = pastMonthBudget.amountInherited()
+                                             .add(pastMonthBudget.amountAssigned())
+                                             .subtract(totalSpentLastMonth);
+        var assignedAmount = c.map(CategoryDO::defaultAmount)
+                              .orElse(pastMonthBudget.amountAssigned());
 
-        return BudgetCategoryDO.from(budgetCategory,
-                                     totalSpent);
+        return new NewBudgetCategoryRequest(pastMonthBudget.category(),
+                                            amountInherited,
+                                            assignedAmount);
     }
+
 }

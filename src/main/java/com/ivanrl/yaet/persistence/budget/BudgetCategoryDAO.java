@@ -1,6 +1,6 @@
 package com.ivanrl.yaet.persistence.budget;
 
-import com.ivanrl.yaet.domain.budget.BudgetCategoryDO;
+import com.ivanrl.yaet.domain.budget.NewBudgetCategoryRequest;
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
 import com.ivanrl.yaet.persistence.category.CategoryRepository;
@@ -52,11 +52,15 @@ public class BudgetCategoryDAO {
                                                                request.amount().negate()); // Amount needs to be negated so it is subtracted
     }
 
-    public void saveAll(List<BudgetCategoryDO> result, YearMonth month) {
-        this.repository.saveAll(result.stream().map(bc -> this.map(bc, month)).toList());
+    public void saveAll(List<NewBudgetCategoryRequest> toCreate,
+                        YearMonth month) {
+        this.repository.saveAll(toCreate.stream()
+                                        .map(bc -> this.map(bc, month))
+                                        .toList()
+        );
     }
 
-    private BudgetCategoryPO map(BudgetCategoryDO domainObject, YearMonth month) {
+    private BudgetCategoryPO map(NewBudgetCategoryRequest domainObject, YearMonth month) {
         var categoryPO = this.categoryRepository.getReferenceById(domainObject.category().id());
         return BudgetCategoryPO.from(domainObject, categoryPO, month);
     }

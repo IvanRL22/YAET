@@ -85,7 +85,9 @@
                  th:if="${missingBudgets}"
                  class="col-span-3 py-2 flex flex-col items-center">
                 <span>Some categories still have no defined budget for this month</span>
-                <span>Do you want to copy the amount assigned from last month?</span>
+                <span>Do you want to generate the assignments automatically?</span>
+                <span>Categories with a default amount will be assigned said amount</span>
+                <span>The rest will be assigned the same amount as the previous month</span>
                 <button class="my-1 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
                         th:hx-post="|/budget/copy-from-previous?month=${currentMonth}|"
                         hx-target="#budget-info"

@@ -1,7 +1,7 @@
 package com.ivanrl.yaet.persistence.budget;
 
 import com.ivanrl.yaet.YearMonthIntegerAttributeConverter;
-import com.ivanrl.yaet.domain.budget.BudgetCategoryDO;
+import com.ivanrl.yaet.domain.budget.NewBudgetCategoryRequest;
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.persistence.category.CategoryPO;
 import jakarta.persistence.*;
@@ -51,7 +51,7 @@ public class BudgetCategoryPO {
     @Column(name = "assigned", scale = 6, precision = 2, nullable = false)
     private BigDecimal amountAssigned;
 
-    public static BudgetCategoryPO from(BudgetCategoryDO domainObject,
+    public static BudgetCategoryPO from(NewBudgetCategoryRequest domainObject,
                                         CategoryPO categoryPO,
                                         YearMonth month) {
         return new BudgetCategoryPO(categoryPO,
