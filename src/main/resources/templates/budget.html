@@ -68,7 +68,9 @@
                        hx-include="this"
                        hx-target="#budget-info">
                 <span th:text="|${budgetCategory.totalAmount}€|"
-                      class="text-right"></span>
+                      class="text-right"
+                      th:classappend="${budgetCategory.totalAmount.signum() < 0 ? 'text-red-600' : ''}"
+                ></span>
             </th:block>
             <hr class="col-span-3">
 
