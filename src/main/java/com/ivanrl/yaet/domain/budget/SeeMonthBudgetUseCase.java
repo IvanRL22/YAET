@@ -50,9 +50,13 @@ public class SeeMonthBudgetUseCase {
     private List<BudgetCategoryDO> getCategoriesInformation(YearMonth requestedMonth) {
         var categoriesFromCurrentMonth = this.budgetCategoryDAO.findAllBy(requestedMonth);
         var currentMonthExpenses = this.expenseDAO.findAllBy(requestedMonth);
+        var expensesByCategory = currentMonthExpenses.stream()
+                                                     .collect(Collectors.groupingBy(ExpenseWithCategoryDO::category));
 
         var currentMonthCategories = categoriesFromCurrentMonth.stream()
-                                                               .map(c -> createCurrentMonthCategory(c, currentMonthExpenses)).toList();
+                                                               .map(c -> BudgetCategoryDO.from(c, expensesByCategory.getOrDefault(c.category(),
+                                                                                                                                  new ArrayList<>())))
+                                                               .toList();
 
         // Checking if all categories have a budget for the requested month
         // Having to check this for each time does not seem very performant
@@ -87,7 +91,8 @@ public class SeeMonthBudgetUseCase {
         // TODO This is not very elegant, there's probably a better way to do this by tweaking the model a bit
         List<SimpleBudgetCategoryDO> categoriesWithoutMonthBudget = new ArrayList<>(missingBudgetsFromPastMonth);
         for (SimpleCategoryDO c : missingCategories) {
-            if (categoriesWithoutMonthBudget.stream().noneMatch(cwmb -> cwmb.category().equals(c))) {
+            if (categoriesWithoutMonthBudget.stream()
+                                            .noneMatch(cwmb -> cwmb.category().equals(c))) {
                 categoriesWithoutMonthBudget.add(SimpleBudgetCategoryDO.emptyWith(c));
             }
         }
@@ -103,32 +108,10 @@ public class SeeMonthBudgetUseCase {
                                                                                                  .collect(Collectors.groupingBy(e -> e.category().id()));
 
         return categoriesWithoutMonthBudget.stream()
-                                           .map(cwmb -> createCurrentMonthCategoryWithoutBudget(cwmb, pastMonthExpensesByCategory.getOrDefault(cwmb.categoryId(),
-                                                                                                                                               new ArrayList<>())))
+                                           .map(cwmb -> BudgetCategoryDO.from(cwmb,
+                                                                              pastMonthExpensesByCategory.getOrDefault(cwmb.categoryId(),
+                                                                                                                       new ArrayList<>())))
                                            .toList();
-    }
-
-    // Should this be a static method on BudgetCategoryTO?
-    // The expenses are expected to be just for the budgetCategory
-    private BudgetCategoryDO createCurrentMonthCategoryWithoutBudget(SimpleBudgetCategoryDO budgetCategory,
-                                                                     List<ExpenseWithCategoryDO> pastMonthExpenses) {
-        var totalSpent = pastMonthExpenses.stream()
-                                          .map(ExpenseWithCategoryDO::amount)
-                                          .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return new BudgetCategoryDO(budgetCategory.category(),
-                                    budgetCategory.getBalance().subtract(totalSpent),
-                                    BigDecimal.ZERO,
-                                    BigDecimal.ZERO);
-    }
-
-    private BudgetCategoryDO createCurrentMonthCategory(SimpleBudgetCategoryDO c,
-                                                        List<ExpenseWithCategoryDO> expenses) {
-        var totalSpentInCategory = expenses.stream()
-                                           .filter(e -> e.category().name().equals(c.category().name()))
-                                           .map(ExpenseWithCategoryDO::amount)
-                                           .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return BudgetCategoryDO.from(c, totalSpentInCategory);
     }
 
 }

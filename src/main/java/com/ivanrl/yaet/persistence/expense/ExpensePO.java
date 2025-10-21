@@ -60,7 +60,7 @@ public class ExpensePO {
 
     public ExpenseWithCategoryDO toDomainModelWithCategory() {
         return new ExpenseWithCategoryDO(this.getId(),
-                                         this.getCategory().toDomainModel(),
+                                         this.getCategory().toSimpleDomainModel(),
                                          this.getPayee(),
                                          this.getDate(),
                                          this.getAmount(),
