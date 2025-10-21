@@ -37,14 +37,19 @@
     <div id="nav-bar"
          hx-target="main"
          hx-swap="outerHTML"
-         class="pb-3">
+         class="pb-3 flex flex-row">
 
-        <span hx-get="/category"
-              class="hover:bg-gray-300">Manage Categories</span>
-        <span hx-get="/new"
-              class="hover:bg-gray-300">Add Movement</span>
-        <span hx-get="/budget"
-              class="hover:bg-gray-300">See budget</span>
+        <div id="navigation-links">
+            <span hx-get="/category"
+                  class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">Manage Categories</span>
+            <span hx-get="/new"
+                  class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">Add Movement</span>
+            <span hx-get="/budget"
+                  class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">See budget</span>
+        </div>
+
+        <!-- /* Make visible once authentication is implemented  */ -->
+        <span class="absolute right-0 mr-5 px-1.5 cursor-pointer rounded hover:bg-gray-300 transition hidden">Login</span>
     </div>
 </header>
 
