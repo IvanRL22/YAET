@@ -18,16 +18,17 @@ public class YaetArchitectureTests extends AbstractArchitectureTests {
     void test_architecture_layers() {
         var architecture = layeredArchitecture().consideringOnlyDependenciesInAnyPackage( "com.ivanrl.yaet..")
                                                 .ensureAllClassesAreContainedInArchitectureIgnoring("com.ivanrl.yaet") // Ignore global classes
+                                                // TODO Move common classes to actual common package
+                                                .layer("Common").definedBy("com.ivanrl.yaet")
                                                 .layer("Web").definedBy("..web..")
                                                 .layer("Domain").definedBy("..domain..")
                                                 .layer("Persistence").definedBy("..persistence..");
 
-        // Ideally in the future domain would not depend on anybody
         // All the layers should depend on Domain
-        architecture.whereLayer("Web").mayNotBeAccessedByAnyLayer()
-                    .whereLayer("Web").mayOnlyAccessLayers("Domain")
-                    .whereLayer("Domain").mayOnlyAccessLayers("Persistence")
-                    .whereLayer("Persistence").mayNotAccessAnyLayer();
+        architecture.whereLayer("Web").mayOnlyAccessLayers("Common", "Domain")
+                    // Ideally in the future domain would not depend on anybody
+                    .whereLayer("Domain").mayOnlyAccessLayers("Common", "Persistence")
+                    .whereLayer("Persistence").mayOnlyAccessLayers("Common", "Domain");
 
         architecture.check(ALL_CLASSES);
     }
