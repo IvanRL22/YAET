@@ -59,7 +59,7 @@ public class CategoriesController {
 
 
         var result = this.manageCategoriesUseCase.update(request.toDomainModel());
-        model.addAttribute("messages", List.of("The expense was updated"));
+        model.addAttribute("messages", List.of("The category was updated"));
         model.addAttribute("categories", List.of(CategoryTO.from(result))); // Needs to be a list due to the way the HTML is defined
 
         return List.of(new ModelAndView("categories :: #result-information", model.asMap()),

@@ -47,7 +47,7 @@ public class CategoryDialogController {
         }
 
         this.manageCategoriesUseCase.create(request.toDomain());
-        model.addAttribute("messages", List.of("The category was updated"));
+        model.addAttribute("messages", List.of("The category was created"));
 
         var categories = this.seeCategoriesUseCase.getAll().stream().map(CategoryTO::from).toList();
         model.addAttribute(categories);
