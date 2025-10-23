@@ -23,20 +23,23 @@
     </div>
     
     <div id="category-details"
-         class="has-[div]:basis-7/10">
+         class="flex items-center flex-col has-[div]:basis-7/10">
         <div id="category-detail-content"
              th:if="${request}"
-             class="mr-10 flex items-center flex-col">
+             class="bg-gray-50 p-2 w-150">
 
-            <h3 class="text-center text-xl">Category details</h3>
+            <div class="relative mb-2">
+                <h3 class="text-center text-xl">Category details</h3>
+                <button onclick="document.getElementById('category-detail-content').remove();"
+                        class="absolute right-0 top-0 px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition">X</button>
+            </div>
             <hr>
 
-            <div id="result-information"
-                 class="col-span-2">
+            <div id="result-information">
                 <div id="messages"
                      th:fragment="messages">
                     <div th:if="${messages}"
-                         class="mb-3 p-2 border rounded-lg border-cyan-600 bg-cyan-100">
+                         class="my-2 p-2 border rounded-lg border-cyan-600 bg-cyan-100">
                         <ul>
                             <li th:each="mes : ${messages}" th:text="${mes}">Information</li>
                         </ul>
@@ -45,14 +48,14 @@
                 <div id="errors"
                      th:fragment="errors">
                     <div th:if="${errors}"
-                         class="mb-3 p-2 border rounded-lg border-red-600 bg-red-100 text-red-500">
+                         class="my-2 p-2 border rounded-lg border-red-600 bg-red-100 text-red-500">
                         <ul>
                             <li th:each="err : ${errors}" th:text="${err}">Input is incorrect</li>
                         </ul>
                     </div>
                 </div>
             </div>
-            
+
             <form id="category-form"
                   hx-put="/category"
                   hx-target="#result-information"
