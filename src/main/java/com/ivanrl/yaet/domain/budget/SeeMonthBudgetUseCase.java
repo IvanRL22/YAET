@@ -108,7 +108,7 @@ public class SeeMonthBudgetUseCase {
                                                                                                  .collect(Collectors.groupingBy(e -> e.category().id()));
 
         return categoriesWithoutMonthBudget.stream()
-                                           .map(cwmb -> BudgetCategoryDO.from(cwmb,
+                                           .map(cwmb -> BudgetCategoryDO.nonExistingFrom(cwmb,
                                                                               pastMonthExpensesByCategory.getOrDefault(cwmb.categoryId(),
                                                                                                                        new ArrayList<>())))
                                            .toList();
