@@ -5,6 +5,7 @@ import com.ivanrl.yaet.domain.category.SeeCategoriesUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -64,5 +65,12 @@ public class CategoriesController {
 
         return List.of(new ModelAndView("categories :: #result-information", model.asMap()),
                 new ModelAndView("categories :: category-item", model.asMap()));
+    }
+
+    @PutMapping("/{id}/reorder")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // So that Spring does not try to return a template
+    public void reorder(@PathVariable int id,
+                        @RequestParam int newPosition) {
+        this.manageCategoriesUseCase.reorder(id, newPosition);
     }
 }

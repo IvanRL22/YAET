@@ -5,15 +5,30 @@
              class="flex flex-col">
             <span class="text-xl">Your categories</span>
             <hr>
-            <span th:id="|cat_${category.id}|"
-                  th:fragment="category-item"
-                  th:each="category: ${categories}"
-                  th:text="${category.name}"
-                  class="cursor-pointer rounded text-center hover:bg-gray-300 transition"
-                  th:hx-get="|/category/${category.id}|"
-                  hx-target="#category-details"
-                  hx-swap="innerHTML">
-            </span>
+            <div id="categories"
+                 class="flex flex-col">
+                <span th:id="|cat_${category.id}|"
+                      th:fragment="category-item"
+                      th:each="category: ${categories}"
+                      th:text="${category.name}"
+                      class="cursor-pointer select-none rounded text-center hover:bg-gray-300 transition"
+                      th:hx-get="|/category/${category.id}|"
+                      hx-target="#category-details"
+                      hx-swap="innerHTML">
+                </span>
+            </div>
+            <script>
+                var list = document.getElementById('categories');
+                Sortable.create(list, {
+                    animation: 150,
+                    onEnd: function (evt) {
+                        const categoryId = evt.item.id.substring(4); // substring the 'cat_' from the id
+                        htmx.ajax('PUT', `/category/${categoryId}/reorder`, {
+                            values: { newPosition: evt.newDraggableIndex }
+                        });
+                    }
+                });
+            </script>
         </div>
         <button class="mt-5"
                 hx-get="/category-dialog"

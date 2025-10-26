@@ -33,6 +33,7 @@ public class CategoryDAO {
 
     public CategoryDO create(CreateCategoryRequest request) {
         var po = new CategoryPO(request);
+        po.setOrder((int) (this.repository.count() + 1));
 
         this.repository.save(po);
 
@@ -53,5 +54,13 @@ public class CategoryDAO {
 
     public boolean existsByName(CreateCategoryRequest request) {
         return this.repository.existsByName(request.name());
+    }
+
+    public void adjustOrder(int from, int to, int increment) {
+        this.repository.adjustOrder(from, to, increment);
+    }
+
+    public void setOrder(int id, int newPosition) {
+        this.repository.setOrder(id, newPosition);
     }
 }

@@ -32,6 +32,9 @@ public class CategoryPO {
     @Column(name = "default_amount", scale = 6, precision = 2)
     private BigDecimal defaultAmount;
 
+    @Column(name = "screen_order", nullable = false, scale = 3) // 'order' is a reserved word in postgres
+    private int order;
+
     public CategoryPO(CreateCategoryRequest createRequest) {
         this.name = createRequest.name();
         this.description = createRequest.description();
@@ -41,7 +44,8 @@ public class CategoryPO {
         return new CategoryDO(id,
                               name,
                               description,
-                              defaultAmount);
+                              defaultAmount,
+                              order);
     }
 
     public SimpleCategoryDO toSimpleDomainModel() {

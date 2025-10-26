@@ -49,7 +49,7 @@ public class CategoryDialogController {
         this.manageCategoriesUseCase.create(request.toDomain());
         model.addAttribute("messages", List.of("The category was created"));
 
-        var categories = this.seeCategoriesUseCase.getAll().stream().map(CategoryTO::from).toList();
+        var categories = this.seeCategoriesUseCase.getAll().stream().map(CategoryTO::from).sorted().toList();
         model.addAttribute(categories);
 
         return List.of(new ModelAndView("category-dialog :: #result-information", model.asMap()),

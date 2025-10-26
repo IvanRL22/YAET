@@ -50,3 +50,6 @@ create table budget_categories (
 
 alter table categories
 add column default_amount numeric(6, 2);
+
+alter table categories
+add column screen_order numeric(3) not null;
