@@ -5,6 +5,7 @@ import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 
 import java.math.BigDecimal;
 
+// TODO Consider moving this to a record for clarity
 public interface BudgetCategoryProjection extends Comparable<String> {
 
 
@@ -13,10 +14,13 @@ public interface BudgetCategoryProjection extends Comparable<String> {
     BigDecimal getAmountInherited();
     BigDecimal getAmountAssigned();
     String getName();
+    int getOrder();
 
     default SimpleBudgetCategoryDO toDomainModel() {
         return new SimpleBudgetCategoryDO(this.getId(),
-                                          new SimpleCategoryDO(this.getCategoryId(), this.getName()),
+                                          new SimpleCategoryDO(this.getCategoryId(),
+                                                               this.getName(),
+                                                               this.getOrder()),
                                           this.getAmountInherited(),
                                           this.getAmountAssigned());
     }

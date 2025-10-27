@@ -13,6 +13,7 @@ record BudgetMonthTO(BigDecimal totalIncome,
                                  domainObject.categories()
                                              .stream()
                                              .map(BudgetCategoryTO::from)
+                                             .sorted()
                                              .toList());
     }
 }

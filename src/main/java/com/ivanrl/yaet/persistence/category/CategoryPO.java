@@ -49,6 +49,8 @@ public class CategoryPO {
     }
 
     public SimpleCategoryDO toSimpleDomainModel() {
-        return  new SimpleCategoryDO(id, name);
+        return  new SimpleCategoryDO(id,
+                                     name,
+                                     order);
     }
 }
