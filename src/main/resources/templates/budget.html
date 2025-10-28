@@ -6,15 +6,16 @@
              hx-swap="outerHTML"
              hx-target="main"
              class="w-120 grid grid-cols-3 gap-2 justify-items-center">
-            <button class="w-[100px] px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-md transition"
+            <button class="w-[100px] cursor-pointer disabled:cursor-not-allowed px-3 py-1.5 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:hover:bg-gray-100 text-sm font-medium rounded-md transition"
                     th:hx-get="|/budget/${previous}|"
+                    th:disabled="${isFirstMonth}"
                     hx-include="#categoryDetailsId">
                 ← Previous
             </button>
 
             <span th:text="${currentMonthText}"></span>
 
-            <button class="w-[100px] px-3 py-1.5 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:hover:bg-gray-100 text-sm font-medium rounded-md transition"
+            <button class="w-[100px] cursor-pointer disabled:cursor-not-allowed px-3 py-1.5 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:hover:bg-gray-100 text-sm font-medium rounded-md transition"
                     th:hx-get="|/budget/${next}|"
                     th:disabled="${isLastMonth}"
                     hx-include="#categoryDetailsId">

@@ -28,6 +28,10 @@ public class BudgetController {
     private final SeeExpensesUseCase seeExpensesUseCase;
     private final CopyFromPreviousUseCase copyFromPreviousUseCase;
 
+    /**
+     * This should come from the user data in the future
+     */
+    private static final YearMonth FIRST_MONTH = YearMonth.of(2025, 9);
 
     @GetMapping(value = {"", "/{month}"})
     public ModelAndView budget(@PathVariable(required = false) YearMonth month,
@@ -42,6 +46,10 @@ public class BudgetController {
             throw new BadRequestException("You can only see up to the next month.");
         }
 
+        if (requestedMonth.isBefore(FIRST_MONTH)) {
+            throw new BadRequestException("You can't go back past your first month in the platform");
+        }
+
         var monthlyBudget = BudgetMonthTO.from(this.seeMonthBudgetUseCase.seeMonthlyBudget(requestedMonth));
 
         var allCategories = monthlyBudget.categories();
@@ -51,6 +59,7 @@ public class BudgetController {
 
         // Navigation
         model.addAttribute("previous", previous);
+        model.addAttribute("isFirstMonth", requestedMonth.equals(FIRST_MONTH));
         model.addAttribute("currentMonthText", "%s of %d".formatted(requestedMonth.getMonth(), requestedMonth.getYear()));
         model.addAttribute("next", next);
         model.addAttribute("isLastMonth", requestedMonth.equals(lastAvailableMonth));
