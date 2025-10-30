@@ -98,6 +98,7 @@ public class BudgetController {
         var allCategories = this.seeMonthBudgetUseCase.getBudgets(month)
                                                       .stream()
                                                       .map(BudgetCategoryTO::from)
+                                                      .sorted()
                                                       .toList();
 
         var budgetInformationComponent = new BudgetInformationComponent(month,
@@ -119,6 +120,7 @@ public class BudgetController {
         var allCategories = this.seeMonthBudgetUseCase.getBudgets(month)
                                                       .stream()
                                                       .map(BudgetCategoryTO::from)
+                                                      .sorted()
                                                       .toList();
 
         var budgetInformationComponent = new BudgetInformationComponent(month,
@@ -144,6 +146,7 @@ public class BudgetController {
         var categoryBudgets = this.seeMonthBudgetUseCase.getBudgets(month)
                                                         .stream()
                                                         .map(BudgetCategoryTO::from)
+                                                        .sorted()
                                                         .toList();
 
         var budgetInformationComponent = new BudgetInformationComponent(month,
