@@ -3,6 +3,7 @@ package com.ivanrl.yaet;
 import com.ivanrl.yaet.domain.DomainModel;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
+import jakarta.persistence.Entity;
 import org.junit.jupiter.api.Test;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -36,7 +37,7 @@ public class YaetArchitectureTests extends AbstractArchitectureTests {
     @Test
     void test_that_persistence_entities_only_reside_on_persistence_layer() {
 
-        ArchRule rule = classes().that().areAnnotatedWith(JAKARTA_PERSISTENCE_ENTITY_ANNOTATION_NAME)
+        ArchRule rule = classes().that().areAnnotatedWith(Entity.class)
                                  .should().resideInAPackage("com.ivanrl.yaet.persistence..");
 
         rule.because("entities should be declared only on persistence layer").check(ALL_CLASSES);

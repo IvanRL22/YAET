@@ -8,8 +8,6 @@ import com.tngtech.archunit.core.importer.ImportOption;
  */
 public abstract class AbstractArchitectureTests {
 
-    protected static final String JAKARTA_PERSISTENCE_ENTITY_ANNOTATION_NAME = "jakarta.persistence.Entity";
-
     private final ImportOption ignoreTests = location -> !location.contains("/test/");
 
     protected ClassFileImporter classFileImporterIgnoringTests() {

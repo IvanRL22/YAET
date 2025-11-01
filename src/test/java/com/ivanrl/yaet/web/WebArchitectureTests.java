@@ -3,6 +3,7 @@ package com.ivanrl.yaet.web;
 import com.ivanrl.yaet.AbstractArchitectureTests;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
+import jakarta.persistence.Entity;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Controller;
 
@@ -19,7 +20,7 @@ public class WebArchitectureTests extends AbstractArchitectureTests {
         JavaClasses webClasses = classFileImporterIgnoringTests().importPackages(ALL_WEB_PACKAGES);
 
         ArchRule rule = noClasses().that().areAnnotatedWith(Controller.class)
-                                   .should().dependOnClassesThat().areAnnotatedWith(JAKARTA_PERSISTENCE_ENTITY_ANNOTATION_NAME);
+                                   .should().dependOnClassesThat().areAnnotatedWith(Entity.class);
 
         rule.check(webClasses);
     }

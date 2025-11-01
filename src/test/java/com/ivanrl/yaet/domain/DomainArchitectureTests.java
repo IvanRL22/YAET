@@ -3,6 +3,7 @@ package com.ivanrl.yaet.domain;
 import com.ivanrl.yaet.AbstractArchitectureTests;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
+import jakarta.persistence.Entity;
 import org.junit.jupiter.api.Test;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
@@ -15,7 +16,7 @@ class DomainArchitectureTests extends AbstractArchitectureTests {
     void check_that_domain_does_not_depend_on_entities() {
         JavaClasses webClasses = classFileImporterIgnoringTests().importPackages(ALL_DOMAIN_PACKAGES);
 
-        ArchRule rule = noClasses().should().dependOnClassesThat().areAnnotatedWith(JAKARTA_PERSISTENCE_ENTITY_ANNOTATION_NAME);
+        ArchRule rule = noClasses().should().dependOnClassesThat().areAnnotatedWith(Entity.class);
 
         rule.because("domain should not care about persistence details").check(webClasses);
     }
