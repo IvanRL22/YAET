@@ -1,6 +1,7 @@
 package com.ivanrl.yaet.persistence.category;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.CategoryType;
 import com.ivanrl.yaet.domain.category.CreateCategoryRequest;
 import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 import jakarta.persistence.*;
@@ -35,6 +36,10 @@ public class CategoryPO {
     @Column(name = "screen_order", nullable = false, scale = 3) // 'order' is a reserved word in postgres
     private int order;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 20)
+    private CategoryType type;
+
     public CategoryPO(CreateCategoryRequest createRequest) {
         this.name = createRequest.name();
         this.description = createRequest.description();
@@ -49,8 +54,9 @@ public class CategoryPO {
     }
 
     public SimpleCategoryDO toSimpleDomainModel() {
-        return  new SimpleCategoryDO(id,
-                                     name,
-                                     order);
+        return new SimpleCategoryDO(id,
+                                    name,
+                                    order,
+                                    type);
     }
 }

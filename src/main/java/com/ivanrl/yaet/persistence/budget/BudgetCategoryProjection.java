@@ -1,6 +1,7 @@
 package com.ivanrl.yaet.persistence.budget;
 
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
+import com.ivanrl.yaet.domain.category.CategoryType;
 import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 
 import java.math.BigDecimal;
@@ -15,12 +16,14 @@ public interface BudgetCategoryProjection extends Comparable<String> {
     BigDecimal getAmountAssigned();
     String getName();
     int getOrder();
+    CategoryType getType();
 
     default SimpleBudgetCategoryDO toDomainModel() {
         return new SimpleBudgetCategoryDO(this.getId(),
                                           new SimpleCategoryDO(this.getCategoryId(),
                                                                this.getName(),
-                                                               this.getOrder()),
+                                                               this.getOrder(),
+                                                               this.getType()),
                                           this.getAmountInherited(),
                                           this.getAmountAssigned());
     }

@@ -6,6 +6,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @DomainModel
-public record ExpenseDO(int id, String category, String payee, BigDecimal amount, LocalDate date) {
+public record ExpenseDO(int id,
+                        String category,
+                        String payee,
+                        BigDecimal amount,
+                        LocalDate date) implements HasAmount {
 
 }

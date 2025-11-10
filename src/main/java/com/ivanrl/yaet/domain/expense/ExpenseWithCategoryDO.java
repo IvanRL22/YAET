@@ -12,7 +12,7 @@ public record ExpenseWithCategoryDO(int id,
                                     String payee,
                                     LocalDate date,
                                     BigDecimal amount,
-                                    String comment) {
+                                    String comment) implements HasAmount {
 
     public int getCategoryId() {
         return category.id();
