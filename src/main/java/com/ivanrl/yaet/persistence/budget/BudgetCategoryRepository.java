@@ -19,7 +19,8 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
             bc.amountInherited as amountInherited,
             bc.amountAssigned as amountAssigned,
             c.name as name,
-            c.order as order
+            c.order as order,
+            c.type as type
             from budgetCategory bc
             right join bc.category c
             where bc.month = :month
@@ -33,7 +34,8 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
             bc.amountInherited as amountInherited,
             bc.amountAssigned as amountAssigned,
             c.name as name,
-            c.order as order
+            c.order as order,
+            c.type as type
             from budgetCategory bc
             right join bc.category c
             where bc.month = :month

@@ -7,6 +7,6 @@ import java.util.List;
 
 @DomainModel
 public record BudgetMonthDO(BigDecimal totalIncome,
-                            List<BudgetCategoryDO> categories) {
+                            List<AbstractCategoryBudgetDO> categories) {
 
 }

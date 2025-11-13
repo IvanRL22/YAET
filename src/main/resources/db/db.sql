@@ -53,3 +53,6 @@ add column default_amount numeric(6, 2);
 
 alter table categories
 add column screen_order numeric(3) not null;
+
+alter table categories
+add column type varchar(20) not null default 'NORMAL';

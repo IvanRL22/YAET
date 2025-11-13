@@ -10,6 +10,20 @@ import com.ivanrl.yaet.domain.DomainModel;
 @DomainModel
 public record SimpleCategoryDO(int id,
                                String name,
-                               int order) {
+                               int order,
+                               CategoryType type) {
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+
+        if (other instanceof SimpleCategoryDO otherCategory) {
+            return otherCategory.name.equals(this.name); // TODO In the future category should have its own key
+        }
+
+        return false;
+    }
 
 }

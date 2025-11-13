@@ -11,6 +11,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 class DomainArchitectureTests extends AbstractArchitectureTests {
 
     private static final String[] ALL_DOMAIN_PACKAGES = {"com.ivanrl.yaet.domain"}; // Ignoring common classes on base package
+    private static final String[] PACKAGES_ALLOWED = {
+            "java..", // Since we may need String, List and other java classes
+            "com.ivanrl.yaet.domain..",
+            "lombok.."
+    };
 
     @Test
     void check_that_domain_does_not_depend_on_entities() {
@@ -26,8 +31,7 @@ class DomainArchitectureTests extends AbstractArchitectureTests {
         JavaClasses domainClasses = classFileImporterIgnoringTests().importPackages(ALL_DOMAIN_PACKAGES);
 
         ArchRule rule = noClasses().that().areAnnotatedWith(DomainModel.class)
-                                   .should().dependOnClassesThat().resideOutsideOfPackages("java..", // Since we may need String, List and other java classes
-                                                                                           "com.ivanrl.yaet.domain..");
+                                   .should().dependOnClassesThat().resideOutsideOfPackages(PACKAGES_ALLOWED);
 
         rule.because("domain model should not depend on external classes").check(domainClasses);
     }
