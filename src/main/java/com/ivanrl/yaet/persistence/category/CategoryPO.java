@@ -43,12 +43,14 @@ public class CategoryPO {
     public CategoryPO(CreateCategoryRequest createRequest) {
         this.name = createRequest.name();
         this.description = createRequest.description();
+        this.type = createRequest.type();
     }
 
     public CategoryDO toDomainModel() {
         return new CategoryDO(id,
                               name,
                               description,
+                              type,
                               defaultAmount,
                               order);
     }

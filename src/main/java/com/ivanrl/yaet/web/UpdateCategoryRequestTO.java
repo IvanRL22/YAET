@@ -1,6 +1,7 @@
 package com.ivanrl.yaet.web;
 
 import com.ivanrl.yaet.domain.category.CategoryDO;
+import com.ivanrl.yaet.domain.category.CategoryType;
 import com.ivanrl.yaet.domain.category.UptadeCategoryRequest;
 import jakarta.validation.constraints.*;
 
@@ -13,6 +14,7 @@ public record UpdateCategoryRequestTO(@NotNull(message = "There is an issue when
                                       String name,
                                       @Size(max = 255, message = "Description must not exceed 255 characters")
                                       String description,
+                                      CategoryType type,
                                       @Positive(message = "Default amount cannot be negative")
                                       @DecimalMax(value = "9999.99", message = "Amount must be less than 10000")
                                       BigDecimal defaultAmount) {
@@ -21,6 +23,7 @@ public record UpdateCategoryRequestTO(@NotNull(message = "There is an issue when
         return new UpdateCategoryRequestTO(domainObject.id(),
                                            domainObject.name(),
                                            domainObject.description(),
+                                           domainObject.type(),
                                            domainObject.defaultAmount());
     }
 

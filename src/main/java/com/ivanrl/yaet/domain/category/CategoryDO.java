@@ -8,5 +8,6 @@ import java.math.BigDecimal;
 public record CategoryDO(int id,
                          String name,
                          String description,
+                         CategoryType type,
                          BigDecimal defaultAmount,
                          int order) {}

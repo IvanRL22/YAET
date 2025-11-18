@@ -83,8 +83,16 @@
                   rows="3"
                   maxlength="255"
                   class="resize-none"></textarea>
+
+        <label for="type">Type:</label>
+        <select id="type"
+                name="type"
+                th:field="*{type}">
+            <option value="NORMAL" selected>Normal</option>
+            <option value="OUT_OF_BUDGET">Out of budget</option>
+        </select>
         
         <button type="reset">Reset</button>
-        <button>Update</button>
+        <button>Create</button>
     </form>
 </dialog>
