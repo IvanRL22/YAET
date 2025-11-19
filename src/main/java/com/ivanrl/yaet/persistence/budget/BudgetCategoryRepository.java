@@ -14,35 +14,21 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
 
 
     @Query("""
-            select bc.id as id,
-            c.id as categoryId,
-            bc.amountInherited as amountInherited,
-            bc.amountAssigned as amountAssigned,
-            c.name as name,
-            c.order as order,
-            c.type as type
             from budgetCategory bc
             right join bc.category c
             where bc.month = :month
             order by c.name
             """)
-    Set<BudgetCategoryProjection> findAll(@Param("month") YearMonth month);
+    Set<BudgetCategoryPO> findAll(@Param("month") YearMonth month);
 
     @Query("""
-            select bc.id as id,
-            c.id as categoryId,
-            bc.amountInherited as amountInherited,
-            bc.amountAssigned as amountAssigned,
-            c.name as name,
-            c.order as order,
-            c.type as type
             from budgetCategory bc
             right join bc.category c
             where bc.month = :month
             and c.id in (:categoryIds)
             order by c.name
             """)
-    Set<BudgetCategoryProjection> findAll(YearMonth month, Set<Integer> categoryIds);
+    Set<BudgetCategoryPO> findAll(YearMonth month, Set<Integer> categoryIds);
 
     Optional<BudgetCategoryPO> findByCategoryIdAndMonth(int categoryId, YearMonth month);
 

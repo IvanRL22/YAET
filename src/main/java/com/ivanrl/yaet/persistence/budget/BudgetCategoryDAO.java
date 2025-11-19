@@ -24,7 +24,7 @@ public class BudgetCategoryDAO {
     public List<SimpleBudgetCategoryDO> findAllBy(YearMonth month) {
         return this.repository.findAll(month)
                               .stream()
-                              .map(BudgetCategoryProjection::toDomainModel)
+                              .map(BudgetCategoryPO::toSimpleDomainModel)
                               .toList();
     }
 
@@ -33,7 +33,7 @@ public class BudgetCategoryDAO {
         return this.repository.findAll(month,
                                        categoryIds)
                               .stream()
-                              .map(BudgetCategoryProjection::toDomainModel)
+                              .map(BudgetCategoryPO::toSimpleDomainModel)
                               .toList();
 
     }
