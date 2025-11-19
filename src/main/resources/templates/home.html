@@ -16,7 +16,10 @@
     <script>
         document.addEventListener('htmx:afterRequest', function(evt) {
 
-            if(evt.detail.xhr.status !== 200) {
+            if (evt.detail.xhr.status === 401) {
+                // Try to log in case of trying to access protected resources
+                window.location = "/oauth2/authorization/google";
+            } else if(evt.detail.xhr.status !== 200) {
                 // This is what we've come to... Parsing JSON response while using HTMX...
                 let problemDetail = JSON.parse(evt.detail.xhr.response);
                 alert(problemDetail.title + ': ' + problemDetail.detail);
