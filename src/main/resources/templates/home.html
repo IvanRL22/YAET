@@ -42,11 +42,12 @@
 
     <!--/* Navigation menu */-->
     <div id="nav-bar"
-         hx-target="main"
-         hx-swap="outerHTML"
-         class="pb-3 flex flex-row">
+         class="pb-3 flex justify-between">
 
-        <div id="navigation-links">
+        <div id="navigation-links"
+             class="flex space-x-4 ml-2"
+             hx-target="main"
+             hx-swap="outerHTML">
             <span sec:authorize="isAuthenticated()"
                   hx-get="/category"
                   class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">Manage Categories</span>
@@ -58,13 +59,16 @@
                   class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">See budget</span>
         </div>
 
-        <span sec:authorize="!isAuthenticated()"
-              class="absolute right-0 mr-5 px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">
-            <a href="/oauth2/authorization/google">Login</a>
-        </span>
-        <span sec:authorize="isAuthenticated()"
-              class="absolute right-0 mr-5"
-              th:text="|Logged as ${username}|">Logged as</span>
+        <div id="login-links"
+             class="flex items-center space-x-4 mr-2">
+            <span sec:authorize="!isAuthenticated()"
+                  class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">
+                <a href="/oauth2/authorization/google">Login</a>
+            </span>
+            <span sec:authorize="isAuthenticated()"
+                  th:text="|Logged as ${username}|">Logged as</span>
+        </div>
+
     </div>
 </header>
 
