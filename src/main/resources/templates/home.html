@@ -2,6 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       lang="en">
 
 <head>
@@ -10,10 +11,15 @@
     <script type="text/javascript" th:src="@{/webjars/sortablejs/1.15.6/Sortable.min.js}"></script>
     <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <meta name="csrf-token" th:content="${_csrf.token}" />
+    <meta name="csrf-header" th:content="${_csrf.headerName}" />
     <script>
         document.addEventListener('htmx:afterRequest', function(evt) {
 
-            if(evt.detail.xhr.status !== 200) {
+            if (evt.detail.xhr.status === 401) {
+                // Try to log in case of trying to access protected resources
+                window.location = "/oauth2/authorization/google";
+            } else if(evt.detail.xhr.status !== 200) {
                 // This is what we've come to... Parsing JSON response while using HTMX...
                 let problemDetail = JSON.parse(evt.detail.xhr.response);
                 alert(problemDetail.title + ': ' + problemDetail.detail);
@@ -36,25 +42,49 @@
 
     <!--/* Navigation menu */-->
     <div id="nav-bar"
-         hx-target="main"
-         hx-swap="outerHTML"
-         class="pb-3 flex flex-row">
+         class="pb-3 flex justify-between">
 
-        <div id="navigation-links">
-            <span hx-get="/category"
+        <div id="navigation-links"
+             class="flex space-x-4 ml-2"
+             hx-target="main"
+             hx-swap="outerHTML">
+            <span sec:authorize="isAuthenticated()"
+                  hx-get="/category"
                   class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">Manage Categories</span>
-            <span hx-get="/new"
+            <span sec:authorize="isAuthenticated()"
+                  hx-get="/new"
                   class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">Add Movement</span>
-            <span hx-get="/budget"
+            <span sec:authorize="isAuthenticated()"
+                  hx-get="/budget"
                   class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">See budget</span>
         </div>
 
-        <!-- /* Make visible once authentication is implemented  */ -->
-        <span class="absolute right-0 mr-5 px-1.5 cursor-pointer rounded hover:bg-gray-300 transition hidden">Login</span>
+        <div id="login-links"
+             class="flex items-center space-x-4 mr-2">
+            <span sec:authorize="!isAuthenticated()"
+                  class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">
+                <a href="/oauth2/authorization/google">Login</a>
+            </span>
+            <span sec:authorize="isAuthenticated()"
+                  th:text="|Logged as ${username}|">Logged as</span>
+        </div>
+
     </div>
 </header>
 
 <body>
+    <script>
+        document.body.addEventListener('htmx:configRequest', (evt) => {
+            evt.detail.headers['accept'] = 'text/html-partial';
+            if (evt.detail.verb !== 'get') {
+                const csrfHeader = document.querySelector('meta[name=csrf-header]').getAttribute('content');
+                const csrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+                if (csrfHeader != null && csrfToken != null) {
+                    evt.detail.headers[csrfHeader] = csrfToken;
+                }
+            }
+        });
+    </script>
     <!--/* All the main views must start with a main element, since they will be outer-swapped */-->
     <!--/* This is done so each view can define its own layout (flex, grid, etc.) independently */-->
     <main>

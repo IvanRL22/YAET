@@ -20,3 +20,12 @@ spring:
       hibernate:
         format_sql: true
     show_sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: ${google-client-id}
+            clientSecret: ${google-client-secret}
+            
