@@ -15,7 +15,7 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
 
     @Query("""
             from budgetCategory bc
-            right join bc.category c
+            right join fetch bc.category c
             where bc.month = :month
             order by c.name
             """)
@@ -23,7 +23,7 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
 
     @Query("""
             from budgetCategory bc
-            right join bc.category c
+            right join fetch bc.category c
             where bc.month = :month
             and c.id in (:categoryIds)
             order by c.name
