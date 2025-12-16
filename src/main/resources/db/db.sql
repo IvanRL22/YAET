@@ -56,3 +56,10 @@ add column screen_order numeric(3) not null;
 
 alter table categories
 add column type varchar(20) not null default 'NORMAL';
+
+-- Changes for authentication
+create table users (
+	id			serial primary key,
+	email		varchar(50),
+	name		varchar(50)
+);
