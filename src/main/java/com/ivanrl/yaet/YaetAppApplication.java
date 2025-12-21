@@ -2,11 +2,13 @@ package com.ivanrl.yaet;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+@EnableAspectJAutoProxy
 @SpringBootApplication
 public class YaetAppApplication implements WebMvcConfigurer {
 
