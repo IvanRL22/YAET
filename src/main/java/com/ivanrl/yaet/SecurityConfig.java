@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -18,7 +18,7 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         http.authorizeHttpRequests(a -> a
                     .requestMatchers("/", "/webjars/**", "/favicon.ico").permitAll()
                     .anyRequest().authenticated()
@@ -26,7 +26,7 @@ public class SecurityConfig {
 
             .oauth2Login(o -> o.successHandler(oAuth2LoginSuccessHandler))
             .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                                                                           new AntPathRequestMatcher("/**")
+                                                                           RegexRequestMatcher.regexMatcher(".*") // TODO Is this the right matcher?
                     )
             )
         ;
