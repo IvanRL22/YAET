@@ -90,31 +90,43 @@ public class SeeMonthBudgetUseCase {
     private List<AbstractCategoryBudgetDO> getCategoriesWithoutCurrentMonthBudget(YearMonth requestedMonth,
                                                                                   List<SimpleCategoryDO> missingCategories) {
         YearMonth previousMonth = requestedMonth.minusMonths(1);
-        // What if some category still does not have a budget for the previous month?
-        List<SimpleBudgetCategoryDO> missingBudgetsFromPastMonth = this.budgetCategoryDAO.findAllBy(previousMonth,
-                                                                                                    missingCategories.stream()
-                                                                                                                     .map(SimpleCategoryDO::id)
-                                                                                                                     .collect(Collectors.toSet()));
+
+        List<SimpleBudgetCategoryDO> missingBudgetsFromPastMonth = this.budgetCategoryDAO.findLastBudgets(previousMonth,
+                                                                                                          missingCategories.stream()
+                                                                                                                           .map(SimpleCategoryDO::id)
+                                                                                                                           .collect(Collectors.toSet()));
 
         // TODO This is not very elegant, there's probably a better way to do this by tweaking the model a bit
         List<SimpleBudgetCategoryDO> categoriesWithoutMonthBudget = new ArrayList<>(missingBudgetsFromPastMonth);
         for (SimpleCategoryDO c : missingCategories) {
             if (categoriesWithoutMonthBudget.stream()
                                             .noneMatch(cwmb -> cwmb.category().equals(c))) {
-                categoriesWithoutMonthBudget.add(SimpleBudgetCategoryDO.emptyWith(c));
+                categoriesWithoutMonthBudget.add(SimpleBudgetCategoryDO.emptyWith(c, requestedMonth));
             }
         }
 
 
+        // TODO We need this to be done for each category AND month, since the months might be different
+        // Perhaps it would be a good idea to group by month and make the queries that way?
         List<ExpenseWithCategoryDO> pastMonthExpenses =
                 this.expenseDAO.findAllBy(previousMonth,
                                           categoriesWithoutMonthBudget.stream()
                                                                       .map(SimpleBudgetCategoryDO::categoryId)
                                                                       .collect(Collectors.toSet()));
 
+        var categoriesByMonth = categoriesWithoutMonthBudget.stream().collect(Collectors.groupingBy(SimpleBudgetCategoryDO::month));
+
+        var missingCategoriesExpenses = categoriesByMonth.entrySet()
+                                                         .stream()
+                                                         .flatMap(e -> this.expenseDAO.findAllBy(e.getKey(),
+                                                                                                 e.getValue().stream().map(SimpleBudgetCategoryDO::id).collect(Collectors.toSet()))
+                                                                                      .stream())
+                                                         .toList();
+
         // Grouping the expenses by category now to avoid having to iterate through all of them when creating each TO
+        // TODO Is there a way to collect to a Map and cast the value to HasAmount at the same time on the previous statement? It would save some resources
         Map<SimpleCategoryDO, List<HasAmount>> pastMonthExpensesByCategory = new HashMap<>();
-        for (ExpenseWithCategoryDO expense : pastMonthExpenses) {
+        for (ExpenseWithCategoryDO expense : missingCategoriesExpenses) {
             var key = expense.category();
             if (!pastMonthExpensesByCategory.containsKey(key)) {
                 pastMonthExpensesByCategory.put(key, new ArrayList<>());

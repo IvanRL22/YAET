@@ -1,7 +1,7 @@
 package com.ivanrl.yaet;
 
-import com.ivanrl.yaet.auth.UserPO;
-import com.ivanrl.yaet.auth.UserRepository;
+import com.ivanrl.yaet.persistence.auth.UserPO;
+import com.ivanrl.yaet.persistence.auth.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

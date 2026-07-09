@@ -1,11 +1,13 @@
 package com.ivanrl.yaet.persistence;
 
+import com.ivanrl.yaet.UserData;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -13,8 +15,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserFilterAspect {
 
+    public static final String USER_FILTER_NAME = "userFilter";
+
     @PersistenceContext
     EntityManager entityManager;
+
+    @Autowired
+    private UserData userData;
 
     /**
      * Matches any calls made to public methods, on DAO classes, within the persistence package
@@ -32,11 +39,13 @@ public class UserFilterAspect {
             return;
         }
 
-        if (session.getEnabledFilter("userFilter") == null) {
-            session.enableFilter("userFilter").setParameter("userId", 1); // TODO Get id from user data
-            log.info("Activated user filter with id {}", 1);
+        var filter = session.getEnabledFilter(USER_FILTER_NAME);
+        if (filter == null) {
+            filter = session.enableFilter(USER_FILTER_NAME);
+            filter.setParameter("userId", userData.getDbId());
+            log.info("Activated user filter with id {}", userData.getDbId());
         } else {
-            log.info("UserFilter is already active");
+            log.info("UserFilter is already active with id {}", filter.getParameterValue("userId"));
         }
     }
 }

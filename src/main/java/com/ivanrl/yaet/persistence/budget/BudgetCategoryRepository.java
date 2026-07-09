@@ -46,4 +46,22 @@ public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO
             and bc.month >= :month
             """)
     void updateCurrentAndFutureBudgetCategories(int categoryId, YearMonth month, BigDecimal amount);
+
+    /**
+     * @param month cutoff month, no budgets for months after this one will be considered
+     * @param categoryIds set of category IDs
+     * @return Set of budgets for all the categories that are the last with respect to the cutoff month
+     */
+    @Query("""
+            SELECT bc
+            FROM budgetCategory bc
+            WHERE bc.month <= month
+            AND bc.category.id IN (:categoryIds)
+            AND bc.month = (
+                SELECT MAX(bc2.month)
+                FROM budgetCategory bc2
+                WHERE bc2.category.id = bc.category.id
+            )""")
+    Set<BudgetCategoryPO> findLatestBudget(YearMonth month, Set<Integer> categoryIds);
+
 }

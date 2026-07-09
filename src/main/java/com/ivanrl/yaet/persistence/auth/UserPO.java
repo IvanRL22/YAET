@@ -1,4 +1,4 @@
-package com.ivanrl.yaet.auth;
+package com.ivanrl.yaet.persistence.auth;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

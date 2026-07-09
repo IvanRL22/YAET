@@ -38,6 +38,15 @@ public class BudgetCategoryDAO {
 
     }
 
+    public List<SimpleBudgetCategoryDO> findLastBudgets(YearMonth month,
+                                                        Set<Integer> categoryIds) {
+        return this.repository.findLatestBudget(month, categoryIds)
+                              .stream()
+                              .map(BudgetCategoryPO::toSimpleDomainModel)
+                              .toList();
+
+    }
+
     public Optional<SimpleBudgetCategoryDO> findBy(YearMonth month,
                                                    int categoryId) {
         return this.repository.findByCategoryIdAndMonth(categoryId,
