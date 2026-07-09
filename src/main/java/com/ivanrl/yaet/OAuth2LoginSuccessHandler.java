@@ -46,6 +46,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     private void loadUserIntoSession(UserPO userPO) {
+        userData.setDbId(userPO.getId());
         userData.setName(userPO.getName());
         userData.setEmail(userPO.getEmail());
     }
