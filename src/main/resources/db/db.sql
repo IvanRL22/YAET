@@ -63,3 +63,9 @@ create table users (
 	email		varchar(50),
 	name		varchar(50)
 );
+
+alter table budget_categories
+add column user_id integer;
+
+update budget_categories
+set user_id = 1;

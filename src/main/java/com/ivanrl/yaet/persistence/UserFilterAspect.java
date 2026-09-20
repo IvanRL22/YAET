@@ -3,16 +3,17 @@ package com.ivanrl.yaet.persistence;
 import com.ivanrl.yaet.UserData;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class UserFilterAspect {
 
     public static final String USER_FILTER_NAME = "userFilter";
@@ -20,8 +21,7 @@ public class UserFilterAspect {
     @PersistenceContext
     EntityManager entityManager;
 
-    @Autowired
-    private UserData userData;
+    private final UserData userData;
 
     /**
      * Matches any calls made to public methods, on DAO classes, within the persistence package

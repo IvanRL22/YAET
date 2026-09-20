@@ -46,6 +46,12 @@ public class CategoryPO {
         this.type = createRequest.type();
     }
 
+    CategoryPO(String name, String description, CategoryType type) {
+        this.name = name;
+        this.description = description;
+        this.type = type;
+    }
+
     public CategoryDO toDomainModel() {
         return new CategoryDO(id,
                               name,

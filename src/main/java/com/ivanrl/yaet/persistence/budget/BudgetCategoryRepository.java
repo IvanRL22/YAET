@@ -10,7 +10,7 @@ import java.time.YearMonth;
 import java.util.Optional;
 import java.util.Set;
 
-public interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO, Integer> {
+interface BudgetCategoryRepository extends JpaRepository<BudgetCategoryPO, Integer> {
 
 
     @Query("""

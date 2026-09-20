@@ -1,8 +1,10 @@
 package com.ivanrl.yaet.persistence.budget;
 
+import com.ivanrl.yaet.UserData;
 import com.ivanrl.yaet.domain.budget.NewBudgetCategoryRequest;
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
+import com.ivanrl.yaet.persistence.auth.UserRepository;
 import com.ivanrl.yaet.persistence.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,8 @@ public class BudgetCategoryDAO {
 
     private final BudgetCategoryRepository repository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final UserData userData;
 
 
     public List<SimpleBudgetCategoryDO> findAllBy(YearMonth month) {
@@ -71,14 +75,18 @@ public class BudgetCategoryDAO {
 
     private BudgetCategoryPO map(NewBudgetCategoryRequest domainObject, YearMonth month) {
         var categoryPO = this.categoryRepository.getReferenceById(domainObject.category().id());
-        return BudgetCategoryPO.from(domainObject, categoryPO, month);
+        return BudgetCategoryPO.from(this.userRepository.getReferenceById(userData.getDbId()),
+                                     domainObject,
+                                     categoryPO,
+                                     month);
     }
 
     public void create(int categoryId,
                        YearMonth month,
                        BigDecimal balanceFromLastMonth,
                        BigDecimal amount) {
-        var po = new BudgetCategoryPO(this.categoryRepository.getReferenceById(categoryId),
+        var po = new BudgetCategoryPO(this.userRepository.getReferenceById(userData.getDbId()),
+                                      this.categoryRepository.getReferenceById(categoryId),
                                       month,
                                       balanceFromLastMonth,
                                       amount);
@@ -91,11 +99,10 @@ public class BudgetCategoryDAO {
 
         var po = this.repository.findByCategoryIdAndMonth(categoryId,
                                                           month)
-                .orElseThrow();
+                                .orElseThrow();
 
         var difference = amount.subtract(po.getAmountAssigned());
         po.setAmountAssigned(amount);
-        this.repository.save(po);
 
         return difference;
     }
