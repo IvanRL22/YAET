@@ -4,14 +4,19 @@ import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.CategoryType;
 import com.ivanrl.yaet.domain.category.CreateCategoryRequest;
 import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
+import com.ivanrl.yaet.persistence.auth.UserPO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
 
 import java.math.BigDecimal;
 
+import static com.ivanrl.yaet.persistence.UserFilterAspect.USER_FILTER_NAME;
+
+@Filter(name = USER_FILTER_NAME)
 @Entity(name = "categories")
 @Table(name = "categories")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,6 +28,10 @@ public class CategoryPO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
+
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private UserPO user;
 
     @Column(name = "name", length = 50)
     private String name;
@@ -40,13 +49,15 @@ public class CategoryPO {
     @Column(name = "type", nullable = false, length = 20)
     private CategoryType type;
 
-    public CategoryPO(CreateCategoryRequest createRequest) {
+    public CategoryPO(CreateCategoryRequest createRequest, UserPO user) {
+        this.user = user;
         this.name = createRequest.name();
         this.description = createRequest.description();
         this.type = createRequest.type();
     }
 
-    CategoryPO(String name, String description, CategoryType type) {
+    CategoryPO(UserPO user, String name, String description, CategoryType type) {
+        this.user = user;
         this.name = name;
         this.description = description;
         this.type = type;

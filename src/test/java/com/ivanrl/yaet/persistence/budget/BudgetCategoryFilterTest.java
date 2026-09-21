@@ -44,7 +44,7 @@ class BudgetCategoryFilterTest {
         var currentUser = new UserPO("Test User", "test@yaet.com");
         userRepository.save(currentUser);
 
-        var currentCategory = CategoryBuilder.aNormalCategory();
+        var currentCategory = CategoryBuilder.aNormalCategory(currentUser);
         currentCategory.setName("The good category");
         categoryRepository.save(currentCategory);
 
@@ -59,7 +59,7 @@ class BudgetCategoryFilterTest {
         var otherUser = new UserPO("User 1", "mail1@mail.com");
         userRepository.save(otherUser);
 
-        var otherCategory = CategoryBuilder.aNormalCategory();
+        var otherCategory = CategoryBuilder.aNormalCategory(otherUser);
         categoryRepository.save(otherCategory);
 
         var otherBudgetCategory = new BudgetCategoryPO(otherUser,

@@ -6,5 +6,5 @@ The purpose of this file is to document the current status and progress of ongoi
 - ~~Create hibernate filter for filtering data by user and an aspect to activate it~~
 - Tie entities to user and filter them by the user when querying db 
   - ~~BudgetCategory~~
-  - Category
+  - ~~Category~~
   - Expense?

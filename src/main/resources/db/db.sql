@@ -69,3 +69,9 @@ add column user_id integer;
 
 update budget_categories
 set user_id = 1;
+
+alter table categories
+add column user_id integer;
+
+update categories
+set user_id = 1;

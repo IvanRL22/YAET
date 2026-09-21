@@ -1,9 +1,11 @@
 package com.ivanrl.yaet.persistence.category;
 
+import com.ivanrl.yaet.UserData;
 import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.CreateCategoryRequest;
 import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
 import com.ivanrl.yaet.domain.category.UptadeCategoryRequest;
+import com.ivanrl.yaet.persistence.auth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +16,8 @@ import java.util.List;
 public class CategoryDAO {
 
     private final CategoryRepository repository;
+    private final UserRepository userRepository;
+    private final UserData userData;
 
     public List<CategoryDO> getAll() {
         return this.repository.findAll().stream()
@@ -32,7 +36,7 @@ public class CategoryDAO {
     }
 
     public CategoryDO create(CreateCategoryRequest request) {
-        var po = new CategoryPO(request);
+        var po = new CategoryPO(request, this.userRepository.getReferenceById(this.userData.getDbId()));
         po.setOrder((int) (this.repository.count() + 1));
 
         this.repository.save(po);
