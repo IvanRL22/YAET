@@ -42,7 +42,7 @@ public class ManageExpensesUseCase {
 
         this.expenseDAO.update(request);
 
-        if (!differenceInAmount.equals(BigDecimal.ZERO)) {
+        if (differenceInAmount.compareTo(BigDecimal.ZERO) != 0) {
             this.budgetCategoryDAO.updateCurrentAndFutureBudgetCategories(old.getCategoryId(),
                                                                           YearMonth.from(request.date().plusMonths(1)),
                                                                           differenceInAmount);

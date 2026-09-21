@@ -48,7 +48,7 @@ public record BudgetCategoryTO(Integer id,
 
     @Override
     public int compareTo(BudgetCategoryTO o) {
-        return this.order - o.order;
+        return Integer.compare(this.order, o.order);
     }
 
     public BigDecimal getTotalAmount() {

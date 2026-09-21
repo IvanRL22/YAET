@@ -16,6 +16,6 @@ public record CategoryTO(int id,
 
     @Override
     public int compareTo(CategoryTO category) {
-        return this.order - category.order;
+        return Integer.compare(this.order, category.order);
     }
 }
