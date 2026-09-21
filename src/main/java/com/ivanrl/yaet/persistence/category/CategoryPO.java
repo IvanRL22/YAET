@@ -39,7 +39,7 @@ public class CategoryPO {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "default_amount", scale = 6, precision = 2)
+    @Column(name = "default_amount", precision = 6, scale = 2)
     private BigDecimal defaultAmount;
 
     @Column(name = "screen_order", nullable = false, scale = 3) // 'order' is a reserved word in postgres

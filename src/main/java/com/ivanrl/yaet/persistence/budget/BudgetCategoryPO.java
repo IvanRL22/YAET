@@ -50,14 +50,14 @@ public class BudgetCategoryPO {
     private CategoryPO category;
 
     // 'month' seems to be a reserved word in postgres
-    @Column(name = "budget_month", scale = 6, nullable = false)
+    @Column(name = "budget_month", precision = 6, nullable = false)
     @Convert(converter = YearMonthIntegerAttributeConverter.class)
     private YearMonth month;
 
-    @Column(name = "inherited", scale = 6, precision = 2, nullable = false)
+    @Column(name = "inherited", precision = 6, scale = 2, nullable = false)
     private BigDecimal amountInherited;
 
-    @Column(name = "assigned", scale = 6, precision = 2, nullable = false)
+    @Column(name = "assigned", precision = 6, scale = 2, nullable = false)
     private BigDecimal amountAssigned;
 
     public static BudgetCategoryPO from(UserPO user,

@@ -32,7 +32,7 @@ public class ExpensePO {
     @Column(name = "payee", length = 50)
     private String payee;
 
-    @Column(name = "amount", scale = 6, precision = 2, nullable = false)
+    @Column(name = "amount", precision = 6, scale = 2, nullable = false)
     private BigDecimal amount;
 
     @Column(name = "date", nullable = false)

@@ -26,7 +26,7 @@ public class IncomePO {
     @Column(name = "payer", length = 50)
     private String payer;
 
-    @Column(name = "amount", scale = 6, precision = 2, nullable = false)
+    @Column(name = "amount", precision = 6, scale = 2, nullable = false)
     private BigDecimal amount;
 
     @Column(name = "date", nullable = false)
