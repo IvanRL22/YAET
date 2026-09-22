@@ -75,3 +75,9 @@ add column user_id integer;
 
 update categories
 set user_id = 1;
+
+alter table incomes
+add column user_id integer;
+
+update incomes
+set user_id = 1;

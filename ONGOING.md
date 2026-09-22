@@ -4,7 +4,10 @@ The purpose of this file is to document the current status and progress of ongoi
 - ~~Create user table and PO~~
 - ~~Create user on login or load from db if already signed in previously~~
 - ~~Create hibernate filter for filtering data by user and an aspect to activate it~~
-- Tie entities to user and filter them by the user when querying db 
+- ~~Tie entities to user and filter them by the user when querying db~~ 
   - ~~BudgetCategory~~
   - ~~Category~~
-  - Expense?
+  - ~~Income~~
+- Review all the changes
+  - Make _user_id_ columns _not null_
+  - Consider changing the _UserPO_ object to just an integer in the other PO classes
