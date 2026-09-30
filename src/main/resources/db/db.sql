@@ -81,3 +81,6 @@ add column user_id integer;
 
 update incomes
 set user_id = 1;
+
+alter table incomes
+    alter column amount type numeric(8, 2);
