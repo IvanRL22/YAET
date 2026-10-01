@@ -84,3 +84,24 @@ set user_id = 1;
 
 alter table incomes
     alter column amount type numeric(8, 2);
+
+alter table budget_categories
+    alter column user_id set not null;
+
+alter table budget_categories
+    add constraint fk_budget_categories_to_user
+    foreign key (user_id) references users(id);
+
+alter table categories
+    alter column user_id set not null;
+
+alter table categories
+    add constraint fk_categories_to_user
+    foreign key (user_id) references users(id);
+
+alter table incomes
+    alter column user_id set not null;
+
+alter table incomes
+    add constraint fk_incomes_to_user
+    foreign key (user_id) references users(id);

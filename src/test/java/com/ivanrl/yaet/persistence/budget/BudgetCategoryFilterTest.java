@@ -48,7 +48,7 @@ class BudgetCategoryFilterTest {
         currentCategory.setName("The good category");
         categoryRepository.save(currentCategory);
 
-        var currentBudgetCategory = new BudgetCategoryPO(currentUser,
+        var currentBudgetCategory = new BudgetCategoryPO(currentUser.getId(),
                                                          currentCategory,
                                                          YearMonth.now(),
                                                          BigDecimal.ZERO,
@@ -62,7 +62,7 @@ class BudgetCategoryFilterTest {
         var otherCategory = CategoryBuilder.aNormalCategory(otherUser);
         categoryRepository.save(otherCategory);
 
-        var otherBudgetCategory = new BudgetCategoryPO(otherUser,
+        var otherBudgetCategory = new BudgetCategoryPO(otherUser.getId(),
                                                        otherCategory,
                                                        YearMonth.now(),
                                                        BigDecimal.ZERO,

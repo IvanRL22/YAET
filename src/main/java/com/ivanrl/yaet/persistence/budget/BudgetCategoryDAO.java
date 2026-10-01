@@ -4,7 +4,6 @@ import com.ivanrl.yaet.UserData;
 import com.ivanrl.yaet.domain.budget.NewBudgetCategoryRequest;
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
 import com.ivanrl.yaet.domain.expense.NewExpenseRequest;
-import com.ivanrl.yaet.persistence.auth.UserRepository;
 import com.ivanrl.yaet.persistence.category.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,7 +20,6 @@ public class BudgetCategoryDAO {
 
     private final BudgetCategoryRepository repository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
     private final UserData userData;
 
 
@@ -75,7 +73,7 @@ public class BudgetCategoryDAO {
 
     private BudgetCategoryPO map(NewBudgetCategoryRequest domainObject, YearMonth month) {
         var categoryPO = this.categoryRepository.getReferenceById(domainObject.category().id());
-        return BudgetCategoryPO.from(this.userRepository.getReferenceById(userData.getDbId()),
+        return BudgetCategoryPO.from(userData.getDbId(),
                                      domainObject,
                                      categoryPO,
                                      month);
@@ -85,7 +83,7 @@ public class BudgetCategoryDAO {
                        YearMonth month,
                        BigDecimal balanceFromLastMonth,
                        BigDecimal amount) {
-        var po = new BudgetCategoryPO(this.userRepository.getReferenceById(userData.getDbId()),
+        var po = new BudgetCategoryPO(userData.getDbId(),
                                       this.categoryRepository.getReferenceById(categoryId),
                                       month,
                                       balanceFromLastMonth,

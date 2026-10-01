@@ -7,6 +7,6 @@ import com.ivanrl.yaet.persistence.auth.UserPO;
 public class CategoryBuilder {
 
     public static CategoryPO aNormalCategory(UserPO user) {
-        return new CategoryPO(user, "Some category", "A demo category", CategoryType.NORMAL);
+        return new CategoryPO(user.getId(), "Some category", "A demo category", CategoryType.NORMAL);
     }
 }

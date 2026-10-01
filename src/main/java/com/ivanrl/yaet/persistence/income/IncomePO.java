@@ -2,7 +2,6 @@ package com.ivanrl.yaet.persistence.income;
 
 
 import com.ivanrl.yaet.domain.income.IncomeDO;
-import com.ivanrl.yaet.persistence.auth.UserPO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,9 +27,8 @@ public class IncomePO {
     @Column(name = "id")
     private int id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, updatable = false)
-    private UserPO user;
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private int userId;
 
     @Column(name = "payer", length = 50)
     private String payer;
@@ -42,8 +40,8 @@ public class IncomePO {
     @Temporal(TemporalType.DATE)
     private LocalDate date;
 
-    public IncomePO(UserPO user, String payer, BigDecimal amount, LocalDate date) {
-        this.user = user;
+    public IncomePO(int userId, String payer, BigDecimal amount, LocalDate date) {
+        this.userId = userId;
         this.payer = payer;
         this.amount = amount;
         this.date = date;

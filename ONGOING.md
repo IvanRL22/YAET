@@ -11,8 +11,8 @@ It also contains a list of ideas for future changes
   - ~~Category~~
   - ~~Income~~
 - Review all the changes
-  - Make _user_id_ columns _not null_
-  - Consider changing the _UserPO_ object to just an integer in the other PO classes
+  - ~~Make _user_id_ columns _not null_~~
+  - ~~Consider changing the _UserPO_ object to just an integer in the other PO classes~~
 
 # Future changes
 ## Features
@@ -27,3 +27,7 @@ It also contains a list of ideas for future changes
   - Might be a good idea to find some tooling for this
 - Add liquibase for DB migrations
 - (LONG TERM) Prepare AWS env and pipeline/script for deployment 
+- Create builders for:
+  - Persistence - High priority, persistence tests will be more common
+  - Domain - Medium priority, domain is relatively simple right now
+  - Web - Low priority, most testing will be done in other modules

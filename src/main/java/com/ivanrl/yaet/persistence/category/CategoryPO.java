@@ -4,7 +4,6 @@ import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.CategoryType;
 import com.ivanrl.yaet.domain.category.CreateCategoryRequest;
 import com.ivanrl.yaet.domain.category.SimpleCategoryDO;
-import com.ivanrl.yaet.persistence.auth.UserPO;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -29,9 +28,8 @@ public class CategoryPO {
     @Column(name = "id")
     private int id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, updatable = false)
-    private UserPO user;
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private int userId;
 
     @Column(name = "name", length = 50)
     private String name;
@@ -49,15 +47,15 @@ public class CategoryPO {
     @Column(name = "type", nullable = false, length = 20)
     private CategoryType type;
 
-    public CategoryPO(CreateCategoryRequest createRequest, UserPO user) {
-        this.user = user;
+    public CategoryPO(CreateCategoryRequest createRequest, int userId) {
+        this.userId = userId;
         this.name = createRequest.name();
         this.description = createRequest.description();
         this.type = createRequest.type();
     }
 
-    CategoryPO(UserPO user, String name, String description, CategoryType type) {
-        this.user = user;
+    CategoryPO(int userId, String name, String description, CategoryType type) {
+        this.userId = userId;
         this.name = name;
         this.description = description;
         this.type = type;

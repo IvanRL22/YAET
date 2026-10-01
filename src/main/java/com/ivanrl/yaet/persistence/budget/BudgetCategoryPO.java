@@ -3,7 +3,6 @@ package com.ivanrl.yaet.persistence.budget;
 import com.ivanrl.yaet.YearMonthIntegerAttributeConverter;
 import com.ivanrl.yaet.domain.budget.NewBudgetCategoryRequest;
 import com.ivanrl.yaet.domain.budget.SimpleBudgetCategoryDO;
-import com.ivanrl.yaet.persistence.auth.UserPO;
 import com.ivanrl.yaet.persistence.category.CategoryPO;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,12 +23,12 @@ import static com.ivanrl.yaet.persistence.UserFilterAspect.USER_FILTER_NAME;
 @ToString
 public class BudgetCategoryPO {
 
-    public BudgetCategoryPO(UserPO user,
+    public BudgetCategoryPO(int userId,
                             CategoryPO category,
                             YearMonth month,
                             BigDecimal amountInherited,
                             BigDecimal amountAssigned) {
-        this.user = user;
+        this.userId = userId;
         this.category = category;
         this.month = month;
         this.amountInherited = amountInherited;
@@ -41,9 +40,8 @@ public class BudgetCategoryPO {
     @Column(name = "id")
     private int id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, updatable = false)
-    private UserPO user;
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private int userId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", nullable = false)
@@ -60,11 +58,11 @@ public class BudgetCategoryPO {
     @Column(name = "assigned", precision = 6, scale = 2, nullable = false)
     private BigDecimal amountAssigned;
 
-    public static BudgetCategoryPO from(UserPO user,
+    public static BudgetCategoryPO from(int userId,
                                         NewBudgetCategoryRequest domainObject,
                                         CategoryPO categoryPO,
                                         YearMonth month) {
-        return new BudgetCategoryPO(user,
+        return new BudgetCategoryPO(userId,
                                     categoryPO,
                                     month,
                                     domainObject.amountInherited(),

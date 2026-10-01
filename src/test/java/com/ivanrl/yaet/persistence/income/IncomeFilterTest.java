@@ -39,7 +39,7 @@ class IncomeFilterTest {
         var currentUser = new UserPO("Test User", "test@yaet.com");
         userRepository.save(currentUser);
 
-        var currentIncome = new IncomePO(currentUser,
+        var currentIncome = new IncomePO(currentUser.getId(),
                                          "My employee",
                                          new BigDecimal("2134.56"),
                                          LocalDate.now());
@@ -49,7 +49,7 @@ class IncomeFilterTest {
         var otherUser = new UserPO("User 1", "mail1@mail.com");
         userRepository.save(otherUser);
 
-        var otherIncome = new IncomePO(otherUser,
+        var otherIncome = new IncomePO(otherUser.getId(),
                                        "Some other employee",
                                        new BigDecimal("1234.56"),
                                        LocalDate.now());

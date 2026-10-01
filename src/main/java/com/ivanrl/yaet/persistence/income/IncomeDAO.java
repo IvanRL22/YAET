@@ -3,7 +3,6 @@ package com.ivanrl.yaet.persistence.income;
 import com.ivanrl.yaet.UserData;
 import com.ivanrl.yaet.domain.income.IncomeDO;
 import com.ivanrl.yaet.domain.income.NewIncomeRequest;
-import com.ivanrl.yaet.persistence.auth.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +16,10 @@ import java.time.YearMonth;
 public class IncomeDAO {
 
     private final IncomeRepository repository;
-    private final UserRepository userRepository;
     private final UserData userData;
 
     public IncomeDO create(NewIncomeRequest request) {
-        IncomePO newPO = new IncomePO(userRepository.getReferenceById(userData.getDbId()),
+        IncomePO newPO = new IncomePO(userData.getDbId(),
                                       request.payer(),
                                       request.amount(),
                                       request.date());
