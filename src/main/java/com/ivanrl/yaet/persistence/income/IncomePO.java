@@ -37,7 +37,6 @@ public class IncomePO {
     private BigDecimal amount;
 
     @Column(name = "date", nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate date;
 
     public IncomePO(int userId, String payer, BigDecimal amount, LocalDate date) {

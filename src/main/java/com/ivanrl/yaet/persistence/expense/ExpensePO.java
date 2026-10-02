@@ -36,7 +36,6 @@ public class ExpensePO {
     private BigDecimal amount;
 
     @Column(name = "date", nullable = false)
-    @Temporal(TemporalType.DATE)
     private LocalDate date;
 
     @Column(name = "comment")
