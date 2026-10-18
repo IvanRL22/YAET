@@ -3,8 +3,8 @@
          class="grow-1 flex items-center flex-col">
         <h1>Your budget</h1>
         <div id="budget-navigator"
-             hx-swap="outerHTML"
-             hx-target="main"
+             hx-swap:inherited="outerHTML"
+             hx-target:inherited="main"
              class="w-120 grid grid-cols-3 gap-2 justify-items-center">
             <button class="w-[100px] cursor-pointer disabled:cursor-not-allowed px-3 py-1.5 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:hover:bg-gray-100 text-sm font-medium rounded-md transition"
                     th:hx-get="|/budget/${previous}|"
@@ -142,7 +142,7 @@
                           th:hx-get="|/expense-dialog/${expense.id}|"
                           hx-swap="beforeend"
                           hx-target="body"
-                          hx-on::after-request="document.getElementById('expense-dialog').showModal();">Payee</span>
+                          hx-on::after:swap="document.getElementById('expense-dialog').showModal();">Payee</span>
                     <span class="text-center" th:text="${expense.date}">Date</span>
                     <span class="text-right" th:text="|${expense.amount}€|">€0</span>
                 </th:block>

@@ -7,19 +7,18 @@
 
 <head>
     <title>YAET</title>
-    <script type="text/javascript" th:src="@{/webjars/htmx.org/2.0.6/dist/htmx.min.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/htmx.org/4.0.0/dist/htmx.min.js}"></script>
     <script type="text/javascript" th:src="@{/webjars/sortablejs/1.15.6/Sortable.min.js}"></script>
-    <script src="https://unpkg.com/htmx-ext-json-enc@2.0.1/json-enc.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <meta name="csrf-token" th:content="${_csrf.token}" />
     <meta name="csrf-header" th:content="${_csrf.headerName}" />
     <script>
-        document.addEventListener('htmx:afterRequest', function(evt) {
-
-            if (evt.detail.xhr.status === 401) {
+        document.addEventListener('htmx:after:request', function(evt) {
+            const status = evt.detail.ctx.response.status;
+            if (status === 401) {
                 // Try to log in case of trying to access protected resources
                 window.location = "/oauth2/authorization/google";
-            } else if(evt.detail.xhr.status !== 200) {
+            } else if(status !== 200) {
                 // This is what we've come to... Parsing JSON response while using HTMX...
                 let problemDetail = JSON.parse(evt.detail.xhr.response);
                 alert(problemDetail.title + ': ' + problemDetail.detail);
@@ -46,8 +45,8 @@
 
         <div id="navigation-links"
              class="flex space-x-4 ml-2"
-             hx-target="main"
-             hx-swap="outerHTML">
+             hx-target:inherited="main"
+             hx-swap:inherited="outerHTML">
             <span sec:authorize="isAuthenticated()"
                   hx-get="/category"
                   class="px-1.5 cursor-pointer rounded hover:bg-gray-300 transition">Manage Categories</span>
@@ -74,13 +73,15 @@
 
 <body>
     <script>
-        document.body.addEventListener('htmx:configRequest', (evt) => {
-            evt.detail.headers['accept'] = 'text/html-partial';
-            if (evt.detail.verb !== 'get') {
+        document.body.addEventListener('htmx:config:request', function(evt) {
+            const request = evt.detail.ctx.request;
+            request.headers['accept'] = 'text/html-partial';
+            if (request.method !== 'GET') {
                 const csrfHeader = document.querySelector('meta[name=csrf-header]').getAttribute('content');
                 const csrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
                 if (csrfHeader != null && csrfToken != null) {
-                    evt.detail.headers[csrfHeader] = csrfToken;
+                    request.headers[csrfHeader] = csrfToken;
+                } else {
                 }
             }
         });

@@ -2,11 +2,10 @@ The purpose of this file is to document the current status and progress of ongoi
 It also contains a list of ideas for future changes  
 
 # Ongoing changes
-- Update htmx and validate functionality of all the app
+- Enable removal of expenses
 
 # Future changes
 ## Features
-- Enable removal of expenses
 - Include total amount of money
 - Add accounts / wallets
 - (LONG TERM) Make an actual UI that does not look like shit

@@ -34,7 +34,7 @@
                 hx-get="/category-dialog"
                 hx-swap="beforeend"
                 hx-target="body"
-                hx-on::after-request="document.getElementById('category-dialog').showModal();">New category</button>
+                hx-on::after:swap="document.getElementById('category-dialog').showModal();">New category</button>
     </div>
     
     <div id="category-details"

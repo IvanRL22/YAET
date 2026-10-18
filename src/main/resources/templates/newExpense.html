@@ -25,8 +25,7 @@
                           class="grid grid-cols-3 max-w-sm"
                           hx-post="/new/expense"
                           hx-target="#addExpense"
-                          hx-swap="outerHTML"
-                          hx-ext="json-enc">
+                          hx-swap="outerHTML">
 
                         <label for="category-input">Category:</label>
                         <select id="category-input"
@@ -137,8 +136,7 @@
                           class="grid grid-cols-2 max-w-sm"
                           hx-post="/new/income"
                           hx-target="#addIncome"
-                          hx-swap="outerHTML"
-                          hx-ext="json-enc">
+                          hx-swap="outerHTML">
 
                         <label for="payerInput">Payer:</label>
                         <input id="payerInput"
