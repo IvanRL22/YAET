@@ -19,7 +19,7 @@ record UpdateExpenseRequestTO(@NotNull(message = "There is an issue when identif
                               @PastOrPresent(message = "Date cannot be in the future")
                               LocalDate date,
                               @NotNull(message = "Amount must not be empty")
-                              @PositiveOrZero(message = "Amount should be a value bigger than 0")
+                              @Positive(message = "Amount should be greater than 0")
                               @DecimalMax(value = "9999.99", message = "Amount must be less than 10000")
                               BigDecimal amount,
                               @Size(max = 255, message = "Comment must not exceed 255 characters")

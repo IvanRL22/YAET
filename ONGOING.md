@@ -2,7 +2,6 @@ The purpose of this file is to document the current status and progress of ongoi
 It also contains a list of ideas for future changes  
 
 # Ongoing changes
-- Enable removal of expenses
 
 # Future changes
 ## Features

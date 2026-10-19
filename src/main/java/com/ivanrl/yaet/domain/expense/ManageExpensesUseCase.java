@@ -48,4 +48,18 @@ public class ManageExpensesUseCase {
                                                                           differenceInAmount);
         }
     }
+
+    @Transactional
+    public ExpenseWithCategoryDO removeExpense(int expenseId) {
+        var expense = this.expenseDAO.findBy(expenseId);
+        var amount = expense.amount();
+
+        this.expenseDAO.remove(expenseId);
+
+        this.budgetCategoryDAO.updateCurrentAndFutureBudgetCategories(expense.getCategoryId(),
+                                                                      YearMonth.from(expense.date().plusMonths(1)),
+                                                                      amount.negate());
+
+        return expense;
+    }
 }

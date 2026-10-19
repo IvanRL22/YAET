@@ -1,5 +1,6 @@
 package com.ivanrl.yaet.persistence.expense;
 
+import com.ivanrl.yaet.UserData;
 import com.ivanrl.yaet.domain.expense.*;
 import com.ivanrl.yaet.persistence.category.CategoryPO;
 import com.ivanrl.yaet.persistence.category.CategoryRepository;
@@ -18,6 +19,7 @@ public class ExpenseDAO {
 
     private final ExpenseRepository repository;
     private final CategoryRepository categoryRepository;
+    private final UserData userData;
 
     public ExpenseDO create(NewExpenseRequest request) {
         var categoryReference = this.categoryRepository.getReferenceById(request.categoryId());
@@ -74,6 +76,10 @@ public class ExpenseDAO {
     }
 
 
+    /**
+     * TODO: Fix this in a way that avoids returning an expense that does not belong to the user
+     * This operation is dangerous: querying db by id ignores user filtering.
+     */
     public ExpenseWithCategoryDO findBy(int id) {
         return this.repository.findById(id)
                 .map(ExpensePO::toDomainModelWithCategory)
@@ -89,5 +95,16 @@ public class ExpenseDAO {
 
         this.repository.save(po);
         return po.toDomainModelWithCategory();
+    }
+
+    public void remove(int id) {
+        var expense = this.repository.findById(id)
+                                     .orElseThrow();
+
+        if (expense.getCategory().getUserId() != this.userData.getDbId()) {
+            throw new RuntimeException("Expense does not belong to the user. Something fishy is going on.");
+        }
+
+        this.repository.delete(expense);
     }
 }

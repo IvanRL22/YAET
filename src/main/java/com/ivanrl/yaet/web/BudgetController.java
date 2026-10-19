@@ -4,6 +4,7 @@ import com.ivanrl.yaet.BadRequestException;
 import com.ivanrl.yaet.domain.budget.CopyFromPreviousUseCase;
 import com.ivanrl.yaet.domain.budget.SeeMonthBudgetUseCase;
 import com.ivanrl.yaet.domain.budget.UpdateMonthBudgetUseCase;
+import com.ivanrl.yaet.domain.expense.ManageExpensesUseCase;
 import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
 import com.ivanrl.yaet.web.components.BudgetInformationComponent;
 import com.ivanrl.yaet.web.components.CategoryExpensesComponent;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -27,6 +29,7 @@ public class BudgetController {
     private final UpdateMonthBudgetUseCase updateMonthBudgetUseCase;
     private final SeeExpensesUseCase seeExpensesUseCase;
     private final CopyFromPreviousUseCase copyFromPreviousUseCase;
+    private final ManageExpensesUseCase manageExpensesUseCase;
 
     /**
      * This should come from the user data in the future
@@ -153,6 +156,34 @@ public class BudgetController {
                                                                         categoryBudgets);
 
         return budgetInformationComponent.toModelAndView();
+    }
+
+    @DeleteMapping("/expense/{id}")
+    public List<ModelAndView> deleteExpense(@PathVariable() int id,
+                                            Model model) {
+        // Remove
+        var removedExpense = this.manageExpensesUseCase.removeExpense(id);
+
+        // Reload the budget data
+        YearMonth month = YearMonth.from(removedExpense.date());
+        var monthlyBudget = BudgetMonthTO.from(this.seeMonthBudgetUseCase.seeMonthlyBudget(month));
+        var allCategories = monthlyBudget.categories();
+        var budgetInfoComponent = new BudgetInformationComponent(month, allCategories);
+
+        BigDecimal totalIncome = monthlyBudget.totalIncome();
+        BigDecimal totalSpent = allCategories.stream()
+                                             .map(BudgetCategoryTO::amountSpent)
+                                             .reduce(BigDecimal.ZERO, BigDecimal::add);
+        var monthOverviewComponent = new MonthOverviewComponent(totalIncome,
+                                                                totalSpent);
+
+        var categoryExpenses = CategoryExpenseTO.from(this.seeExpensesUseCase.getExpenses(removedExpense.getCategoryId(),
+                                                                                          month));
+        var categoryExpensesComponent = new CategoryExpensesComponent(categoryExpenses);
+
+        return List.of(monthOverviewComponent.toModelAndView(),
+                       budgetInfoComponent.toModelAndView(),
+                       categoryExpensesComponent.toModelAndView());
     }
 
 }

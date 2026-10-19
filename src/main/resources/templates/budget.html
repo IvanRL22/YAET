@@ -135,7 +135,7 @@
             <span th:if="${expenses.size() == 0}"
             class="block my-2">No expenses for this month</span>
             <div th:unless="${expenses.size() == 0}"
-                 class="grid grid-cols-4 py-1">
+                 class="grid grid-cols-5 py-1">
                 <th:block th:each="expense: ${expenses}">
                     <span class="col-span-2 truncate"
                           th:text="${expense.payee}"
@@ -145,6 +145,11 @@
                           hx-on::after:swap="document.getElementById('expense-dialog').showModal();">Payee</span>
                     <span class="text-center" th:text="${expense.date}">Date</span>
                     <span class="text-right" th:text="|${expense.amount}€|">€0</span>
+                    <button class="w-fit my-0.5 mx-1 px-2 bg-gray-200 cursor-pointer hover:bg-gray-300 text-sm font-medium rounded-md transition"
+                            th:hx-delete="|/budget/expense/${expense.id}|"
+                            hx-confirm="Are you sure you want to delete this expense?"
+                            hx-swap="none"
+                            hx-select-oob="#budget-info, #category-expenses-content, #month-overview">D</button>
                 </th:block>
 
                 <span class="col-span-3 border-t" th:text="Total">Total</span>
