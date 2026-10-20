@@ -43,7 +43,7 @@ public class BudgetInformationComponent implements WebComponent {
                                      .reduce(BigDecimal.ZERO, BigDecimal::add));
 
         // Small utility to copy budget from previous month
-        if (!month.isBefore(YearMonth.now())
+        if (month.equals(YearMonth.now())
                 && categories.stream().anyMatch(c -> c.amountAssigned().compareTo(BigDecimal.ZERO) == 0)) {
             model.put("missingBudgets", true);
         }
