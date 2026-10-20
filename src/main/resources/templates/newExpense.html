@@ -85,8 +85,8 @@
 
                 <div id="lastExpenses"
                      class="grid px-1 bg-gray-100"
-                     hx-swap="outerHTML"
-                     hx-target="this"
+                     hx-swap:inherited="outerHTML"
+                     hx-target:inherited="this"
                      th:fragment="lastExpenses">
                     <span class="font-semibold text-center pb-1">Last expenses</span>
                     <hr>
