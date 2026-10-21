@@ -8,6 +8,10 @@ It also contains a list of ideas for future changes
 - Include total amount of money
 - Add accounts / wallets
 - (LONG TERM) Make an actual UI that does not look like shit
+- Add proper error messages (something like a growl)
+  - Adjust current error cases to return HTML with the error message instead of a JSON
+- Add the month the user first logged in as the first month they can see
+- Add styling on forms to show when required/invalid fields are not properly filled
 
 ## Technical improvements
 - Make integration test that goes through a full login and usage flow
