@@ -14,17 +14,11 @@
 
                 <div class="w-sm">
 
-                    <!--/* Validation or information messages */-->
-                    <div id="messages"
-                         th:if="${message}">
-                        <span th:text="${message}"></span>
-                    </div>
-
                     <!--/* New expense form */-->
                     <form id="newExpenseForm"
                           class="grid grid-cols-3 max-w-sm"
                           hx-post="/new/expense"
-                          hx-target="#addExpense"
+                          hx-target="#lastExpenses"
                           hx-swap="outerHTML">
 
                         <label for="category-input">Category:</label>
