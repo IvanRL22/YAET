@@ -2,7 +2,6 @@ package com.ivanrl.yaet;
 
 import com.ivanrl.yaet.domain.ValidationError;
 import com.ivanrl.yaet.web.notifications.NotificationGenerator;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -11,18 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.stream.Collectors;
-
-import static com.ivanrl.yaet.web.HtmxConstants.RESPONSE_HEADER_RESWAP;
-import static com.ivanrl.yaet.web.HtmxConstants.RESPONSE_HEADER_RETARGET;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalErrorHandler {
-
-    /** Selector with the id of the HTML element that holds all the notifications **/
-    private static final String GROWL_SELECTOR = "#growl";
 
 
     /**
@@ -40,6 +32,7 @@ public class GlobalErrorHandler {
                         .collect(Collectors.joining("\n\t")));
     }
 
+    // TODO Handle properly with notification
     @ExceptionHandler
     public ProblemDetail handleBadRequest(BadRequestException bre) {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, bre.getMessage());
@@ -48,6 +41,7 @@ public class GlobalErrorHandler {
         return problem;
     }
 
+    // TODO Handle properly with notification
     @ExceptionHandler
     public ProblemDetail handleValidationError(ValidationError ve) {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ve.getMessage());
@@ -58,12 +52,12 @@ public class GlobalErrorHandler {
 
 
     @ExceptionHandler(Exception.class)
-    public ModelAndView handleException(Exception e,
-                                        HttpServletResponse response) {
-        response.setHeader(RESPONSE_HEADER_RETARGET, GROWL_SELECTOR);
-        response.setHeader(RESPONSE_HEADER_RESWAP, "beforeend transition:true");
-        var map = new HashMap<String, Object>();
-        map.put("notification", NotificationGenerator.error(e.getMessage()));
-        return new ModelAndView("notification", map);
+    public ModelAndView handleException(Exception e) {
+        log.error("An unexpected error occurred: {}\n{}",
+                  e.getMessage(),
+                  Arrays.stream(e.getStackTrace())
+                        .map(StackTraceElement::toString)
+                        .collect(Collectors.joining("\n")));
+        return NotificationGenerator.error("An unexpected error occurred.");
     }
 }

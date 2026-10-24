@@ -1,18 +1,19 @@
-<div th:id="${notification.htmlId}" class="text-white p-2 pt-4 pr-4 rounded relative transition duration-300 ease-in-out"
-     th:classappend="bg-red-500">
-    <button class="absolute top-0 right-0 m-1 mr-2 bg-grey-600 cursor-pointer"
-          onclick="this.parentElement.remove()">X</button>
-    <span th:text="${notification.message}">Notification text goes here</span>
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-            setTimeout(() => {
-                htmx.swap({
-                    text: '',
-                    target: /*[[${notification.htmlIdSelector}]]*/,
-                    swap: 'outerHTML transition:true settle:300ms'
-                })
-//                document.getElementById(/*[[${notification.htmlId}]]*/).remove();
-            }, 5000);
-        /*]]>*/
-    </script>
+<div hx-swap-oob="beforeend:#growl">
+    <div th:id="${notification.htmlId}" class="z-999 p-2 pt-4 pr-4 text-white rounded relative transition duration-300 ease-in-out"
+         th:classappend="${notification.cssStyle}">
+        <button class="absolute top-0 right-0 m-1 mr-2 px-1 font-medium rounded cursor-pointer"
+              onclick="this.parentElement.remove()">X</button>
+        <span th:text="${notification.message}">Notification text goes here</span>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                setTimeout(() => {
+                    htmx.swap({
+                        text: '',
+                        target: /*[[${notification.htmlIdSelector}]]*/,
+                        swap: 'outerHTML transition:true settle:300ms'
+                    })
+                }, 4000);
+            /*]]>*/
+        </script>
+    </div>
 </div>

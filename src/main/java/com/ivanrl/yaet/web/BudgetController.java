@@ -9,6 +9,7 @@ import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
 import com.ivanrl.yaet.web.components.BudgetInformationComponent;
 import com.ivanrl.yaet.web.components.CategoryExpensesComponent;
 import com.ivanrl.yaet.web.components.MonthOverviewComponent;
+import com.ivanrl.yaet.web.notifications.NotificationGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -90,9 +91,9 @@ public class BudgetController {
     }
 
     @PostMapping("/{month}/{categoryId}/assignAmount")
-    public ModelAndView setAmount(@PathVariable YearMonth month,
-                                  @PathVariable int categoryId,
-                                  @RequestParam(required = false) BigDecimal amount) {
+    public List<ModelAndView> setAmount(@PathVariable YearMonth month,
+                                        @PathVariable int categoryId,
+                                        @RequestParam(required = false) BigDecimal amount) {
 
         var newAmount = Optional.ofNullable(amount)
                                 .orElse(BigDecimal.ZERO);
@@ -108,11 +109,12 @@ public class BudgetController {
         var budgetInformationComponent = new BudgetInformationComponent(month,
                                                                         allCategories);
 
-        return budgetInformationComponent.toModelAndView();
+        return List.of(budgetInformationComponent.toModelAndView(),
+                       NotificationGenerator.info("Category was assigned %s€".formatted(newAmount)));
     }
 
     @PutMapping("/{month}/{categoryId}/updateAmount")
-    public ModelAndView updateAmount(@PathVariable YearMonth month,
+    public List<ModelAndView> updateAmount(@PathVariable YearMonth month,
                                      @PathVariable int categoryId,
                                      @RequestParam(required = false) BigDecimal amount) {
 
@@ -130,7 +132,8 @@ public class BudgetController {
         var budgetInformationComponent = new BudgetInformationComponent(month,
                                                                         allCategories);
 
-        return budgetInformationComponent.toModelAndView();
+        return List.of(budgetInformationComponent.toModelAndView(),
+                       NotificationGenerator.info("Category was assigned %s€".formatted(newAmount)));
     }
 
     @GetMapping("/{month}/{categoryId}")
