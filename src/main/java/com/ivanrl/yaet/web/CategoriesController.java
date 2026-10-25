@@ -2,6 +2,7 @@ package com.ivanrl.yaet.web;
 
 import com.ivanrl.yaet.domain.category.ManageCategoriesUseCase;
 import com.ivanrl.yaet.domain.category.SeeCategoriesUseCase;
+import com.ivanrl.yaet.web.notifications.NotificationGenerator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -51,20 +52,18 @@ public class CategoriesController {
                        Model model) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errors",
-                               bindingResult.getAllErrors().stream()
-                                            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                                            .toList());
-            return List.of(new ModelAndView("categories :: #result-information", model.asMap()));
+            List<String> errors = bindingResult.getAllErrors().stream()
+                                                       .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                                       .toList();
+            return List.of(NotificationGenerator.warning(String.join("\n", errors)));
         }
 
 
-        var result = this.manageCategoriesUseCase.update(request.toDomainModel());
-        model.addAttribute("messages", List.of("The category was updated"));
-        model.addAttribute("categories", List.of(CategoryTO.from(result))); // Needs to be a list due to the way the HTML is defined
+        var updatedCategory = this.manageCategoriesUseCase.update(request.toDomainModel());
+        model.addAttribute("categories", List.of(CategoryTO.from(updatedCategory))); // Needs to be a list due to the way the HTML is defined
 
-        return List.of(new ModelAndView("categories :: #result-information", model.asMap()),
-                new ModelAndView("categories :: category-item", model.asMap()));
+        return List.of(new ModelAndView("categories :: category-item", model.asMap()),
+                       NotificationGenerator.info("Category '%s' was updated.".formatted(updatedCategory.name())));
     }
 
     @PutMapping("/{id}/reorder")
