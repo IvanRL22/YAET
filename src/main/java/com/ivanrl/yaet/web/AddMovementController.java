@@ -75,15 +75,14 @@ public class AddMovementController {
     }
 
     @PostMapping("/income")
-    public ModelAndView addNewIncome(Model model,
-                                     NewIncomeRequest newIncome) {
+    public List<ModelAndView> addNewIncome(Model model,
+                                           NewIncomeRequest newIncome) {
         var income = this.manageIncomeUseCase.addNewIncome(newIncome);
 
-        model.addAttribute("incomeMessage", "A new income for %s€ was successfully added.".formatted(income.amount()));
-        model.addAttribute("income", newIncome); // Using same data is fine, as long as nothing changes when persisting
         model.addAttribute("lastIncomes", this.seeIncomesUseCase.getIncomes());
 
-        return new ModelAndView("newExpense :: addIncome", model.asMap());
+        return List.of(new ModelAndView("newExpense :: lastIncomes", model.asMap()),
+                       NotificationGenerator.info("A new income of %s€ was successfully added.".formatted(income.amount())));
     }
 }
 
