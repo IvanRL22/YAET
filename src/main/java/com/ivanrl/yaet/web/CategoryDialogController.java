@@ -2,6 +2,8 @@ package com.ivanrl.yaet.web;
 
 import com.ivanrl.yaet.domain.category.ManageCategoriesUseCase;
 import com.ivanrl.yaet.domain.category.SeeCategoriesUseCase;
+import com.ivanrl.yaet.web.notifications.NotificationGenerator;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -37,7 +39,8 @@ public class CategoryDialogController {
     @PutMapping
     public List<ModelAndView> create(@Valid @ModelAttribute("request") NewCategoryRequestTO request,
                                      BindingResult bindingResult,
-                                     Model model) {
+                                     Model model,
+                                     HttpServletResponse response) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors",
                                bindingResult.getAllErrors().stream()
@@ -46,13 +49,14 @@ public class CategoryDialogController {
             return List.of(new ModelAndView("category-dialog :: #result-information", model.asMap()));
         }
 
-        this.manageCategoriesUseCase.create(request.toDomain());
-        model.addAttribute("messages", List.of("The category was created"));
+        var newCategory = this.manageCategoriesUseCase.create(request.toDomain());
 
         var categories = this.seeCategoriesUseCase.getAll().stream().map(CategoryTO::from).sorted().toList();
         model.addAttribute(categories);
 
-        return List.of(new ModelAndView("category-dialog :: #result-information", model.asMap()),
-                       new ModelAndView("categories :: #category-list", Map.of("categories", categories)));
+        response.addHeader("HX-Trigger", "closeDialog");
+
+        return List.of(new ModelAndView("categories :: #category-list", Map.of("categories", categories)),
+                       NotificationGenerator.info("Category '%s' was created.".formatted(newCategory.name())));
     }
 }
