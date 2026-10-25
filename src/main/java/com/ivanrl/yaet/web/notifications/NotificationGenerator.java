@@ -20,6 +20,13 @@ public final class NotificationGenerator {
         return new ModelAndView("notification", Map.of("notification", errorNotification));
     }
 
+    public static ModelAndView warning(String message) {
+        NotificationTO infoNotification = new NotificationTO(NOTIFICATION_HMTL_ID_PREFIX.concat(getRandomId()),
+                                                             message,
+                                                             NotificationSeverity.WARNING);
+        return new ModelAndView("notification", Map.of("notification", infoNotification));
+    }
+
     public static ModelAndView info(String message) {
         NotificationTO infoNotification = new NotificationTO(NOTIFICATION_HMTL_ID_PREFIX.concat(getRandomId()),
                                                              message,
