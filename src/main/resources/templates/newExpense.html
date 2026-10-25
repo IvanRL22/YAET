@@ -119,17 +119,11 @@
 
                 <div class="max-w-sm">
 
-                    <!-- /* Validation or information messages */ -->
-                    <div id="incomeMessages"
-                         th:if="${incomeMessage}">
-                        <span th:text="${incomeMessage}"></span>
-                    </div>
-
                     <!--/* New expense form */-->
                     <form id="newIncomeForm"
                           class="grid grid-cols-2 max-w-sm"
                           hx-post="/new/income"
-                          hx-target="#addIncome"
+                          hx-target="#lastIncomes"
                           hx-swap="outerHTML">
 
                         <label for="payerInput">Payer:</label>
@@ -161,7 +155,8 @@
                 </div>
 
                 <div id="lastIncomes"
-                     class="grid px-1 bg-gray-100">
+                     class="grid px-1 bg-gray-100"
+                     th:fragment="lastIncomes">
                     <span class="font-semibold text-center pb-1">Last incomes</span>
                     <hr>
                     <div class="grid grid-cols-4 max-w-sm">
