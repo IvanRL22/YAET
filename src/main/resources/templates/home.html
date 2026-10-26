@@ -68,7 +68,6 @@
     </div>
 </header>
 
-<body>
     <script>
         document.body.addEventListener('htmx:config:request', function(evt) {
             const request = evt.detail.ctx.request;
@@ -85,7 +84,7 @@
 
     <!--/* All notifications and errors should be added inside this growl div */-->
     <div id="growl"
-         class="absolute top-0 right-0 mt-35 mr-10 w-100 h-40 flex flex-col gap-y-2">
+         class="absolute top-0 right-0 mt-35 mr-10 flex flex-col gap-y-2 items-end">
         <script>
             function removeNotification(notificationId) {
                 htmx.swap({
