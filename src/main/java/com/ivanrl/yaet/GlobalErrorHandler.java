@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
@@ -32,16 +33,26 @@ public class GlobalErrorHandler {
                         .collect(Collectors.joining("\n\t")));
     }
 
-    // TODO Handle properly with notification
-    @ExceptionHandler
-    public ProblemDetail handleBadRequest(BadRequestException bre) {
-        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, bre.getMessage());
-        problem.setTitle(bre.getTitle());
-        logHandledException(bre, problem);
-        return problem;
+    /**
+     * Logs the exception details with level ERROR
+     * @param e the exception being handled
+     */
+    private static void logHandledException(Exception e) {
+        log.error("{} handled\n\tResponse: {}",
+                  e.getClass().getSimpleName(),
+                  Arrays.stream(e.getStackTrace())
+                        .map(StackTraceElement::toString)
+                        .collect(Collectors.joining("\n\t")));
     }
 
-    // TODO Handle properly with notification
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ModelAndView handleBadRequest(BadRequestException bre) {
+        logHandledException(bre);
+        return NotificationGenerator.warning(bre.getMessage());
+    }
+
+    // TODO This issue is currently only used for a modal dialog, need to find how to deal with those
     @ExceptionHandler
     public ProblemDetail handleValidationError(ValidationError ve) {
         var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ve.getMessage());
@@ -52,12 +63,13 @@ public class GlobalErrorHandler {
 
 
     @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ModelAndView handleException(Exception e) {
         log.error("An unexpected error occurred: {}\n{}",
                   e.getMessage(),
                   Arrays.stream(e.getStackTrace())
                         .map(StackTraceElement::toString)
                         .collect(Collectors.joining("\n")));
-        return NotificationGenerator.error("An unexpected error occurred.");
+        return NotificationGenerator.error("An unexpected error occurred");
     }
 }
