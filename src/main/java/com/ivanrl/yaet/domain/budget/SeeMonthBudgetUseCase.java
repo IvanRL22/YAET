@@ -114,19 +114,10 @@ public class SeeMonthBudgetUseCase {
                                                                       .map(SimpleBudgetCategoryDO::categoryId)
                                                                       .collect(Collectors.toSet()));
 
-        var categoriesByMonth = categoriesWithoutMonthBudget.stream().collect(Collectors.groupingBy(SimpleBudgetCategoryDO::month));
-
-        var missingCategoriesExpenses = categoriesByMonth.entrySet()
-                                                         .stream()
-                                                         .flatMap(e -> this.expenseDAO.findAllBy(e.getKey(),
-                                                                                                 e.getValue().stream().map(SimpleBudgetCategoryDO::id).collect(Collectors.toSet()))
-                                                                                      .stream())
-                                                         .toList();
-
         // Grouping the expenses by category now to avoid having to iterate through all of them when creating each TO
         // TODO Is there a way to collect to a Map and cast the value to HasAmount at the same time on the previous statement? It would save some resources
         Map<SimpleCategoryDO, List<HasAmount>> pastMonthExpensesByCategory = new HashMap<>();
-        for (ExpenseWithCategoryDO expense : missingCategoriesExpenses) {
+        for (ExpenseWithCategoryDO expense : pastMonthExpenses) {
             var key = expense.category();
             if (!pastMonthExpensesByCategory.containsKey(key)) {
                 pastMonthExpensesByCategory.put(key, new ArrayList<>());
