@@ -39,6 +39,7 @@ public class BudgetInformationComponent implements WebComponent {
                                      .reduce(BigDecimal.ZERO, BigDecimal::add));
         model.put("totalBalance",
                            categories.stream()
+                                     .filter(BudgetCategoryTO::countsTowardsTotalExpenses)
                                      .map(BudgetCategoryTO::getTotalAmount)
                                      .reduce(BigDecimal.ZERO, BigDecimal::add));
 

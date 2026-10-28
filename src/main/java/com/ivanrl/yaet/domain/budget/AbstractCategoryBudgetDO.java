@@ -31,7 +31,8 @@ public abstract sealed class AbstractCategoryBudgetDO
     public static AbstractCategoryBudgetDO from(SimpleBudgetCategoryDO simpleBudgetCategoryDO,
                                                 List<HasAmount> expenses) {
         return switch (simpleBudgetCategoryDO.category().type()) {
-            case OUT_OF_BUDGET -> new OutOfBudgetCategoryBudgetDO(simpleBudgetCategoryDO);
+            case OUT_OF_BUDGET -> new OutOfBudgetCategoryBudgetDO(simpleBudgetCategoryDO,
+                                                                  expenses);
             case NORMAL -> new NormalCategoryBudgetDO(simpleBudgetCategoryDO,
                                                       expenses);
         };
@@ -40,7 +41,8 @@ public abstract sealed class AbstractCategoryBudgetDO
     public static AbstractCategoryBudgetDO fromPreviousMonth(SimpleBudgetCategoryDO simpleBudgetCategoryDO,
                                                              List<HasAmount> orDefault) {
         return switch (simpleBudgetCategoryDO.category().type()) {
-            case OUT_OF_BUDGET -> OutOfBudgetCategoryBudgetDO.fromPrevious(simpleBudgetCategoryDO);
+            case OUT_OF_BUDGET -> OutOfBudgetCategoryBudgetDO.fromPrevious(simpleBudgetCategoryDO,
+                                                                           orDefault);
             case NORMAL -> NormalCategoryBudgetDO.fromPrevious(simpleBudgetCategoryDO,
                                                                orDefault);
         };

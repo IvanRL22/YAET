@@ -69,6 +69,7 @@ public class BudgetController {
 
         BigDecimal totalIncome = monthlyBudget.totalIncome();
         BigDecimal totalSpent = allCategories.stream()
+                                             .filter(BudgetCategoryTO::countsTowardsTotalExpenses)
                                              .map(BudgetCategoryTO::amountSpent)
                                              .reduce(BigDecimal.ZERO, BigDecimal::add);
         var monthOverviewComponent = new MonthOverviewComponent(totalIncome,

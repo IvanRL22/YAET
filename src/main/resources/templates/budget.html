@@ -68,15 +68,16 @@
                        hx-trigger="change"
                        hx-include="this"
                        hx-target="#budget-info">
-                <span th:unless="${budgetCategory.isOutOfBudget()}"
-                      th:text="|${budgetCategory.totalAmount}€|"
-                      class="text-right"
-                      th:classappend="${budgetCategory.totalAmount.signum() < 0 ? 'text-red-600' : ''}"
-                ></span>
-                <span th:if="${budgetCategory.isOutOfBudget()}"
-                      th:text="---"
-                      class="text-right"
-                ></span>
+                    <span th:if="${budgetCategory.countsTowardsTotalExpenses()}"
+                          th:text="|${budgetCategory.totalAmount}€|"
+                          class="text-right"
+                          th:classappend="${budgetCategory.totalAmount.signum() < 0 ? 'text-red-600' : ''}">
+                    </span>
+                    <span th:unless="${budgetCategory.countsTowardsTotalExpenses()}"
+                          th:text="|${budgetCategory.totalAmount}€|"
+                          class="text-right"
+                          th:classappend="${budgetCategory.totalAmount.signum() < 0 ? 'text-red-600' : 'text-gray-400'}">
+                    </span>
             </th:block>
             <hr class="col-span-3">
 

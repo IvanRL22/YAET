@@ -1,6 +1,5 @@
 package com.ivanrl.yaet.web;
 
-import com.ivanrl.yaet.UsedInTemplate;
 import com.ivanrl.yaet.domain.budget.AbstractCategoryBudgetDO;
 import com.ivanrl.yaet.domain.budget.NormalCategoryBudgetDO;
 import com.ivanrl.yaet.domain.budget.OutOfBudgetCategoryBudgetDO;
@@ -23,9 +22,9 @@ public record BudgetCategoryTO(Integer id,
              outOfBudget.category().name(),
              CategoryType.OUT_OF_BUDGET,
              outOfBudget.category().order(),
-             BigDecimal.ZERO,
+             outOfBudget.amountInherited(),
              outOfBudget.amountAssigned(),
-             BigDecimal.ZERO);
+             outOfBudget.amountSpent());
     }
 
     private BudgetCategoryTO(NormalCategoryBudgetDO normal) {
@@ -52,17 +51,11 @@ public record BudgetCategoryTO(Integer id,
     }
 
     public BigDecimal getTotalAmount() {
-        if (CategoryType.OUT_OF_BUDGET.equals(type)) {
-            return BigDecimal.ZERO;
-        }
-
         return amountAssigned.add(amountInherited)
                              .subtract(amountSpent);
-
     }
 
-    @UsedInTemplate
-    public boolean isOutOfBudget() {
-        return CategoryType.OUT_OF_BUDGET.equals(type);
+    public boolean countsTowardsTotalExpenses() {
+        return !CategoryType.OUT_OF_BUDGET.equals(type);
     }
 }
