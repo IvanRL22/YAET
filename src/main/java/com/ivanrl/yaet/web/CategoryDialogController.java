@@ -1,5 +1,7 @@
 package com.ivanrl.yaet.web;
 
+import com.ivanrl.yaet.domain.ValidationError;
+import com.ivanrl.yaet.domain.category.CategoryDO;
 import com.ivanrl.yaet.domain.category.ManageCategoriesUseCase;
 import com.ivanrl.yaet.domain.category.SeeCategoriesUseCase;
 import com.ivanrl.yaet.web.notifications.NotificationGenerator;
@@ -49,7 +51,14 @@ public class CategoryDialogController {
             return List.of(new ModelAndView("category-dialog :: #result-information", model.asMap()));
         }
 
-        var newCategory = this.manageCategoriesUseCase.create(request.toDomain());
+        // TODO Not a nice way to handle this, need to find a good way to add notifications for modal dialogs
+        CategoryDO newCategory;
+        try {
+            newCategory = this.manageCategoriesUseCase.create(request.toDomain());
+        } catch (ValidationError ve) {
+            model.addAttribute("errors", List.of(ve.getMessage()));
+            return List.of(new ModelAndView("category-dialog :: #result-information", model.asMap()));
+        }
 
         var categories = this.seeCategoriesUseCase.getAll().stream().map(CategoryTO::from).sorted().toList();
         model.addAttribute(categories);
