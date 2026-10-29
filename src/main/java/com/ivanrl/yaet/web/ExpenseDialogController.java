@@ -7,6 +7,7 @@ import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
 import com.ivanrl.yaet.web.components.BudgetInformationComponent;
 import com.ivanrl.yaet.web.components.CategoryExpensesComponent;
 import com.ivanrl.yaet.web.components.MonthOverviewComponent;
+import com.ivanrl.yaet.web.notifications.NotificationGenerator;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -82,9 +83,12 @@ public class ExpenseDialogController {
                                                                                           month));
         var categoryExpensesComponent = new CategoryExpensesComponent(categoryExpenses);
 
+        response.addHeader("HX-Trigger", "closeDialog");
+
         return List.of(new ModelAndView("expenseDialog :: #result-information", model.asMap()),
                        monthOverviewComponent.toModelAndView(),
                        budgetInfoComponent.toModelAndView(),
-                       categoryExpensesComponent.toModelAndView());
+                       categoryExpensesComponent.toModelAndView(),
+                       NotificationGenerator.info("The expense was updated"));
     }
 }
