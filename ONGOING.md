@@ -14,6 +14,7 @@ It also contains a list of ideas for future changes
 - Add styling on forms to show when required/invalid fields are not properly filled
 
 ## Technical improvements
+- Unify logic of components of the frontend that are update by several different requests
 - Make integration test that goes through a full login and usage flow
   - Might be a good idea to find some tooling for this
 - Add liquibase for DB migrations
