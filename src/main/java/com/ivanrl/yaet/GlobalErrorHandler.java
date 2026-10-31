@@ -1,6 +1,5 @@
 package com.ivanrl.yaet;
 
-import com.ivanrl.yaet.domain.ValidationError;
 import com.ivanrl.yaet.web.notifications.NotificationGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -51,16 +50,6 @@ public class GlobalErrorHandler {
         logHandledException(bre);
         return NotificationGenerator.warning(bre.getMessage());
     }
-
-    // TODO This issue is currently only used for a modal dialog, need to find how to deal with those
-    @ExceptionHandler
-    public ProblemDetail handleValidationError(ValidationError ve) {
-        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ve.getMessage());
-        problem.setTitle("Validation error");
-        logHandledException(ve, problem);
-        return problem;
-    }
-
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
