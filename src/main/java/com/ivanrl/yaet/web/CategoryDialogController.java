@@ -21,6 +21,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.List;
 import java.util.Map;
 
+import static com.ivanrl.yaet.web.HtmxConstants.RESPONSE_HEADER_TRIGGER;
+
 @Controller
 @RequestMapping("/category-dialog")
 @RequiredArgsConstructor
@@ -63,7 +65,7 @@ public class CategoryDialogController {
         var categories = this.seeCategoriesUseCase.getAll().stream().map(CategoryTO::from).sorted().toList();
         model.addAttribute(categories);
 
-        response.addHeader("HX-Trigger", "closeDialog");
+        response.addHeader(RESPONSE_HEADER_TRIGGER, "closeDialog");
 
         return List.of(new ModelAndView("categories :: #category-list", Map.of("categories", categories)),
                        NotificationGenerator.info("Category '%s' was created.".formatted(newCategory.name())));

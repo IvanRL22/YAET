@@ -53,7 +53,7 @@ public class AddMovementController {
     @Transactional
     @PostMapping("/expense")
     public List<ModelAndView> addNewExpense(Model model,
-                                      NewExpenseRequest request) {
+                                            NewExpenseRequest request) {
 
         var expense = this.manageExpensesUseCase.addExpense(request);
 
@@ -66,8 +66,8 @@ public class AddMovementController {
 
     @GetMapping("/lastExpenses")
     public ModelAndView getExpensesPage(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size,
-                                  Model model) {
+                                        @RequestParam(defaultValue = "10") int size,
+                                        Model model) {
 
         model.addAttribute("lastExpenses", this.seeExpensesUseCase.getLastExpenses(Pageable.ofSize(size).withPage(page)));
 

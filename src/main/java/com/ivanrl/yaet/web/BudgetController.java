@@ -163,8 +163,7 @@ public class BudgetController {
     }
 
     @DeleteMapping("/expense/{id}")
-    public List<ModelAndView> deleteExpense(@PathVariable() int id,
-                                            Model model) {
+    public List<ModelAndView> deleteExpense(@PathVariable int id) {
         // Remove
         var removedExpense = this.manageExpensesUseCase.removeExpense(id);
 

@@ -48,8 +48,8 @@ public class CategoriesController {
 
     @PutMapping
     public List<ModelAndView> update(@Valid @ModelAttribute("request") UpdateCategoryRequestTO request,
-                       BindingResult bindingResult,
-                       Model model) {
+                                     BindingResult bindingResult,
+                                     Model model) {
 
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getAllErrors().stream()
