@@ -15,6 +15,8 @@ It also contains a list of ideas for future changes
 
 ## Technical improvements
 - Unify logic of components of the frontend that are update by several different requests
+- Read docker secrets/confidential properties (i.e. DB configuration) from external, hidden .env file
+  - Make sure tests can still work with this external configuration, they may run in environments without it
 - Make integration test that goes through a full login and usage flow
   - Might be a good idea to find some tooling for this
 - Add liquibase for DB migrations

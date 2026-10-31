@@ -8,6 +8,9 @@ spring:
   application:
     name: yaetApp
 
+  config:
+    import: optional:file:.env[.properties]
+
   datasource:
     url: jdbc:postgresql://localhost:5432/yaetDb
     username: pgUser

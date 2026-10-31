@@ -1,3 +1,6 @@
+# Secrets
+.env
+
 # Docker Postgres volume
 data
 
