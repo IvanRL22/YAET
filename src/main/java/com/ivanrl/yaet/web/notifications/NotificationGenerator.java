@@ -10,6 +10,8 @@ import java.util.Random;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NotificationGenerator {
 
+    private static final String VIEW_NAME = "notification";
+    private static final String NOTIFICATION_INSTANCE = "notification";
     private static final Random RANDOM_GENERATOR = new Random();
     private static final String NOTIFICATION_HMTL_ID_PREFIX = "notif_";
 
@@ -17,21 +19,21 @@ public final class NotificationGenerator {
         NotificationTO errorNotification = new NotificationTO(NOTIFICATION_HMTL_ID_PREFIX.concat(getRandomId()),
                                                               message,
                                                               NotificationSeverity.ERROR);
-        return new ModelAndView("notification", Map.of("notification", errorNotification));
+        return new ModelAndView(VIEW_NAME, Map.of(NOTIFICATION_INSTANCE, errorNotification));
     }
 
     public static ModelAndView warning(String message) {
         NotificationTO infoNotification = new NotificationTO(NOTIFICATION_HMTL_ID_PREFIX.concat(getRandomId()),
                                                              message,
                                                              NotificationSeverity.WARNING);
-        return new ModelAndView("notification", Map.of("notification", infoNotification));
+        return new ModelAndView(VIEW_NAME, Map.of(NOTIFICATION_INSTANCE, infoNotification));
     }
 
     public static ModelAndView info(String message) {
         NotificationTO infoNotification = new NotificationTO(NOTIFICATION_HMTL_ID_PREFIX.concat(getRandomId()),
                                                              message,
                                                              NotificationSeverity.INFO);
-        return new ModelAndView("notification", Map.of("notification", infoNotification));
+        return new ModelAndView(VIEW_NAME, Map.of(NOTIFICATION_INSTANCE, infoNotification));
     }
 
     // 97 = a, 122 = z
