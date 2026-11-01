@@ -18,10 +18,6 @@
             if (status === 401) {
                 // Try to log in case of trying to access protected resources
                 window.location = "/oauth2/authorization/google";
-            } else if(status !== 200) {
-                // This is what we've come to... Parsing JSON response while using HTMX...
-                let problemDetail = JSON.parse(evt.detail.xhr.response);
-                alert(problemDetail.title + ': ' + problemDetail.detail);
             }
         });
     </script>
@@ -72,7 +68,6 @@
     </div>
 </header>
 
-<body>
     <script>
         document.body.addEventListener('htmx:config:request', function(evt) {
             const request = evt.detail.ctx.request;
@@ -86,6 +81,22 @@
             }
         });
     </script>
+
+    <!--/* All notifications and errors should be added inside this growl div */-->
+    <div id="growl"
+         class="absolute top-0 right-0 mt-35 mr-10 flex flex-col gap-y-2 items-end">
+        <script>
+            function removeNotification(notificationId) {
+                htmx.swap({
+                    text: '',
+                    target: '#' + notificationId,
+                    swap: 'outerHTML transition:true settle:300ms'
+                });
+            }
+        </script>
+
+    </div>
+
     <!--/* All the main views must start with a main element, since they will be outer-swapped */-->
     <!--/* This is done so each view can define its own layout (flex, grid, etc.) independently */-->
     <main>

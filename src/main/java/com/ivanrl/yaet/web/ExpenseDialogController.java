@@ -7,6 +7,7 @@ import com.ivanrl.yaet.domain.expense.SeeExpensesUseCase;
 import com.ivanrl.yaet.web.components.BudgetInformationComponent;
 import com.ivanrl.yaet.web.components.CategoryExpensesComponent;
 import com.ivanrl.yaet.web.components.MonthOverviewComponent;
+import com.ivanrl.yaet.web.notifications.NotificationGenerator;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+
+import static com.ivanrl.yaet.web.HtmxConstants.RESPONSE_HEADER_TRIGGER;
 
 @Controller
 @RequestMapping("/expense-dialog")
@@ -51,9 +54,9 @@ public class ExpenseDialogController {
 
     @PutMapping
     public List<ModelAndView> updateExpense(@Valid @ModelAttribute("request") UpdateExpenseRequestTO request,
-                                BindingResult bindingResult,
-                                HttpServletResponse response,
-                                Model model) {
+                                            BindingResult bindingResult,
+                                            HttpServletResponse response,
+                                            Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors",
                                bindingResult.getAllErrors().stream()
@@ -83,9 +86,12 @@ public class ExpenseDialogController {
                                                                                           month));
         var categoryExpensesComponent = new CategoryExpensesComponent(categoryExpenses);
 
+        response.addHeader(RESPONSE_HEADER_TRIGGER, "closeDialog");
+
         return List.of(new ModelAndView("expenseDialog :: #result-information", model.asMap()),
                        monthOverviewComponent.toModelAndView(),
                        budgetInfoComponent.toModelAndView(),
-                       categoryExpensesComponent.toModelAndView());
+                       categoryExpensesComponent.toModelAndView(),
+                       NotificationGenerator.info("The expense was updated"));
     }
 }

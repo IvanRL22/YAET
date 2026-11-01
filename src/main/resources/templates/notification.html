@@ -1,0 +1,18 @@
+<div hx-swap-oob="beforeend:#growl">
+    <div th:id="${notification.htmlId}" class="z-999 w-fit p-2 pt-4 pr-4 text-white rounded relative"
+         th:classappend="${notification.cssStyle}">
+        <button class="absolute top-0 right-0 m-1 mr-2 px-1 font-medium rounded cursor-pointer"
+                th:attr="onclick=|removeNotification('${notification.htmlId}')|">X</button>
+        <span class="pr-5"
+              th:text="${notification.message}">Notification text goes here</span>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+                setTimeout(() => {
+                    if (document.getElementById(/*[[${notification.htmlId}]]*/) !== null) {
+                        removeNotification(/*[[${notification.htmlId}]]*/);
+                    }
+                }, 4000);
+            /*]]>*/
+        </script>
+    </div>
+</div>
